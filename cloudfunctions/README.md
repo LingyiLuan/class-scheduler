@@ -46,9 +46,23 @@ cloudfunctions/
    pnpm sync:cloud
    ```
 
-2. 在微信开发者工具打开**项目根目录**，确保工具栏「环境」选中你的云开发环境。
+2. 在微信开发者工具**导入项目时选「项目根目录」，不要选 `dist/`**（见下方说明），
+   确保工具栏「环境」选中你的云开发环境。
 3. 对每个要部署的函数目录（如 `login`）右键 → **上传并部署（云端安装依赖）**。
    云端会依据该函数的 `package.json` 安装 `wx-server-sdk`。
 4. 部署后可在「云函数 → 测试」里调用 `login` 验证：首次返回 `{ code:0, data:{ role:'owner', isActive:true, ... } }`。
 
 > 改动 `_shared` 后必须重新 `pnpm sync:cloud` 并重新上传相关函数。
+
+## ⚠️ 开发者工具必须打开项目根目录，不是 dist/
+
+Taro 会在 `dist/` 里生成一份 `project.config.json`（`miniprogramRoot: "./"`），容易让人误以为
+要打开 `dist/`。但那份的 `cloudfunctionRoot: "cloudfunctions/"` 指向 `dist/cloudfunctions`（不存在），
+于是**看不到云函数**。
+
+正确做法：打开**项目根目录**。根目录的 `project.config.json` 用
+`miniprogramRoot: "./dist"`（把 dist 当小程序代码）+ `cloudfunctionRoot: "cloudfunctions/"`
+（根目录下的 cloudfunctions，与 dist 同级、同在打开的项目内），云函数节点即出现。
+
+不要改成 `../cloudfunctions/` 后打开 dist：开发者工具要求云函数目录必须在打开的项目目录之内，
+指向上级会被拒绝。
