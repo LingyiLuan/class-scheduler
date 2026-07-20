@@ -33,6 +33,7 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,scss,json}\"",
+    "sync:cloud": "node cloudfunctions/_sync-shared.js",
     "test": "jest"
   },
   "browserslist": [
