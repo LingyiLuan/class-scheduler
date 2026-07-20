@@ -1,5 +1,6 @@
 {
   "miniprogramRoot": "./dist",
+  "cloudfunctionRoot": "cloudfunctions/",
   "projectname": "class-scheduler",
   "description": "英语工作室排课与学员管理小程序（一期，老师端）",
   "appid": "wx8440088a4901f090",

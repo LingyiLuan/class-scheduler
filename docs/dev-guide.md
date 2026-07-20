@@ -18,8 +18,8 @@
 |---|---|---|
 | 框架 | Taro 3 + React + TypeScript | 保留后续编译 H5 与 App 的能力 |
 | UI | NutUI React (Taro 版) | 不引入第二套组件库 |
-| 后端 | Supabase | 数据库、接口、定时任务一体 |
-| 数据库 | PostgreSQL | Supabase 托管 |
+| 后端 | 微信云开发 · 云函数（Node.js） | 免备案免服务器，云函数即后端 |
+| 数据库 | 微信云开发 · 云数据库（文档型） | 仅管理端可读写，一律经云函数 |
 | 日期处理 | dayjs | 统一使用，不混用原生 Date 运算 |
 | 包管理 | pnpm | |
 
@@ -33,19 +33,21 @@
 src/
   pages/          页面，每页一个目录
   components/     跨页面复用组件
-  services/       Supabase 数据访问层，每张表一个文件
+  services/       云函数调用封装层（api.ts 统一封装，各业务一个文件）
   hooks/          自定义 hooks
   utils/          纯函数工具
   types/          TypeScript 类型定义
   constants/      枚举与常量
+cloudfunctions/   云函数（后端），每个函数一个目录，_shared 放共享工具
 docs/
   plan.md              项目方案
   dev-guide.md         本文件
   scheduling-rules.md  排课规则定义
-  schema.sql           数据库建表语句
+  schema.md            云数据库集合设计
 ```
 
-页面组件不直接调用 Supabase 客户端，一律通过 `services/` 层。这样后续如果更换后端，改动收敛在一个目录内。
+页面组件不直接调用 `wx.cloud.callFunction`，一律通过 `services/` 层（内部走 `services/api.ts`）。
+这样后续如果更换后端，改动收敛在一个目录内。
 
 ---
 
@@ -57,7 +59,7 @@ docs/
 
 任何课时变动都必须写入一条流水，包含变动原因与关联的课程 ID。这样出现争议时可以完整回溯每一次扣减。
 
-余额通过数据库函数 `student_balance(student_id)` 查询。如果性能出现问题，再考虑加缓存字段，但缓存字段只能由流水触发更新，不可手工修改。
+余额通过云函数 `credits.getBalance(studentId)` 累加 `creditLogs.delta` 得出。如果性能出现问题，再考虑加缓存字段，但缓存字段只能由流水触发更新，不可手工修改。
 
 ### 状态枚举
 
@@ -137,25 +139,24 @@ docs: 补充排课规则说明
 
 ## 九、环境配置
 
-`.env` 需包含：
+`.env` 需包含云开发环境 ID：
 
 ```
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
+TARO_APP_CLOUD_ENV=
 ```
 
-该文件不提交，仓库中保留 `.env.example` 作为模板。
+该文件不提交，仓库中保留 `.env.example` 作为模板。云函数所需的 AppSecret 等密钥只存放在
+云函数运行环境的配置中，绝不写入小程序代码或仓库。
 
 ---
 
 ## 十、待确认事项
 
-以下需求需在排课模块开发前由老师确认：
+以下需求已由老师确认，详见 `scheduling-rules.md` §0：
 
-1. 一节课的标准时长，是否存在多种时长
-2. 是否有小班课，即一节课对应多名学员
-3. 学员请假提前多久不扣课时
-4. 课时按次购买还是按月，单次通常购买多少节
-5. 希望在什么时间收到课程提醒
+1. 课程类型两种：补课类 90 分钟、全英剑桥课程 120 分钟（`courseType`，建课带出默认时长可手改）
+2. 有小班课，一节课对应多名学员：`classSessions.studentIds` 数组承载，`creditLogs` 每学员一条
+3. 请假一律不扣课时，无论提前多久
+4. 课时按「次」计（如一次买 10 节），`delta` 为整数
 
-其中第 2 项影响数据模型：如果存在小班课，`class_sessions` 与学员的关系需从一对一改为多对多，需要增加关联表。这一项优先确认。
+尚未确认：课程提醒的具体时间点（订阅消息阶段再定）。

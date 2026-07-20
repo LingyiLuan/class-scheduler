@@ -140,13 +140,19 @@
 
 ---
 
-## 数据模型影响小结（进入 schema.sql 的依据）
+## 数据模型小结（完整定义见 docs/schema.md）
 
-因“小班课”确认为多对多，相比最初设想的表结构有如下调整：
+微信云开发文档型数据库。因“小班课”确认，课程与学员是数组多对多；账号与档案分离：
 
-- `class_sessions` **去掉** `student_id`，改由 **`session_students(session_id, student_id)`** 关联；
-  **新增** `course_type`。
-- `recurrences` 同理去掉单一 `student_id`，其固定学员集合由 **`recurrence_students(recurrence_id, student_id)`** 表达；
-  **新增** `course_type`。
-- `credit_logs` 保持 `student_id` + `session_id`（一节小班课 → 多条流水，每学员一条），`delta` 保持 int。
-- `packages`、`students` 不变。
+- **`users`**（账号）：openid 主键、role（owner/teacher/student）、isActive、boundStudentIds。首个登录用户设为 owner，其余默认 teacher 且待激活。
+- **`students`**（档案）：`ownerId`（创建者 openid）、`inviteCode`（6 位，二期绑定用）、`userId`（一期 null，二期绑定后填）。
+- `classSessions`：`courseType`、`studentIds` 数组（容纳小班课）、`attendance` 出勤对象、`recurrenceId`（单次课为 null）。
+- `recurrences`：`courseType`、`studentIds` 数组、`endDate` 必填。
+- `creditLogs`：`studentId` + `sessionId`（小班课一节 → 每学员一条），`delta` 为整数。
+- `packages`：购买时同步写一条 `creditLogs(+totalCredits, purchase)`，余额只由流水累加。
+
+## 鉴权与数据隔离（详见 schema.md）
+
+- **登录**：`wx.login()` → `login` 云函数用 `cloud.getWXContext()` 直接拿 openid（无需授权）→ 查/建 `users` → 返回 role 与绑定信息。AppSecret 等密钥只在云函数环境，绝不进小程序代码。
+- **权限**：云数据库客户端设为「仅管理端可读写」，小程序端一律经云函数。云函数按 role 判断范围——owner 全读写；teacher 仅 `ownerId` 为自己的记录；student 只读与自己绑定学员相关数据（二期）。
+- **一期范围**：只实现 owner 角色的登录与页面；teacher/student 逻辑预留，二期接。学生端返回课程时须过滤同班其他学员隐私。
