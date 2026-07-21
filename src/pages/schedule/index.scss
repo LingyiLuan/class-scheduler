@@ -1,39 +1,228 @@
-.schedule {
+.sched {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--paper-kraft);
-  padding: var(--space-screen) var(--space-screen) 160rpx;
   overflow: hidden;
 }
 
-.sched-title {
+/* ── 顶部：标题 + 周切换 ── */
+.sched-head {
   position: relative;
   z-index: 1;
+  flex: none;
+  padding: var(--space-screen) var(--space-screen) 12rpx;
+}
+
+.sched-title {
   display: block;
-  padding: 16rpx 8rpx;
   font-size: var(--font-page-title);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
 
-.sched-empty {
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.nav-btn {
+  width: 56rpx;
+  height: 56rpx;
+  line-height: 52rpx;
+  text-align: center;
+  font-size: 40rpx;
+  color: var(--ink-body);
+  background: var(--paper-card);
+  border: var(--stroke-w) solid var(--ink-stroke);
+  border-radius: var(--radius-sketch-5);
+}
+
+.week-range {
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-title);
+}
+
+.week-back {
+  margin-left: auto;
+  font-size: 34rpx;
+  color: var(--accent-teal-ink);
+  transform: rotate(-2deg);
+}
+
+/* ── 主体滚动 ── */
+.sched-body {
   position: relative;
   z-index: 1;
-  min-height: 50vh;
+  flex: 1;
+  padding: 8rpx var(--space-screen) 160rpx;
+}
+
+.sched-loading {
+  display: block;
+  text-align: center;
+  padding: 20rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+/* ── 每天纸片区块 ── */
+.day-block {
+  position: relative;
+  padding: 20rpx 22rpx 8rpx;
+  margin-bottom: 22rpx;
+}
+
+.day-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+  padding: 2rpx 2rpx 12rpx;
+}
+
+.day-wd {
+  font-size: var(--font-body);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.day-num {
+  font-size: var(--font-section);
+  font-weight: var(--weight-bold);
+  color: var(--ink-secondary);
+}
+
+.is-today .day-num,
+.is-today .day-wd {
+  color: var(--accent-teal-ink);
+}
+
+.today-chip {
+  font-size: 30rpx;
+  color: var(--accent-teal-ink);
+  transform: rotate(-3deg);
+}
+
+.day-count {
+  margin-left: auto;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+/* ── 空状态 ── */
+.day-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8rpx;
+  gap: 2rpx;
+  padding: 10rpx 0 18rpx;
 }
 
-.sched-en {
-  font-size: 48rpx;
+.day-empty-en {
+  font-size: 34rpx;
   color: var(--ink-tertiary);
   transform: rotate(-2deg);
 }
 
-.sched-hint {
+.day-empty-cn {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+/* ── 课程卡片 ── */
+.course-card {
+  background: var(--highlight-cream);
+  border: 2rpx solid var(--ink-stroke-soft);
+  border-radius: var(--radius-sketch-3);
+  padding: 16rpx 18rpx;
+  margin-bottom: 12rpx;
+}
+
+.cc-off {
+  opacity: 0.55;
+}
+
+.cc-top {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.cc-time {
+  font-size: var(--font-name);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3rpx;
+}
+
+.cc-dur {
+  font-size: var(--font-tag);
+  color: var(--ink-secondary);
+  background: rgba(58, 49, 37, 0.08);
+  padding: 2rpx 10rpx;
+  border-radius: var(--radius-sketch-5);
+}
+
+.cc-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.cc-status-label {
+  font-size: var(--font-tag);
+  font-weight: var(--weight-semibold);
+}
+
+.cc-bottom {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 12rpx;
+}
+
+.cc-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  flex: none;
+  border-radius: 50% 48% 52% 50%;
+  background: var(--accent-teal-bg);
+  color: var(--accent-teal-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+}
+
+.cc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cc-names {
+  display: block;
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-title);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cc-off .cc-names {
+  text-decoration: line-through;
+}
+
+.cc-meta {
+  display: block;
+  margin-top: 2rpx;
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
 }

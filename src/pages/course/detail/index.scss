@@ -1,0 +1,35 @@
+.course-detail {
+  position: relative;
+  min-height: 100vh;
+  background: var(--paper-kraft);
+  padding: var(--space-screen);
+  overflow: hidden;
+}
+
+.cd-title {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 16rpx 8rpx;
+  font-size: var(--font-page-title);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.cd-id {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 8rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-secondary);
+}
+
+.cd-hint {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 24rpx 8rpx;
+  font-size: var(--font-body);
+  color: var(--ink-tertiary);
+}
