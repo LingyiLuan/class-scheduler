@@ -79,21 +79,26 @@ export default function Messages() {
           <Text className='msg-empty-cn'>暂无消息</Text>
         </View>
       ) : (
-        rows.map((n, i) => (
-          <View
-            key={n._id}
-            className={`msg-card paper-card ${SK[i % SK.length]}`}
-            onClick={() => openRef(n)}
-          >
-            <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
-            <View className='msg-row'>
-              {n.readAt ? null : <View className='msg-dot' />}
-              <Text className='msg-card-title'>{n.title}</Text>
-              <Text className='msg-time'>{timeLabel(n.createdAt)}</Text>
+        rows.map((n, i) => {
+          // 需要行动的（课时不足/归零）用 coral 卡片强调；其余记录性消息常规样式。
+          // 未读仍由圆点表达，两个维度互不干扰。
+          const priority = n.type === 'lowCredit'
+          return (
+            <View
+              key={n._id}
+              className={`msg-card paper-card ${SK[i % SK.length]} ${priority ? 'priority' : ''}`}
+              onClick={() => openRef(n)}
+            >
+              {priority ? null : <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />}
+              <View className='msg-row'>
+                {n.readAt ? null : <View className='msg-dot' />}
+                <Text className={`msg-card-title ${priority ? 'coral' : ''}`}>{n.title}</Text>
+                <Text className='msg-time'>{timeLabel(n.createdAt)}</Text>
+              </View>
+              <Text className='msg-body'>{n.body}</Text>
             </View>
-            <Text className='msg-body'>{n.body}</Text>
-          </View>
-        ))
+          )
+        })
       )}
     </View>
   )

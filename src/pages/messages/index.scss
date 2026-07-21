@@ -67,6 +67,18 @@
   padding: 18rpx 20rpx;
 }
 
+/* 需要行动的消息（课时不足/归零）：coral 虚线描边 + coral 标题，卡片级强调 */
+.msg-card.priority {
+  border: 2rpx dashed var(--accent-coral);
+  border-radius: var(--radius-sketch-3);
+  background: rgba(240, 120, 80, 0.05);
+}
+
+.msg-card-title.coral {
+  color: var(--accent-coral-ink);
+  font-weight: var(--weight-bold);
+}
+
 .msg-row {
   display: flex;
   align-items: center;
