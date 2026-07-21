@@ -1,0 +1,9 @@
+{
+  "name": "resetTestData",
+  "version": "1.0.0",
+  "description": "⚠️ 临时：清空测试数据（用完即删）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
