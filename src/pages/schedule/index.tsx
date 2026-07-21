@@ -108,8 +108,9 @@ export default function Schedule() {
       </View>
 
       <ScrollView scrollY className='sched-body'>
-        {loading ? <Text className='sched-loading'>加载中…</Text> : null}
-        {grouped.map((d, i) => (
+        <View className='sched-inner'>
+          {loading ? <Text className='sched-loading'>加载中…</Text> : null}
+          {grouped.map((d, i) => (
           <View key={d.dateStr} className={`day-block paper-card ${SK[i]} ${d.isToday ? 'is-today' : ''}`}>
             <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
             <View className='day-head'>
@@ -162,7 +163,8 @@ export default function Schedule() {
               })
             )}
           </View>
-        ))}
+          ))}
+        </View>
       </ScrollView>
 
       <TabBar current='schedule' />

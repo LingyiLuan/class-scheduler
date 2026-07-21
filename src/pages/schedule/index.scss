@@ -59,6 +59,11 @@
   position: relative;
   z-index: 1;
   flex: 1;
+}
+
+/* padding 放内层容器：scroll-view 的 padding 在 webview 渲染模式不生效，
+ * 会让纸片贴到屏幕右缘、SketchFrame 右侧描边被裁 */
+.sched-inner {
   padding: 8rpx var(--space-screen) 160rpx;
 }
 
