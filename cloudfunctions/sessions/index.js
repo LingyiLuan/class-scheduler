@@ -3,7 +3,13 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
-const { sendSubscribe, lowCreditData, TEMPLATES, studentsLabel } = require('./_shared/subscribe')
+const {
+  sendSubscribe,
+  lowCreditData,
+  TEMPLATES,
+  studentsLabel,
+  envToState
+} = require('./_shared/subscribe')
 const { addNotification } = require('./_shared/notify')
 
 const db = cloud.database()
@@ -66,7 +72,7 @@ function fmtShort(ms) {
 
 // 课时变动后检查：首次跌破 ≤阈值且未通知过 → 发课时不足提醒给老师；余额回升则清标记以便下次再触发。
 // 用 students.lowCreditNotified 布尔标记去重，保证「首次跌破」只发一次。发送失败不影响主流程。
-async function checkLowCredit(studentId, ownerId, knownBalance) {
+async function checkLowCredit(studentId, ownerId, knownBalance, miniprogramState) {
   try {
     const sres = await students.where({ _id: studentId }).get()
     const stu = sres.data[0]
@@ -80,7 +86,8 @@ async function checkLowCredit(studentId, ownerId, knownBalance) {
         page: `pages/students/detail/index?id=${studentId}`,
         data: lowCreditData({ name: stu.name, balance, atMs: Date.now() }),
         kind: 'lowCredit',
-        refId: studentId
+        refId: studentId,
+        miniprogramState
       })
       // 应用内消息兜底（与 lowCreditNotified 同一去重口径）
       await addNotification({
@@ -367,7 +374,7 @@ exports.main = async (event = {}) => {
             refType: 'student',
             refId: sid
           })
-          await checkLowCredit(sid, ctx.openid, bal)
+          await checkLowCredit(sid, ctx.openid, bal, envToState(event.envVersion))
         }
         return ok({ _id: doc._id, status: 'completed', attendance })
       }
@@ -411,7 +418,9 @@ exports.main = async (event = {}) => {
           // 回退 +1 后余额回升，可能越过阈值 → 清除课时不足标记，便于下次再触发
           const att0 = doc.attendance || {}
           for (const sid of Object.keys(att0)) {
-            if (att0[sid] === 'present') await checkLowCredit(sid, ctx.openid)
+            if (att0[sid] === 'present') {
+              await checkLowCredit(sid, ctx.openid, undefined, envToState(event.envVersion))
+            }
           }
           return ok({ _id: doc._id, status: 'scheduled' })
         }

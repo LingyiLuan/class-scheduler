@@ -19,6 +19,15 @@ const TEMPLATES = {
 
 const COURSE_LABEL = { cambridge: '剑桥课程', makeup: '补课' }
 
+// 小程序运行版本 → subscribeMessage 的 miniprogramState。
+// 前端 wx.getAccountInfoSync().miniProgram.envVersion 取得 develop/trial/release，随调用带上。
+function envToState(envVersion) {
+  if (envVersion === 'develop') return 'developer'
+  if (envVersion === 'trial') return 'trial'
+  if (envVersion === 'release') return 'formal'
+  return 'formal' // 兜底
+}
+
 // 截断到 n 字符（超限会导致 subscribeMessage.send 失败）
 function clip(s, n) {
   s = String(s == null ? '' : s)
@@ -124,5 +133,6 @@ module.exports = {
   studentsLabel,
   classReminderData,
   lowCreditData,
-  sendSubscribe
+  sendSubscribe,
+  envToState
 }

@@ -1,6 +1,15 @@
 import Taro from '@tarojs/taro'
 import { STORAGE_LOGIN } from '../constants'
 
+// 当前小程序运行版本（develop/trial/release），随每次云函数调用带上，
+// 供云端决定订阅消息的 miniprogramState（体验版必须传 trial 才收得到）。取一次缓存。
+let ENV_VERSION = ''
+try {
+  ENV_VERSION = (Taro.getAccountInfoSync && Taro.getAccountInfoSync().miniProgram.envVersion) || ''
+} catch {
+  // ignore
+}
+
 // 401xx（未登录/未建档/未激活）与 403xx(无权限)视为登录态失效
 function isAuthError(code: number): boolean {
   return (code >= 40100 && code < 40200) || (code >= 40300 && code < 40400)
@@ -112,7 +121,10 @@ export async function callFunction<T = unknown>(
       throw new ApiError(-1, '当前环境不支持云开发')
     }
     const res = await withTimeout(
-      Taro.cloud.callFunction({ name, data }) as Promise<Taro.cloud.CallFunctionResult>,
+      Taro.cloud.callFunction({
+        name,
+        data: { ...(data || {}), envVersion: ENV_VERSION }
+      }) as Promise<Taro.cloud.CallFunctionResult>,
       timeout
     )
     const payload = res.result as ApiResponse<T> | undefined

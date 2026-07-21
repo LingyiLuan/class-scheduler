@@ -21,6 +21,10 @@ const students = db.collection('students')
 // 调试入口总开关：上线前置 false，关闭手动触发发送。本地开发临时测试时改回 true
 const ALLOW_DEBUG = false
 
+// 定时器发送课前提醒的 miniprogramState。定时触发无前端上下文，无法读 envVersion，故用配置项：
+//   体验测试期 = 'trial'；正式发布后改 'formal'。（前端触发的消息走 envVersion 动态判断，不看这里）
+const TIMER_MINIPROGRAM_STATE = 'trial'
+
 // 取一节课的学员名（保持传入顺序）
 async function studentNames(studentIds) {
   if (!studentIds || !studentIds.length) return []
@@ -31,7 +35,7 @@ async function studentNames(studentIds) {
 }
 
 // 给一节课发课前提醒（发给课程 ownerId）。成功失败都标记 classReminderSentAt，避免定时器重复扫到
-async function remindSession(s, miniprogramState) {
+async function remindSession(s) {
   const names = await studentNames(s.studentIds)
   const startMs = new Date(s.startTime).getTime()
   const outcome = await sendSubscribe({
@@ -47,7 +51,7 @@ async function remindSession(s, miniprogramState) {
     }),
     kind: 'classReminder',
     refId: s._id,
-    miniprogramState
+    miniprogramState: TIMER_MINIPROGRAM_STATE
   })
   await sessions.doc(s._id).update({
     data: {
