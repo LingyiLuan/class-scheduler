@@ -80,13 +80,11 @@
   color: var(--ink-tertiary);
 }
 
+/* 朴素纯文字，不用标签样式，避免营销感 */
 .future-tag {
-  font-size: var(--font-tag);
+  font-size: var(--font-caption);
   color: var(--ink-tertiary);
-  padding: 2rpx 14rpx;
-  border: 2rpx solid var(--pencil-faint, #c9bb9a);
-  border-radius: var(--radius-sketch-5);
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 /* 新增卡 */
@@ -140,9 +138,14 @@
   color: var(--ink-tertiary);
 }
 
+.add-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4rpx;
+}
+
 .add-btn {
-  margin-top: 6rpx;
-  padding: 12rpx 0;
+  padding: 10rpx 44rpx;
   text-align: center;
   background: var(--ink-title);
   border-radius: var(--radius-sketch-3);

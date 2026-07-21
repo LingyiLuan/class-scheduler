@@ -203,8 +203,10 @@ export default function Settings() {
             <Text className='fld-suffix'>分钟</Text>
           </View>
         </View>
-        <View className={`add-btn ${busy ? 'off' : ''}`} onClick={busy ? undefined : onAdd}>
-          <Text className='add-btn-txt'>添加</Text>
+        <View className='add-actions'>
+          <View className={`add-btn ${busy ? 'off' : ''}`} onClick={busy ? undefined : onAdd}>
+            <Text className='add-btn-txt'>添加</Text>
+          </View>
         </View>
       </View>
 
@@ -281,7 +283,7 @@ export default function Settings() {
       {FUTURE.map((f) => (
         <View key={f} className='future-row'>
           <Text className='future-name'>{f}</Text>
-          <Text className='future-tag'>即将上线</Text>
+          <Text className='future-tag'>暂未开放</Text>
         </View>
       ))}
 
