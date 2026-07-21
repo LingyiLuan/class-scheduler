@@ -11,14 +11,13 @@ import { PaperToastHost } from '../../components/PaperToast'
 import CourseCard from '../../components/CourseCard'
 import { listSessions, SessionRow } from '../../services/sessions'
 import { listStudents, getBalance } from '../../services/students'
-import { requestSubscribe, refreshQuotaSetting, quotaSettled } from '../../services/subscribe'
+import { refreshQuotaSetting } from '../../services/subscribe'
 import { debugSendClassReminder, debugSendLowCredit } from '../../services/reminders'
-import { SUBSCRIBE_TMPL_IDS } from '../../constants/subscribe'
+import { unreadCount } from '../../services/notifications'
 import { bjDateStr, bjMidnight, bjWeekday } from '../../utils/datetime'
 import './index.scss'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
-const GUIDE_KEY = 'subscribe_guided'
 
 interface Quick {
   key: string
@@ -49,6 +48,7 @@ export default function Index() {
   const [weekSessions, setWeekSessions] = useState<SessionRow[]>([])
   const [nameMap, setNameMap] = useState<Record<string, string>>({})
   const [lowStudents, setLowStudents] = useState<LowStu[]>([])
+  const [unread, setUnread] = useState(0)
 
   useDidShow(() => {
     route()
@@ -100,6 +100,12 @@ export default function Index() {
       )
       low.sort((a, b) => a.balance - b.balance)
       setLowStudents(low)
+      try {
+        const u = await unreadCount()
+        setUnread(u.count)
+      } catch {
+        // ignore
+      }
     } catch {
       // api 层已 toast
     }
@@ -131,34 +137,10 @@ export default function Index() {
   const completed = weekSessions.filter((s) => s.status === 'completed')
   const consumed = completed.reduce((acc, s) => acc + presentCount(s), 0)
 
-  // 铃铛：订阅授权主入口。首次且未勾「总是保持」时先引导一次（在弹窗 confirm 的新手势里发起授权）。
+  // 铃铛：进消息中心（方案 A）。授权引导移到消息中心页内 banner。
   function onBell() {
-    let guided = false
-    try {
-      guided = !!Taro.getStorageSync(GUIDE_KEY)
-    } catch {
-      // ignore
-    }
-    if (!quotaSettled() && !guided) {
-      Taro.showModal({
-        title: '开启提醒',
-        content:
-          '在接下来的授权弹窗里勾选「总是保持以上选择」，之后无需每次确认，即可自动接收课前提醒与课时变动提醒。',
-        confirmText: '去开启',
-        cancelText: '暂不',
-        success: (r) => {
-          try {
-            Taro.setStorageSync(GUIDE_KEY, '1')
-          } catch {
-            // ignore
-          }
-          if (r.confirm) requestSubscribe(SUBSCRIBE_TMPL_IDS)
-        }
-      })
-      return
-    }
-    requestSubscribe(SUBSCRIBE_TMPL_IDS)
-    Taro.showToast({ title: quotaSettled() ? '提醒已开启' : '已请求开启提醒', icon: 'none' })
+    setUnread(0)
+    Taro.navigateTo({ url: '/pages/messages/index' })
   }
 
   // 仅开发环境：真机手动触发发送，验证订阅消息
@@ -194,6 +176,7 @@ export default function Index() {
           </View>
           <View className='hero-act' onClick={onBell}>
             <SketchIcon name='bell' size={46} color='#4A4030' />
+            {unread > 0 ? <View className='hero-dot' /> : null}
           </View>
         </View>
       </View>

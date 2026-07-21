@@ -4,6 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
 const { sendSubscribe, lowCreditData, TEMPLATES } = require('./_shared/subscribe')
+const { addNotification } = require('./_shared/notify')
 
 const db = cloud.database()
 const _ = db.command
@@ -63,6 +64,15 @@ async function checkLowCredit(studentId, ownerId) {
         page: `pages/students/detail/index?id=${studentId}`,
         data: lowCreditData({ name: stu.name, balance, atMs: Date.now() }),
         kind: 'lowCredit',
+        refId: studentId
+      })
+      // 应用内消息兜底（与 lowCreditNotified 同一去重口径）
+      await addNotification({
+        ownerId,
+        type: 'lowCredit',
+        title: '课时不足',
+        body: `${stu.name} 剩余 ${balance} 课时，请及时续费`,
+        refType: 'student',
         refId: studentId
       })
       await students.doc(studentId).update({ data: { lowCreditNotified: true } })

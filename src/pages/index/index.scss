@@ -61,11 +61,23 @@
 }
 
 .hero-act {
+  position: relative;
   width: 72rpx;
   height: 72rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.hero-dot {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: var(--accent-coral);
+  border: 2rpx solid var(--paper-kraft);
 }
 
 .hero-act:first-child {

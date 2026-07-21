@@ -8,7 +8,8 @@ export default defineAppConfig({
     'pages/schedule/index',
     'pages/course/detail/index',
     'pages/stats/index',
-    'pages/settings/index'
+    'pages/settings/index',
+    'pages/messages/index'
   ],
   window: {
     backgroundTextStyle: 'light',

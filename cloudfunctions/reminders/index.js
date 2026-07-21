@@ -7,8 +7,11 @@ const {
   TEMPLATES,
   classReminderData,
   lowCreditData,
-  sendSubscribe
+  sendSubscribe,
+  studentsLabel,
+  fmtBjTime
 } = require('./_shared/subscribe')
+const { addNotification } = require('./_shared/notify')
 
 const db = cloud.database()
 const _ = db.command
@@ -51,6 +54,15 @@ async function remindSession(s, miniprogramState) {
       classReminderSentAt: db.serverDate(),
       classReminderResult: outcome.ok ? 'ok' : `err:${outcome.errCode}`
     }
+  })
+  // 应用内消息兜底：无论推送是否成功都写一条（与 classReminderSentAt 同一去重口径）
+  await addNotification({
+    ownerId: s.ownerId,
+    type: 'classReminder',
+    title: '课前提醒',
+    body: `${fmtBjTime(startMs)} ${s.courseTypeName || '课程'} · ${studentsLabel(names)}，距上课约 1 小时`,
+    refType: 'session',
+    refId: s._id
   })
   return outcome
 }
