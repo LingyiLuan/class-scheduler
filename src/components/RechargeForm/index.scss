@@ -1,0 +1,86 @@
+.rform {
+  padding-top: 4rpx;
+}
+
+.rf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 0;
+  border-bottom: 2rpx dashed var(--ink-stroke-soft);
+}
+
+.rf-col {
+  padding: 22rpx 0;
+}
+
+.rf-label {
+  font-size: var(--font-body);
+  color: var(--ink-secondary);
+  font-weight: var(--weight-semibold);
+}
+
+.rf-val {
+  font-size: var(--font-name);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-title);
+}
+
+.rf-pick {
+  color: var(--accent-teal-ink);
+}
+
+.rf-bal {
+  color: var(--accent-teal-ink);
+  font-weight: var(--weight-bold);
+}
+
+.rf-num {
+  margin-top: 14rpx;
+  font-size: var(--font-stat);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.rf-quick {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.rf-qchip {
+  min-width: 96rpx;
+  text-align: center;
+  font-size: var(--font-name);
+  font-weight: var(--weight-bold);
+  color: var(--ink-body);
+  background: var(--paper-card);
+  border: 2rpx solid var(--ink-stroke);
+  border-radius: var(--radius-sketch-5);
+  padding: 12rpx 0;
+}
+
+.rf-note {
+  margin-top: 14rpx;
+  font-size: var(--font-body);
+  color: var(--ink-title);
+}
+
+.rf-submit {
+  position: relative;
+  margin-top: 44rpx;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--btn-primary-bg);
+  border-radius: var(--radius-sketch-5);
+  box-shadow: var(--shadow-btn);
+}
+
+.rf-submit-txt {
+  position: relative;
+  font-size: var(--font-name);
+  font-weight: var(--weight-bold);
+  color: var(--btn-primary-ink);
+}

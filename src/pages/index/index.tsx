@@ -5,6 +5,8 @@ import { ensureLogin, canAccessApp } from '../../services/user'
 import { UserRole } from '../../constants'
 import { SketchFrame, SketchIcon } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
+import SheetModal from '../../components/SheetModal'
+import RechargeForm from '../../components/RechargeForm'
 import './index.scss'
 
 interface Quick {
@@ -18,6 +20,7 @@ interface Quick {
 export default function Index() {
   const [loading, setLoading] = useState(true)
   const [role, setRole] = useState('')
+  const [showRecharge, setShowRecharge] = useState(false)
 
   useDidShow(() => {
     route()
@@ -70,7 +73,7 @@ export default function Index() {
       label: '充值',
       icon: 'wallet',
       sk: 'sk-2',
-      onTap: () => Taro.navigateTo({ url: '/pages/recharge/index' })
+      onTap: () => setShowRecharge(true)
     },
     {
       key: 'week',
@@ -116,6 +119,10 @@ export default function Index() {
       <Text className='home-note'>今日课程 · 本周统计 · 课时预警（排课完成后补齐）</Text>
 
       <TabBar current='home' />
+
+      <SheetModal visible={showRecharge} onClose={() => setShowRecharge(false)} title='课时充值'>
+        <RechargeForm onDone={() => setShowRecharge(false)} />
+      </SheetModal>
     </View>
   )
 }

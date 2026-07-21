@@ -11,6 +11,9 @@ import {
   Student,
   SessionBrief
 } from '../../../services/students'
+import SheetModal from '../../../components/SheetModal'
+import StudentForm from '../../../components/StudentForm'
+import RechargeForm from '../../../components/RechargeForm'
 import './index.scss'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -30,6 +33,8 @@ export default function StudentDetail() {
   const [stu, setStu] = useState<Student | null>(null)
   const [balance, setBalance] = useState<number | null>(null)
   const [history, setHistory] = useState<SessionBrief[]>([])
+  const [showEdit, setShowEdit] = useState(false)
+  const [showRecharge, setShowRecharge] = useState(false)
 
   useDidShow(() => {
     if (id) load()
@@ -102,15 +107,11 @@ export default function StudentDetail() {
       )}
 
       <View className='actions'>
-        <Button
-          type='primary'
-          block
-          onClick={() => Taro.navigateTo({ url: `/pages/recharge/index?studentId=${id}` })}
-        >
+        <Button type='primary' block onClick={() => setShowRecharge(true)}>
           充值
         </Button>
         <View className='gap' />
-        <Button block onClick={() => Taro.navigateTo({ url: `/pages/students/form/index?id=${id}` })}>
+        <Button block onClick={() => setShowEdit(true)}>
           编辑
         </Button>
         <View className='gap' />
@@ -118,6 +119,25 @@ export default function StudentDetail() {
           删除学员
         </Button>
       </View>
+
+      <SheetModal visible={showEdit} onClose={() => setShowEdit(false)} title='编辑学员'>
+        <StudentForm
+          id={id}
+          onSaved={() => {
+            setShowEdit(false)
+            load()
+          }}
+        />
+      </SheetModal>
+      <SheetModal visible={showRecharge} onClose={() => setShowRecharge(false)} title='课时充值'>
+        <RechargeForm
+          studentId={id}
+          onDone={() => {
+            setShowRecharge(false)
+            load()
+          }}
+        />
+      </SheetModal>
     </View>
   )
 }

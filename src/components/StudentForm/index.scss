@@ -1,0 +1,60 @@
+.sform {
+  padding-top: 4rpx;
+}
+
+.sf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 0;
+  border-bottom: 2rpx dashed var(--ink-stroke-soft);
+}
+
+.sf-col {
+  padding: 22rpx 0;
+}
+
+.sf-label {
+  font-size: var(--font-body);
+  color: var(--ink-secondary);
+  font-weight: var(--weight-semibold);
+}
+
+.sf-input {
+  flex: 1;
+  margin-left: 24rpx;
+  text-align: right;
+  font-size: var(--font-name);
+  color: var(--ink-title);
+}
+
+.sf-textarea {
+  width: 100%;
+  margin-top: 14rpx;
+  min-height: 120rpx;
+  font-size: var(--font-body);
+  color: var(--ink-title);
+  background: var(--paper-kraft);
+  border-radius: var(--radius-sketch-3);
+  padding: 16rpx;
+  box-sizing: border-box;
+}
+
+.sf-submit {
+  position: relative;
+  margin-top: 44rpx;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--btn-primary-bg);
+  border-radius: var(--radius-sketch-5);
+  box-shadow: var(--shadow-btn);
+}
+
+.sf-submit-txt {
+  position: relative;
+  font-size: var(--font-name);
+  font-weight: var(--weight-bold);
+  color: var(--btn-primary-ink);
+}

@@ -4,6 +4,8 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import { Button, Cell, Empty } from '@nutui/nutui-react-taro'
 import { listStudents, getBalance, Student } from '../../../services/students'
 import TabBar from '../../../components/TabBar'
+import SheetModal from '../../../components/SheetModal'
+import StudentForm from '../../../components/StudentForm'
 import './index.scss'
 
 interface Row extends Student {
@@ -13,6 +15,7 @@ interface Row extends Student {
 export default function StudentList() {
   const [rows, setRows] = useState<Row[]>([])
   const [loaded, setLoaded] = useState(false)
+  const [showAdd, setShowAdd] = useState(false)
 
   useDidShow(() => {
     load()
@@ -43,11 +46,7 @@ export default function StudentList() {
   return (
     <View className='stu-list'>
       <View className='toolbar'>
-        <Button
-          type='primary'
-          size='small'
-          onClick={() => Taro.navigateTo({ url: '/pages/students/form/index' })}
-        >
+        <Button type='primary' size='small' onClick={() => setShowAdd(true)}>
           新增学员
         </Button>
       </View>
@@ -67,6 +66,15 @@ export default function StudentList() {
       )}
 
       <TabBar current='students' />
+
+      <SheetModal visible={showAdd} onClose={() => setShowAdd(false)} title='新增学员'>
+        <StudentForm
+          onSaved={() => {
+            setShowAdd(false)
+            load()
+          }}
+        />
+      </SheetModal>
     </View>
   )
 }

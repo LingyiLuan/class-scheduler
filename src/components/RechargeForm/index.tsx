@@ -1,40 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, Input, Picker } from '@tarojs/components'
-import Taro, { useLoad, useRouter } from '@tarojs/taro'
-import { Button } from '@nutui/nutui-react-taro'
+import Taro from '@tarojs/taro'
+import { SketchFrame } from '../sketch'
 import { listStudents, getStudent, getBalance, Student } from '../../services/students'
 import { createPackage } from '../../services/packages'
 import './index.scss'
 
 const QUICK = [10, 20, 30]
 
-export default function Recharge() {
-  const router = useRouter()
-  const lockedId = router.params.studentId
-
+/** 课时充值表单（用于底部抽屉）。传 studentId 锁定学员，否则内部选择。完成回调 onDone */
+export default function RechargeForm({ studentId, onDone }: { studentId?: string; onDone: () => void }) {
   const [students, setStudents] = useState<Student[]>([])
-  const [studentId, setStudentId] = useState('')
-  const [studentName, setStudentName] = useState('')
+  const [sid, setSid] = useState('')
+  const [sname, setSname] = useState('')
   const [balance, setBalance] = useState<number | null>(null)
   const [count, setCount] = useState('')
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
 
-  useLoad(() => {
-    if (lockedId) {
-      getStudent(lockedId)
-        .then((s) => selectStudent(s._id, s.name))
+  useEffect(() => {
+    if (studentId) {
+      getStudent(studentId)
+        .then((s) => select(s._id, s.name))
         .catch(() => {})
     } else {
       listStudents()
         .then(({ list }) => setStudents(list))
         .catch(() => {})
     }
-  })
+  }, [studentId])
 
-  async function selectStudent(id: string, name: string) {
-    setStudentId(id)
-    setStudentName(name)
+  async function select(id: string, name: string) {
+    setSid(id)
+    setSname(name)
     setBalance(null)
     try {
       const b = await getBalance(id, { silent: true })
@@ -45,7 +43,7 @@ export default function Recharge() {
   }
 
   async function submit() {
-    if (!studentId) {
+    if (!sid) {
       Taro.showToast({ title: '请先选择学员', icon: 'none' })
       return
     }
@@ -57,15 +55,13 @@ export default function Recharge() {
     setSaving(true)
     const before = balance ?? 0
     try {
-      await createPackage({ studentId, totalCredits: n, note })
-      const b = await getBalance(studentId, { silent: true })
-      setBalance(b.balance)
-      setCount('')
-      setNote('')
+      await createPackage({ studentId: sid, totalCredits: n, note })
+      const b = await getBalance(sid, { silent: true })
       Taro.showModal({
         title: '充值成功',
         content: `剩余课时：${before} → ${b.balance} 次`,
-        showCancel: false
+        showCancel: false,
+        success: () => onDone()
       })
     } catch {
       // api 层已 toast
@@ -75,64 +71,63 @@ export default function Recharge() {
   }
 
   return (
-    <View className='recharge'>
-      <View className='field'>
-        <Text className='label'>学员</Text>
-        {lockedId ? (
-          <Text className='value'>{studentName || '…'}</Text>
+    <View className='rform'>
+      <View className='rf-row'>
+        <Text className='rf-label'>学员</Text>
+        {studentId ? (
+          <Text className='rf-val'>{sname || '…'}</Text>
         ) : (
           <Picker
             mode='selector'
             range={students.map((s) => s.name)}
             onChange={(e) => {
               const s = students[Number(e.detail.value)]
-              if (s) selectStudent(s._id, s.name)
+              if (s) select(s._id, s.name)
             }}
           >
-            <Text className='value picker'>{studentName || '请选择学员'}</Text>
+            <Text className='rf-val rf-pick'>{sname || '请选择学员'}</Text>
           </Picker>
         )}
       </View>
 
-      {studentId ? (
-        <View className='field'>
-          <Text className='label'>当前剩余课时</Text>
-          <Text className='value bal'>{balance ?? '…'} 次</Text>
+      {sid ? (
+        <View className='rf-row'>
+          <Text className='rf-label'>当前剩余</Text>
+          <Text className='rf-val rf-bal'>{balance ?? '…'} 次</Text>
         </View>
       ) : null}
 
-      <View className='field'>
-        <Text className='label'>充值次数</Text>
+      <View className='rf-col'>
+        <Text className='rf-label'>充值次数</Text>
         <Input
-          className='value'
+          className='rf-num'
           type='number'
           value={count}
           onInput={(e) => setCount(e.detail.value)}
           placeholder='请输入正整数'
         />
-        <View className='quick'>
+        <View className='rf-quick'>
           {QUICK.map((q) => (
-            <Button key={q} size='small' onClick={() => setCount(String(q))}>
+            <View key={q} className='rf-qchip' onClick={() => setCount(String(q))}>
               {q}
-            </Button>
+            </View>
           ))}
         </View>
       </View>
 
-      <View className='field'>
-        <Text className='label'>备注（选填）</Text>
+      <View className='rf-col'>
+        <Text className='rf-label'>备注（选填）</Text>
         <Input
-          className='value'
+          className='rf-note'
           value={note}
           onInput={(e) => setNote(e.detail.value)}
-          placeholder='如 现金/微信收款'
+          placeholder='如 现金 / 微信收款'
         />
       </View>
 
-      <View className='submit'>
-        <Button type='primary' block loading={saving} onClick={submit}>
-          确认充值
-        </Button>
+      <View className='rf-submit' onClick={saving ? undefined : submit}>
+        <SketchFrame color='#20180E' opacity={0.5} sw={1.6} />
+        <Text className='rf-submit-txt'>{saving ? '充值中…' : '确认充值'}</Text>
       </View>
     </View>
   )

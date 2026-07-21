@@ -1,21 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, Input, Textarea } from '@tarojs/components'
-import Taro, { useLoad, useRouter } from '@tarojs/taro'
-import { Button } from '@nutui/nutui-react-taro'
-import { getStudent, createStudent, updateStudent } from '../../../services/students'
+import Taro from '@tarojs/taro'
+import { SketchFrame } from '../sketch'
+import { getStudent, createStudent, updateStudent } from '../../services/students'
 import './index.scss'
 
-export default function StudentForm() {
-  const router = useRouter()
-  const id = router.params.id
+/** 学员新增/编辑表单（用于底部抽屉）。传 id 为编辑。保存成功回调 onSaved */
+export default function StudentForm({ id, onSaved }: { id?: string; onSaved: () => void }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [levelTag, setLevelTag] = useState('')
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
 
-  useLoad(() => {
-    Taro.setNavigationBarTitle({ title: id ? '编辑学员' : '新增学员' })
+  useEffect(() => {
     if (id) {
       getStudent(id)
         .then((s) => {
@@ -26,7 +24,7 @@ export default function StudentForm() {
         })
         .catch(() => {})
     }
-  })
+  }, [id])
 
   async function submit() {
     if (!name.trim()) {
@@ -39,7 +37,7 @@ export default function StudentForm() {
       if (id) await updateStudent(id, payload)
       else await createStudent(payload)
       Taro.showToast({ title: '已保存', icon: 'success' })
-      setTimeout(() => Taro.navigateBack(), 600)
+      onSaved()
     } catch {
       // api 层已 toast
     } finally {
@@ -48,43 +46,38 @@ export default function StudentForm() {
   }
 
   return (
-    <View className='stu-form'>
-      <View className='field'>
-        <Text className='label'>姓名 *</Text>
-        <Input className='input' value={name} onInput={(e) => setName(e.detail.value)} placeholder='学员姓名' />
+    <View className='sform'>
+      <View className='sf-row'>
+        <Text className='sf-label'>姓名 *</Text>
+        <Input className='sf-input' value={name} onInput={(e) => setName(e.detail.value)} placeholder='学员姓名' />
       </View>
-      <View className='field'>
-        <Text className='label'>手机号</Text>
+      <View className='sf-row'>
+        <Text className='sf-label'>手机号</Text>
         <Input
-          className='input'
+          className='sf-input'
           type='number'
           value={phone}
           onInput={(e) => setPhone(e.detail.value)}
           placeholder='选填'
         />
       </View>
-      <View className='field'>
-        <Text className='label'>级别标签</Text>
+      <View className='sf-row'>
+        <Text className='sf-label'>级别标签</Text>
         <Input
-          className='input'
+          className='sf-input'
           value={levelTag}
           onInput={(e) => setLevelTag(e.detail.value)}
-          placeholder='如 剑桥KET、启蒙'
+          placeholder='如 剑桥KET'
         />
       </View>
-      <View className='field'>
-        <Text className='label'>备注</Text>
-        <Textarea
-          className='textarea'
-          value={note}
-          onInput={(e) => setNote(e.detail.value)}
-          placeholder='选填'
-        />
+      <View className='sf-col'>
+        <Text className='sf-label'>备注</Text>
+        <Textarea className='sf-textarea' value={note} onInput={(e) => setNote(e.detail.value)} placeholder='选填' />
       </View>
-      <View className='submit'>
-        <Button type='primary' block loading={saving} onClick={submit}>
-          保存
-        </Button>
+
+      <View className='sf-submit' onClick={saving ? undefined : submit}>
+        <SketchFrame color='#20180E' opacity={0.5} sw={1.6} />
+        <Text className='sf-submit-txt'>{saving ? '保存中…' : '保存'}</Text>
       </View>
     </View>
   )

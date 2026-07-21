@@ -114,6 +114,11 @@ docs: 补充排课规则说明
 
 不提交 `.env`、`node_modules`、`dist`。
 
+### 小程序渲染注意
+
+- **`ScrollView` 不能直接设置 `padding`**：webview 渲染模式下不生效，会导致内容溢出、右侧被裁（字段值、卡片描边缺一块）。`padding` 一律放 `ScrollView` **内层的容器**上。
+- 手绘描边/图标用背景 SVG data URI 承载（`SketchFrame` / `StatusMark` / `SketchIcon`），weapp 支持；`feTurbulence` 滤镜纹理支持不稳定，不渲染时退化为纯纸色底可接受。
+
 ---
 
 ## 七、开发顺序
