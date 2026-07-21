@@ -49,7 +49,7 @@
   color: var(--ink-secondary);
 }
 
-/* ── 一排四个快捷入口 ── */
+/* ── 快捷入口 ── */
 .quick-row {
   position: relative;
   z-index: 1;
@@ -80,18 +80,209 @@
   font-weight: var(--weight-semibold);
 }
 
-/* ── 分隔与说明 ── */
-.home-wave {
+/* ── 区块标题 ── */
+.sec-head {
   position: relative;
   z-index: 1;
-  margin: 40rpx 8rpx 20rpx;
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  padding: 36rpx 4rpx 14rpx;
 }
 
-.home-note {
-  position: relative;
-  z-index: 1;
-  display: block;
-  text-align: center;
+.sec-title {
+  font-size: var(--font-section);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.sec-count {
+  margin-left: auto;
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
+}
+
+/* 今日课程卡片走 CourseCard 组件；这里给容器一个层级 */
+.course-card {
+  position: relative;
+  z-index: 1;
+}
+
+.today-empty {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+  padding: 30rpx 0;
+}
+
+.today-empty-en {
+  font-size: 40rpx;
+  color: var(--ink-tertiary);
+  transform: rotate(-2deg);
+}
+
+.today-empty-cn {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+/* ── 本周统计 ── */
+.stat-card {
+  position: relative;
+  z-index: 1;
+  margin-top: 28rpx;
+  padding: 22rpx 24rpx;
+}
+
+.stat-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+}
+
+.stat-en {
+  font-size: 32rpx;
+  color: var(--accent-teal-ink);
+  transform: rotate(-2deg);
+}
+
+.stat-title {
+  font-size: var(--font-body);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.stat-more {
+  margin-left: auto;
+  font-size: var(--font-caption);
+  color: var(--accent-teal-ink);
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  margin-top: 18rpx;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-num {
+  display: block;
+  font-size: var(--font-stat);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-num.accent {
+  color: var(--accent-teal-ink);
+}
+
+.stat-label {
+  display: block;
+  margin-top: 2rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+.stat-div {
+  width: 2rpx;
+  height: 48rpx;
+  background: var(--ink-stroke-soft);
+}
+
+/* ── 课时不足预警 ── */
+.warn-card {
+  position: relative;
+  z-index: 1;
+  margin-top: 28rpx;
+  padding: 20rpx 22rpx;
+  background: var(--accent-coral-bg);
+  border: 2rpx solid var(--color-danger-border, #f0d4cb);
+}
+
+.warn-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+  margin-bottom: 12rpx;
+}
+
+.warn-en {
+  font-size: 34rpx;
+  color: var(--accent-coral-ink);
+  transform: rotate(-2deg);
+}
+
+.warn-count {
+  margin-left: auto;
+  font-size: var(--font-caption);
+  color: var(--accent-coral-ink);
+}
+
+.warn-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 12rpx;
+  background: var(--paper-card);
+  border-radius: var(--radius-sketch-3);
+  margin-bottom: 10rpx;
+}
+
+.warn-name {
+  font-size: var(--font-name);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-title);
+}
+
+.warn-level {
+  font-size: var(--font-tag);
+  color: var(--ink-secondary);
+  background: var(--paper-kraft);
+  border: 2rpx solid var(--ink-stroke-soft);
+  border-radius: var(--radius-sketch-5);
+  padding: 2rpx 12rpx;
+}
+
+.warn-hours {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.warn-num-box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8rpx;
+}
+
+.warn-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.warn-num {
+  position: relative;
+  font-size: 40rpx;
+  font-weight: var(--weight-bold);
+  color: var(--accent-coral-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.warn-unit {
+  font-size: var(--font-caption);
+  color: var(--accent-coral-ink);
 }

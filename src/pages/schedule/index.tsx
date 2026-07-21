@@ -1,25 +1,18 @@
 import { useState, useEffect, useMemo } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { SketchFrame, SketchIcon, StatusMark } from '../../components/sketch'
+import { SketchFrame, SketchIcon } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
 import SheetModal from '../../components/SheetModal'
 import NewCourseForm from '../../components/NewCourseForm'
 import { PaperToastHost } from '../../components/PaperToast'
+import CourseCard from '../../components/CourseCard'
 import { listSessions, SessionRow } from '../../services/sessions'
 import { listStudents } from '../../services/students'
-import { SessionStatus } from '../../constants'
-import { bjDateStr, bjTimeStr, bjMidnight, bjWeekday } from '../../utils/datetime'
+import { bjDateStr, bjMidnight, bjWeekday } from '../../utils/datetime'
 import './index.scss'
 
 const WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-const STATUS_LABEL: Record<string, string> = {
-  scheduled: '待上课',
-  completed: '已完成',
-  absent: '缺勤',
-  cancelled: '已取消'
-}
-const COURSE_LABEL: Record<string, string> = { makeup: '补课', cambridge: '剑桥课程' }
 const SK = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-2', 'sk-3', 'sk-1']
 
 interface DayInfo {
@@ -91,13 +84,6 @@ export default function Schedule() {
     }))
   }, [days, sessions])
 
-  function studentName(id: string): string {
-    return nameMap[id] || '学员已删除'
-  }
-  function names(ids: string[]): string {
-    return ids.map(studentName).join('、')
-  }
-
   return (
     <View className='sched'>
       <View className='paper-grain' />
@@ -138,43 +124,14 @@ export default function Schedule() {
                 <Text className='day-empty-cn'>当天没有课</Text>
               </View>
             ) : (
-              d.courses.map((c) => {
-                const startTs = new Date(c.startTime).getTime()
-                const endTs = startTs + c.durationMin * 60000
-                const cnt = c.studentIds.length
-                const isCancelled = c.status === SessionStatus.Cancelled
-                return (
-                  <View
-                    key={c._id}
-                    className={`course-card ${isCancelled ? 'cc-off' : ''}`}
-                    onClick={() => Taro.navigateTo({ url: `/pages/course/detail/index?id=${c._id}` })}
-                  >
-                    <View className='cc-top'>
-                      <Text className='cc-time'>
-                        {bjTimeStr(startTs)}–{bjTimeStr(endTs)}
-                      </Text>
-                      <Text className='cc-dur'>{c.durationMin}分</Text>
-                      <View className='cc-status'>
-                        <StatusMark status={c.status as SessionStatus} size={30} />
-                        <Text className='cc-status-label' style={{ color: `var(--status-${c.status})` }}>
-                          {STATUS_LABEL[c.status] || c.status}
-                        </Text>
-                      </View>
-                    </View>
-                    <View className='cc-bottom'>
-                      <View className='cc-avatar'>
-                        {nameMap[c.studentIds[0]] ? nameMap[c.studentIds[0]].slice(0, 1) : '–'}
-                      </View>
-                      <View className='cc-info'>
-                        <Text className='cc-names'>{names(c.studentIds)}</Text>
-                        <Text className='cc-meta'>
-                          {COURSE_LABEL[c.courseType] || c.courseType} · {cnt > 1 ? `${cnt}人小班` : '一对一'}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                )
-              })
+              d.courses.map((c) => (
+                <CourseCard
+                  key={c._id}
+                  session={c}
+                  nameMap={nameMap}
+                  onClick={() => Taro.navigateTo({ url: `/pages/course/detail/index?id=${c._id}` })}
+                />
+              ))
             )}
           </View>
         ))}
