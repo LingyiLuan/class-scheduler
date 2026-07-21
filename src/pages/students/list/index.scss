@@ -1,16 +1,162 @@
-.stu-list {
+.sl {
+  position: relative;
   min-height: 100vh;
-  background: #f5f6f7;
-  padding-bottom: 160rpx;
+  background: var(--paper-kraft);
+  overflow: hidden;
 }
 
-.toolbar {
+/* ── 顶部：标题 + 新增 ── */
+.sl-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
-  justify-content: flex-end;
-  padding: 20rpx 24rpx;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--paper-kraft);
+  padding: var(--space-screen) var(--space-screen) 12rpx;
 }
 
-.bal {
-  color: #2f6f4f;
-  font-size: 26rpx;
+.sl-title {
+  font-size: var(--font-page-title);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.sl-add {
+  background: var(--btn-primary-bg);
+  border-radius: var(--radius-sketch-5);
+  box-shadow: var(--shadow-btn);
+  padding: 12rpx 24rpx;
+}
+
+.sl-add-txt {
+  font-size: var(--font-caption);
+  font-weight: var(--weight-bold);
+  color: var(--btn-primary-ink);
+}
+
+/* ── 内容 ── */
+.sl-inner {
+  position: relative;
+  z-index: 1;
+  padding: 8rpx var(--space-screen) 160rpx;
+}
+
+/* ── 学员纸片 ── */
+.sl-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 22rpx 24rpx;
+  margin-bottom: 18rpx;
+}
+
+.sl-avatar {
+  width: 76rpx;
+  height: 76rpx;
+  flex: none;
+  border-radius: 52% 48% 50% 50%;
+  background: var(--accent-teal-bg);
+  color: var(--accent-teal-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-name);
+  font-weight: var(--weight-bold);
+}
+
+.sl-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sl-nameline {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.sl-name {
+  font-size: var(--font-name);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-title);
+}
+
+.sl-level {
+  font-size: var(--font-tag);
+  color: var(--ink-secondary);
+  background: var(--paper-kraft);
+  border: 2rpx solid var(--ink-stroke-soft);
+  border-radius: var(--radius-sketch-5);
+  padding: 2rpx 12rpx;
+}
+
+.sl-phone {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+/* ── 剩余课时 ── */
+.sl-hours-wrap {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.sl-num-box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6rpx;
+}
+
+.sl-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.sl-hours {
+  position: relative;
+  font-size: 44rpx;
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.sl-hours.low {
+  color: var(--credit-low);
+}
+
+.sl-hours-unit {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+/* ── 空状态 ── */
+.sl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  padding: 100rpx 0;
+}
+
+.sl-empty-en {
+  font-size: 46rpx;
+  color: var(--ink-tertiary);
+  transform: rotate(-2deg);
+}
+
+.sl-empty-cn {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
 }
