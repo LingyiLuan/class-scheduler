@@ -4,8 +4,7 @@ import Taro from '@tarojs/taro'
 import { SketchFrame } from '../sketch'
 import { listStudents, getStudent, getBalance, Student } from '../../services/students'
 import { createPackage } from '../../services/packages'
-import { requestSubscribe } from '../../services/subscribe'
-import { TMPL_LOW_CREDIT } from '../../constants/subscribe'
+import { ensureQuota } from '../../services/subscribe'
 import { showPaperToast } from '../PaperToast'
 import './index.scss'
 
@@ -57,8 +56,7 @@ export default function RechargeForm({ studentId, onDone }: { studentId?: string
       Taro.showToast({ title: '充值次数必须为正整数', icon: 'none' })
       return
     }
-    // 在点击手势内请求课时不足提醒授权（微信要求 tap 内调用），再充值
-    await requestSubscribe([TMPL_LOW_CREDIT])
+    ensureQuota() // 手势内静默补额
     setSaving(true)
     const before = balance ?? 0
     try {

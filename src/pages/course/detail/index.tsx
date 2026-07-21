@@ -12,6 +12,7 @@ import {
   SessionRow
 } from '../../../services/sessions'
 import { listStudents, getBalance } from '../../../services/students'
+import { ensureQuota } from '../../../services/subscribe'
 import { SessionStatus } from '../../../constants'
 import { bjDateStr, bjTimeStr, bjWeekday } from '../../../utils/datetime'
 import { PaperToastHost, showPaperToast } from '../../../components/PaperToast'
@@ -106,6 +107,7 @@ export default function CourseDetail() {
 
   function onComplete() {
     if (!session) return
+    ensureQuota()
     if (session.studentIds.length <= 1) doComplete()
     else setShowAtt(true)
   }

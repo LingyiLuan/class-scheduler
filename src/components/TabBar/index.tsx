@@ -1,6 +1,7 @@
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { SketchIcon } from '../sketch'
+import { ensureQuota } from '../../services/subscribe'
 import './index.scss'
 
 /**
@@ -25,6 +26,7 @@ export default function TabBar({ current }: { current: TabKey }) {
             key={t.key}
             className='tabbar-item'
             onClick={() => {
+              ensureQuota()
               if (!active) Taro.reLaunch({ url: t.url })
             }}
           >

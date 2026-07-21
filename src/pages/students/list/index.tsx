@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { listStudents, getBalance, Student } from '../../../services/students'
+import { ensureQuota } from '../../../services/subscribe'
 import { SketchFrame, StatusMark } from '../../../components/sketch'
 import TabBar from '../../../components/TabBar'
 import SheetModal from '../../../components/SheetModal'
@@ -71,7 +72,10 @@ export default function StudentList() {
               <View
                 key={s._id}
                 className={`sl-card paper-card ${SK[i % SK.length]}`}
-                onClick={() => Taro.navigateTo({ url: `/pages/students/detail/index?id=${s._id}` })}
+                onClick={() => {
+                  ensureQuota()
+                  Taro.navigateTo({ url: `/pages/students/detail/index?id=${s._id}` })
+                }}
               >
                 <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
                 <View className='sl-avatar'>{s.name.slice(0, 1)}</View>

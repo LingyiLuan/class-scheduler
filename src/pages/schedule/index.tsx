@@ -9,6 +9,7 @@ import { PaperToastHost } from '../../components/PaperToast'
 import CourseGroup, { groupOverlaps } from '../../components/CourseGroup'
 import { listSessions, SessionRow } from '../../services/sessions'
 import { listStudents } from '../../services/students'
+import { ensureQuota } from '../../services/subscribe'
 import { bjDateStr, bjMidnight, bjWeekday } from '../../utils/datetime'
 import './index.scss'
 
@@ -91,11 +92,23 @@ export default function Schedule() {
       <View className='sched-head'>
         <Text className='sched-title'>课表</Text>
         <View className='week-nav'>
-          <Text className='nav-btn' onClick={() => setWeekOffset((w) => w - 1)}>
+          <Text
+            className='nav-btn'
+            onClick={() => {
+              ensureQuota()
+              setWeekOffset((w) => w - 1)
+            }}
+          >
             ‹
           </Text>
           <Text className='week-range'>{rangeLabel}</Text>
-          <Text className='nav-btn' onClick={() => setWeekOffset((w) => w + 1)}>
+          <Text
+            className='nav-btn'
+            onClick={() => {
+              ensureQuota()
+              setWeekOffset((w) => w + 1)
+            }}
+          >
             ›
           </Text>
           {weekOffset !== 0 ? (
@@ -137,7 +150,7 @@ export default function Schedule() {
         ))}
       </View>
 
-      <View className='fab' onClick={() => setShowNew(true)}>
+      <View className='fab' onClick={() => { ensureQuota(); setShowNew(true) }}>
         <SketchIcon name='plus' size={52} color='#FBF3E0' />
       </View>
 
