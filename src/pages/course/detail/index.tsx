@@ -14,6 +14,7 @@ import {
 import { listStudents, getBalance } from '../../../services/students'
 import { SessionStatus } from '../../../constants'
 import { bjDateStr, bjTimeStr, bjWeekday } from '../../../utils/datetime'
+import { PaperToastHost, showPaperToast } from '../../../components/PaperToast'
 import './index.scss'
 
 const WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
@@ -86,12 +87,8 @@ export default function CourseDetail() {
         }
       })
     )
-    Taro.showModal({
-      title: '操作完成',
-      content: changes.length ? changes.join('\n') : '课时无变化',
-      showCancel: false,
-      success: () => Taro.navigateBack()
-    })
+    showPaperToast(changes.length ? changes : ['课时无变化'])
+    Taro.navigateBack()
   }
 
   async function doComplete(att?: Record<string, string>) {
@@ -126,8 +123,8 @@ export default function CourseDetail() {
     setBusy(true)
     try {
       await markAbsentSession(id)
-      Taro.showToast({ title: '已标记缺勤', icon: 'success' })
-      setTimeout(() => Taro.navigateBack(), 600)
+      showPaperToast(['已标记缺勤'])
+      Taro.navigateBack()
     } catch {
       // toasted
     } finally {
@@ -145,8 +142,8 @@ export default function CourseDetail() {
         if (!r.confirm) return
         try {
           await cancelSession(id)
-          Taro.showToast({ title: '已取消', icon: 'success' })
-          setTimeout(() => Taro.navigateBack(), 600)
+          showPaperToast(['已取消课程'])
+          Taro.navigateBack()
         } catch {
           // toasted
         }
@@ -265,6 +262,8 @@ export default function CourseDetail() {
           </View>
         </View>
       </SheetModal>
+
+      <PaperToastHost />
     </View>
   )
 }

@@ -6,6 +6,7 @@ import { SketchFrame, StatusMark } from '../../../components/sketch'
 import TabBar from '../../../components/TabBar'
 import SheetModal from '../../../components/SheetModal'
 import StudentForm from '../../../components/StudentForm'
+import { PaperToastHost } from '../../../components/PaperToast'
 import './index.scss'
 
 interface Row extends Student {
@@ -104,6 +105,8 @@ export default function StudentList() {
           }}
         />
       </SheetModal>
+
+      <PaperToastHost />
     </View>
   )
 }

@@ -3,6 +3,7 @@ import { View, Text, Input, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { SketchFrame } from '../sketch'
 import { getStudent, createStudent, updateStudent } from '../../services/students'
+import { showPaperToast } from '../PaperToast'
 import './index.scss'
 
 // placeholder 用次要字号+浅色，不与输入值同级
@@ -39,7 +40,7 @@ export default function StudentForm({ id, onSaved }: { id?: string; onSaved: () 
       const payload = { name: name.trim(), phone, levelTag, note }
       if (id) await updateStudent(id, payload)
       else await createStudent(payload)
-      Taro.showToast({ title: '已保存', icon: 'success' })
+      showPaperToast(['已保存'])
       onSaved()
     } catch {
       // api 层已 toast

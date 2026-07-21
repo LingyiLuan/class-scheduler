@@ -7,6 +7,7 @@ import { SketchFrame, SketchIcon } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
 import SheetModal from '../../components/SheetModal'
 import RechargeForm from '../../components/RechargeForm'
+import { PaperToastHost } from '../../components/PaperToast'
 import './index.scss'
 
 interface Quick {
@@ -123,6 +124,8 @@ export default function Index() {
       <SheetModal visible={showRecharge} onClose={() => setShowRecharge(false)} title='课时充值'>
         <RechargeForm onDone={() => setShowRecharge(false)} />
       </SheetModal>
+
+      <PaperToastHost />
     </View>
   )
 }

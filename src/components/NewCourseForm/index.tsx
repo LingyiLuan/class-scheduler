@@ -7,6 +7,7 @@ import { createSession } from '../../services/sessions'
 import { ApiError } from '../../services/api'
 import { CourseType, COURSE_TYPE_DEFAULT_DURATION } from '../../constants'
 import { bjDateStr, bjTimeStr } from '../../utils/datetime'
+import { showPaperToast } from '../PaperToast'
 import './index.scss'
 
 const TYPES = [
@@ -47,7 +48,7 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
     try {
       const startTime = `${date}T${time}:00+08:00`
       await createSession({ courseType, startTime, durationMin: Number(durationMin), studentIds: selectedIds, force })
-      Taro.showToast({ title: '已创建', icon: 'success' })
+      showPaperToast(['课程已创建'])
       onCreated()
     } catch (e) {
       const err = e as ApiError

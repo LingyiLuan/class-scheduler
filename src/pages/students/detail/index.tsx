@@ -15,6 +15,7 @@ import StudentForm from '../../../components/StudentForm'
 import RechargeForm from '../../../components/RechargeForm'
 import { SessionStatus } from '../../../constants'
 import { bjDateStr, bjTimeStr } from '../../../utils/datetime'
+import { PaperToastHost, showPaperToast } from '../../../components/PaperToast'
 import './index.scss'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -61,8 +62,8 @@ export default function StudentDetail() {
         if (!res.confirm) return
         try {
           await deleteStudent(id)
-          Taro.showToast({ title: '已删除', icon: 'success' })
-          setTimeout(() => Taro.navigateBack(), 600)
+          showPaperToast(['已删除'])
+          Taro.navigateBack()
         } catch {
           // toasted
         }
@@ -167,6 +168,8 @@ export default function StudentDetail() {
           }}
         />
       </SheetModal>
+
+      <PaperToastHost />
     </View>
   )
 }

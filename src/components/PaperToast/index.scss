@@ -1,0 +1,39 @@
+.ptoast {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
+  display: flex;
+  justify-content: center;
+  padding-top: calc(env(safe-area-inset-top) + 28rpx);
+  transform: translateY(-40rpx);
+  opacity: 0;
+  transition: transform 0.28s ease, opacity 0.28s ease;
+  pointer-events: none;
+}
+
+.ptoast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.ptoast-card {
+  position: relative;
+  max-width: 80%;
+  background: var(--paper-card);
+  border: var(--stroke-w) solid var(--ink-stroke);
+  box-shadow: var(--shadow-paper);
+  border-radius: var(--radius-sketch-2);
+  padding: 22rpx 34rpx;
+}
+
+.ptoast-line {
+  display: block;
+  text-align: center;
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-title);
+  line-height: 1.7;
+  font-variant-numeric: tabular-nums;
+}

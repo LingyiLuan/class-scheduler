@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro'
 import { SketchFrame } from '../sketch'
 import { listStudents, getStudent, getBalance, Student } from '../../services/students'
 import { createPackage } from '../../services/packages'
+import { showPaperToast } from '../PaperToast'
 import './index.scss'
 
 const QUICK = [10, 20, 30]
@@ -59,12 +60,8 @@ export default function RechargeForm({ studentId, onDone }: { studentId?: string
     try {
       await createPackage({ studentId: sid, totalCredits: n, note })
       const b = await getBalance(sid, { silent: true })
-      Taro.showModal({
-        title: '充值成功',
-        content: `剩余课时：${before} → ${b.balance} 次`,
-        showCancel: false,
-        success: () => onDone()
-      })
+      showPaperToast([`剩余课时 ${before} → ${b.balance} 次`])
+      onDone()
     } catch {
       // api 层已 toast
     } finally {

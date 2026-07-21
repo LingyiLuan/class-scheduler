@@ -5,6 +5,7 @@ import { SketchFrame, SketchIcon, StatusMark } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
 import SheetModal from '../../components/SheetModal'
 import NewCourseForm from '../../components/NewCourseForm'
+import { PaperToastHost } from '../../components/PaperToast'
 import { listSessions, SessionRow } from '../../services/sessions'
 import { listStudents } from '../../services/students'
 import { SessionStatus } from '../../constants'
@@ -193,6 +194,8 @@ export default function Schedule() {
           }}
         />
       </SheetModal>
+
+      <PaperToastHost />
     </View>
   )
 }
