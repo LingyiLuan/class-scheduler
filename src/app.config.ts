@@ -6,7 +6,8 @@ export default defineAppConfig({
     'pages/students/list/index',
     'pages/students/detail/index',
     'pages/schedule/index',
-    'pages/course/detail/index'
+    'pages/course/detail/index',
+    'pages/stats/index'
   ],
   window: {
     backgroundTextStyle: 'light',

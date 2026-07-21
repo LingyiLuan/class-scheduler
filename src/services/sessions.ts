@@ -18,6 +18,22 @@ export function listSessions(from: string, to: string): Promise<{ list: SessionR
   return callFunction('sessions', { action: 'list', data: { from, to } })
 }
 
+/** 拉取区间内全部课程（skip 分页循环，用于统计半年数据，超过单次 100 条上限时） */
+export async function listSessionsRange(from: string, to: string): Promise<{ list: SessionRow[] }> {
+  const all: SessionRow[] = []
+  let skip = 0
+  for (;;) {
+    const res = await callFunction<{ list: SessionRow[] }>('sessions', {
+      action: 'list',
+      data: { from, to, skip }
+    })
+    all.push(...res.list)
+    if (res.list.length < 100 || skip > 5000) break
+    skip += 100
+  }
+  return { list: all }
+}
+
 export interface CreateSessionInput {
   courseType: string
   startTime: string

@@ -106,7 +106,13 @@ exports.main = async (event = {}) => {
         } else if (data.to) {
           where.startTime = _.lt(new Date(data.to))
         }
-        const res = await sessions.where(where).orderBy('startTime', 'asc').limit(100).get()
+        const skip = Number(data.skip) || 0
+        const res = await sessions
+          .where(where)
+          .orderBy('startTime', 'asc')
+          .skip(skip)
+          .limit(100)
+          .get()
         return ok({ list: res.data })
       }
 

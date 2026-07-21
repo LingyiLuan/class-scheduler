@@ -1,0 +1,225 @@
+.stats {
+  position: relative;
+  min-height: 100vh;
+  background: var(--paper-kraft);
+  overflow: hidden;
+}
+
+.stats-inner {
+  position: relative;
+  z-index: 1;
+  padding: var(--space-screen) var(--space-screen) 60rpx;
+}
+
+.stats-eyebrow {
+  display: block;
+  font-size: 40rpx;
+  color: var(--accent-teal-ink);
+  transform: rotate(-2deg);
+  transform-origin: left center;
+}
+
+.stats-title {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-page-title);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+/* ── 汇总 ── */
+.sum-card {
+  position: relative;
+  margin-top: 24rpx;
+  padding: 22rpx 18rpx;
+}
+
+.sum-row {
+  display: flex;
+  align-items: stretch;
+}
+
+.sum-item {
+  flex: 1;
+  text-align: center;
+}
+
+.sum-en {
+  display: block;
+  font-size: 28rpx;
+  color: var(--accent-teal-ink);
+  transform: rotate(-2deg);
+}
+
+.sum-num {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-stat);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.sum-label {
+  display: block;
+  margin-top: 2rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+.sum-div {
+  width: 2rpx;
+  background: var(--ink-stroke-soft);
+  margin: 8rpx 0;
+}
+
+/* ── 热力日历 ── */
+.heat-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  padding: 36rpx 4rpx 14rpx;
+}
+
+.heat-en {
+  font-size: 32rpx;
+  color: var(--accent-teal-ink);
+  transform: rotate(-2deg);
+}
+
+.heat-title {
+  font-size: var(--font-section);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.heat {
+  display: flex;
+  align-items: flex-start;
+}
+
+.heat-left {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  margin-right: 8rpx;
+}
+
+.heat-month-spacer {
+  height: 32rpx;
+}
+
+.heat-daylabel {
+  height: 34rpx;
+  margin-bottom: 6rpx;
+  line-height: 34rpx;
+  text-align: right;
+  font-size: 20rpx;
+  color: var(--ink-tertiary);
+}
+
+.heat-scroll {
+  flex: 1;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.heat-body {
+  display: inline-block;
+}
+
+.heat-months {
+  display: flex;
+  height: 32rpx;
+}
+
+.heat-month {
+  width: 40rpx;
+  font-size: 20rpx;
+  color: var(--ink-tertiary);
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.heat-grid {
+  display: flex;
+}
+
+.heat-col {
+  display: flex;
+  flex-direction: column;
+  margin-right: 6rpx;
+}
+
+.heat-cell {
+  width: 34rpx;
+  height: 34rpx;
+  margin-bottom: 6rpx;
+  background: var(--heat-l0);
+}
+
+/* 色阶（纸→铅笔） */
+.l0 {
+  background: #e4d8b8;
+}
+.l1 {
+  background: #cdba8a;
+}
+.l2 {
+  background: #a88f5e;
+}
+.l3 {
+  background: #4a4030;
+}
+
+/* 小号不规则圆角，手绘感 */
+.r0 {
+  border-radius: 8rpx 6rpx 7rpx 5rpx;
+}
+.r1 {
+  border-radius: 6rpx 8rpx 5rpx 7rpx;
+}
+.r2 {
+  border-radius: 7rpx 5rpx 8rpx 6rpx;
+}
+
+.heat-cell.today {
+  border: 3rpx solid var(--accent-coral);
+}
+
+/* ── 图例 ── */
+.heat-legend {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 20rpx;
+  padding-left: 4rpx;
+}
+
+.legend-txt {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+.legend-cell {
+  width: 26rpx;
+  height: 26rpx;
+  border-radius: 6rpx 5rpx 7rpx 5rpx;
+}
+
+/* ── 当天详情（抽屉内） ── */
+.day-consumed {
+  display: block;
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--accent-teal-ink);
+  margin-bottom: 16rpx;
+}
+
+.day-empty {
+  display: block;
+  text-align: center;
+  padding: 40rpx 0;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}

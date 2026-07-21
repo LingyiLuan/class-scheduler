@@ -128,7 +128,7 @@ export default function Index() {
     { key: 'students', label: '学员', icon: 'people', sk: 'sk-1', onTap: () => Taro.reLaunch({ url: '/pages/students/list/index' }) },
     { key: 'recharge', label: '充值', icon: 'wallet', sk: 'sk-2', onTap: () => setShowRecharge(true) },
     { key: 'week', label: '课表', icon: 'calendar', sk: 'sk-3', onTap: () => Taro.reLaunch({ url: '/pages/schedule/index' }) },
-    { key: 'new', label: '新建课程', icon: 'plus', sk: 'sk-4', onTap: () => Taro.reLaunch({ url: '/pages/schedule/index' }) }
+    { key: 'stats', label: '统计', icon: 'chart', sk: 'sk-4', onTap: () => Taro.navigateTo({ url: '/pages/stats/index' }) }
   ]
 
   return (
