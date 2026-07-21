@@ -1,0 +1,9 @@
+{
+  "name": "recurrences",
+  "version": "1.0.0",
+  "description": "循环课：一次性生成实例（≤26 周）、系列修改/删除只影响未来未上课的实例",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
