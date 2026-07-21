@@ -1,82 +1,63 @@
 /**
- * 设计 tokens —— 全局 CSS 变量。说明见 docs/design-tokens.md。
- * 由 app.scss 引入；各页面直接用 var(--x)。定义在 page 上，weapp 全局生效。
- * 单位：设计稿 375px，本工程 designWidth 750，故 1 设计px = 2rpx。
+ * 设计 tokens · 手绘纸质版。说明见 docs/design-tokens.md。
+ * 全局 CSS 变量（定义在 page 上，weapp 全局生效）；1 设计px = 2rpx。
+ * 上一版青绿扁平方案已作废。
  */
 page {
-  /* ── 主色（青绿） ── */
-  --color-primary: #5faebe;
-  --color-primary-strong: #2e8595;
-  --color-primary-tint: #eaf1f3;
-  --color-primary-muted: #7aa6ae;
+  /* ── 纸张 ── */
+  --paper-kraft: #e7dabb;
+  --paper-cream: #f3e9d2;
+  --paper-card: #faf3e1;
 
-  /* ── 中性（蓝灰阶） ── */
-  --color-ink: #1c2329;
-  --color-text-strong: #2a333b;
-  --color-text: #3a424a;
-  --color-text-label: #5a6570;
-  --color-text-secondary: #8a929b;
-  --color-text-tertiary: #98a0a8;
-  --color-text-quaternary: #a9b0b7;
-  --color-text-disabled: #b7bec5;
-  --color-icon-muted: #c4cacf;
+  /* ── 铅笔色阶（暖石墨） ── */
+  --ink-title: #33291c;
+  --ink-body: #4a4030;
+  --ink-secondary: #6e6250;
+  --ink-tertiary: #a2937b;
+  --ink-placeholder: #b5a88c;
+  --ink-stroke: rgba(58, 49, 37, 0.5);
+  --ink-stroke-soft: rgba(58, 49, 37, 0.28);
 
-  /* ── 背景与描边 ── */
-  --color-bg: #f4f6f8;
-  --color-surface: #ffffff;
-  --color-fill: #f6f7f9;
-  --color-fill-chip: #f0f2f4;
-  --color-row-active: #f7f8fa;
-  --color-border: #eef0f2;
-  --color-border-strong: #d8dce0;
-  --color-divider: #f0f2f4;
+  /* ── 强调色（彩铅点缀） ── */
+  --accent-teal: #6bb5c4;
+  --accent-teal-ink: #2e7c8a;
+  --accent-teal-bg: #e1eeee;
+  --accent-coral: #f07850;
+  --accent-coral-ink: #c24a28;
+  --accent-coral-bg: #faebe2;
+  --accent-green: #3e8c7e;
+  --highlight-cream: #faf5e9;
 
-  /* ── 危险 / 警示（陶土橙红） ── */
-  --color-danger: #d6552f;
-  --color-danger-strong: #c24a28;
-  --color-danger-accent: #f07850;
-  --color-danger-bg: #fbebe5;
-  --color-danger-bg-soft: #fdeee8;
-  --color-danger-border: #f0d4cb;
-  --color-danger-sub: #cc9977;
+  /* ── 按钮 ── */
+  --btn-primary-bg: #3a3226;
+  --btn-primary-ink: #fbf3e0;
+  --btn-secondary-bg: #fcf5ea;
+  --btn-secondary-ink: #3a3226;
+  --btn-danger-bg: #faebe2;
+  --btn-danger-ink: #c24a28;
+  --btn-danger-border: #e0906f;
 
-  /* ── 课程四种状态：字色 / 底色 / 圆点 ── */
-  --status-scheduled: #2e8595;
-  --status-scheduled-bg: #e4f1f3;
-  --status-scheduled-dot: #5faebe;
-  --status-completed: #4e9b6b;
-  --status-completed-bg: #e9f3ec;
-  --status-completed-dot: #5fb07d;
-  --status-absent: #d6552f;
-  --status-absent-bg: #fbebe5;
-  --status-absent-dot: #f07850;
-  --status-cancelled: #98a0a8;
-  --status-cancelled-bg: #f0f2f4;
-  --status-cancelled-dot: #b7bec5;
+  /* ── 课程四态（批改隐喻的记号/文字色） ── */
+  --status-scheduled: #7a6e58;
+  --status-completed: #3e8c7e;
+  --status-absent: #c24a28;
+  --status-cancelled: #a2937b;
 
-  /* ── 课时充足 / 不足 ── */
-  --credit-ok: #2e8595;
-  --credit-ok-num: #2a333b; /* 列表内数字用更中性的深灰 */
-  --credit-ok-bg: #eaf1f3;
-  --credit-ok-sub: #7aa6ae;
-  --credit-low: #d6552f;
-  --credit-low-bg: #fbebe5;
-  --credit-low-sub: #cc9977;
-  --credit-low-threshold: 2; /* 剩余课时 < 该值记为不足（设计稿口径；需求曾写 ≤2，待确认） */
+  /* ── 课时充足 / 不足（阈值 ≤2 记为不足） ── */
+  --credit-ok: #33291c;
+  --credit-low: #c24a28;
+  --credit-low-circle: #f07850;
+  --credit-low-threshold: 2;
 
   /* ── 字号（rpx） ── */
-  --font-hero: 46rpx;
-  --font-stat: 52rpx;
-  --font-page-title: 40rpx;
-  --font-number: 36rpx;
+  --font-stat: 56rpx;
+  --font-page-title: 42rpx;
   --font-nav-title: 34rpx;
   --font-section: 32rpx;
   --font-name: 30rpx;
   --font-body: 28rpx;
-  --font-body-sm: 26rpx;
   --font-caption: 24rpx;
   --font-tag: 22rpx;
-  --font-micro: 21rpx;
 
   /* ── 字重 ── */
   --weight-bold: 700;
@@ -84,32 +65,33 @@ page {
   --weight-medium: 500;
   --weight-regular: 400;
 
-  /* ── 间距（rpx） ── */
+  /* ── 间距（rpx，基数4） ── */
   --space-xs: 8rpx;
   --space-sm: 16rpx;
-  --space-md: 20rpx;
-  --space-lg: 28rpx;
-  --space-xl: 32rpx;
-  --space-2xl: 40rpx;
-  --space-screen: 32rpx;
+  --space-md: 24rpx;
+  --space-lg: 32rpx;
+  --space-screen: 36rpx;
+  --space-section: 44rpx;
 
-  /* ── 圆角（rpx） ── */
-  --radius-xs: 10rpx;
-  --radius-sm: 20rpx;
-  --radius-md: 24rpx;
-  --radius-lg: 28rpx;
-  --radius-xl: 32rpx;
-  --radius-pill: 34rpx;
+  /* ── 不规则圆角（5 组，rpx） ── */
+  --radius-sketch-1: 28rpx 32rpx 22rpx 30rpx / 30rpx 22rpx 32rpx 28rpx;
+  --radius-sketch-2: 32rpx 24rpx 30rpx 26rpx / 26rpx 30rpx 24rpx 32rpx;
+  --radius-sketch-3: 30rpx 26rpx 32rpx 24rpx / 24rpx 32rpx 26rpx 30rpx;
+  --radius-sketch-4: 26rpx 32rpx 24rpx 30rpx / 30rpx 24rpx 32rpx 26rpx;
+  --radius-sketch-5: 28rpx 22rpx 30rpx 24rpx / 24rpx 30rpx 22rpx 28rpx;
 
-  /* ── 阴影 ── */
-  --shadow-card: 0 2rpx 6rpx rgba(20, 30, 40, 0.05);
-  --shadow-subtle: 0 2rpx 4rpx rgba(20, 30, 40, 0.04);
-  --shadow-raised: 0 2rpx 6rpx rgba(20, 30, 40, 0.06);
-  --shadow-fab: 0 16rpx 40rpx -8rpx rgba(46, 133, 149, 0.55);
+  /* ── 手绘描边宽度 ── */
+  --stroke-w: 3rpx;
 
-  /* ── NutUI 主题对齐（NutUI 默认主色为红，此处改为本设计青绿）──
-   * 变量名以 NutUI React 3.x 为准，重构接入 NutUI 组件时校验并按需增补。 */
-  --nutui-color-primary: #5faebe;
-  --nutui-color-primary-stop-1: #5faebe;
-  --nutui-color-primary-stop-2: #2e8595;
+  /* ── 偏移阴影（无模糊，纸片微翘） ── */
+  --shadow-paper: 4rpx 6rpx 0 rgba(58, 49, 37, 0.09);
+  --shadow-card-soft: 4rpx 5rpx 0 rgba(58, 49, 37, 0.07);
+  --shadow-btn: 4rpx 6rpx 0 rgba(58, 49, 37, 0.2);
+
+  /* ── NutUI 主题对齐：默认红 → 主按钮深铅笔色（红仅留危险）。
+   * 变量名以 NutUI React 3.x 为准，重构接入组件时校验并按需增补。 ── */
+  --nutui-color-primary: #3a3226;
+  --nutui-color-primary-stop-1: #3a3226;
+  --nutui-color-primary-stop-2: #20180e;
+  --nutui-color-primary-light: #faf3e1;
 }

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#D9CBAC;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;color:#33291C}
+  .cav{font-family:'Caveat',cursive}
+  .sw{width:100%;height:56px;border-radius:12px 15px 11px 14px/14px 11px 15px 12px;border:1.5px solid rgba(58,49,37,.4)}
+  .card{position:relative;background:#FAF3E1;border:1.6px solid rgba(58,49,37,.5);box-shadow:2px 3px 0 rgba(58,49,37,.09);padding:22px 24px}
+  h2{font-size:19px;margin:0 0 4px}
+  .lead{font-size:13px;color:#8A7B62;margin:0 0 18px}
+  .lbl{font-size:12px;color:#6E6250;font-weight:600;margin-top:8px}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#6E6250}
+  .wave{height:8px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='6'%3E%3Cpath d='M0 3 Q3 0.6 6 3 T12 3 T18 3 T24 3' fill='none' stroke='%233A3125' stroke-opacity='0.42' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:repeat-x;background-position:left center;background-size:24px 6px}
+</style>
+</helmet>
+<div style="position:relative;min-height:100vh;padding:40px 24px 72px">
+  <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.4;mix-blend-mode:multiply" xmlns="http://www.w3.org/2000/svg"><filter id="pg2"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"></feTurbulence><feColorMatrix type="saturate" values="0"></feColorMatrix></filter><rect width="100%" height="100%" filter="url(#pg2)" opacity="0.5"></rect></svg>
+  <div style="position:relative;max-width:780px;margin:0 auto">
+
+    <div style="margin-bottom:8px"><span class="cav" style="font-size:26px;color:#9A7B4E;transform:rotate(-2deg);display:inline-block">design notebook</span></div>
+    <div style="font-size:30px;font-weight:700;letter-spacing:-.4px">YRoooom · 设计规范</div>
+    <div style="font-size:14px;color:#8A7B62;margin-top:6px;max-width:520px;line-height:1.6">手绘纸质文具风。装饰服务于可读性——纸感与铅笔线条负责气质,信息层级必须一眼看清。</div>
+    <div class="wave" style="margin:22px 0 26px"></div>
+
+    <!-- 1 纸张：牛皮 #E7DABB / 米白 #F3E9D2 / 卡片 #FAF3E1；纹理 SVG feTurbulence baseFrequency 0.85 numOctaves 2, opacity .4, multiply -->
+    <!-- 2 铅笔色阶：#33291C 标题 / #4A4030 正文 / #6E6250 次要 / #A2937B 三级 / #B5A88C 占位 / 描边 rgba(58,49,37,.5) -->
+    <!-- 3 强调色：teal #6BB5C4(字#2E7C8A 底#E1EEEE) / coral #F07850(字#C24A28 底#FAEBE2) / green #3E8C7E / cream #FAF5E9 -->
+    <!-- 4 字体：中文系统字体；英文装饰 Caveat 400-700 ~30KB，仅装饰标注 -->
+    <!-- 5 字号：28 主数字700 / 21 页面标题700 / 16 区块标题700 / 14 正文600 / 12 次要500(#8A7B62) -->
+    <!-- 6 间距：基数4；18 页边距 / 14-16 卡内边距 / 8-12 元素间距 / 18-22 区块间距 -->
+    <!-- 7 圆角&边框：八值不规则圆角 e.g. 14px 16px 11px 15px/15px 11px 16px 14px；SketchFrame SVG 非缩放描边；波浪分隔线；偏移阴影 1.6-2.6px 无模糊 -->
+    <!-- 8 状态：待上课=圈#7A6E58 / 已完成=勾#3E8C7E / 缺勤=叉#C24A28 / 已取消=划掉#A2937B；课时充足=石墨字，不足≤2=coral#C24A28+手绘圈选#F07850 -->
+    <!-- 9 按钮：主=深铅笔填充 bg#3A3226 字#FBF3E0 影 2px3px0 / 次=描边 bg#FCF5EA 字#3A3226 边rgba(58,49,37,.5) / 危险 bg#FAEBE2 字#C24A28 边#E0906F -->
+    <!-- 10 组件：卡片/便签、列表项+波浪分隔、按钮×3、表单输入(虚线分隔)、标签(虚线pill)、空状态、弹窗(撕纸边)、SketchFrame -->
+    <!-- 完整可视规范以本文件在 Claude Design 中的渲染为准；本地副本用于版本对照。tokens 落地见 docs/design-tokens.md 与 src/styles/。 -->
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

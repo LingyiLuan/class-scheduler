@@ -1,0 +1,65 @@
+/**
+ * 手绘工具类。说明见 docs/design-tokens.md 第七节。
+ * 配合 src/components/sketch/ 的 SVG 描边组件使用。
+ */
+
+/* ── 5 组不规则圆角，避免所有卡片一模一样 ── */
+.sk-1 { border-radius: var(--radius-sketch-1); }
+.sk-2 { border-radius: var(--radius-sketch-2); }
+.sk-3 { border-radius: var(--radius-sketch-3); }
+.sk-4 { border-radius: var(--radius-sketch-4); }
+.sk-5 { border-radius: var(--radius-sketch-5); }
+
+/* ── 纸片卡片：卡纸底 + 手绘描边 + 偏移阴影（默认 sk-2 圆角，可覆盖） ── */
+.paper-card {
+  position: relative;
+  background: var(--paper-card);
+  border: var(--stroke-w) solid var(--ink-stroke);
+  box-shadow: var(--shadow-paper);
+  border-radius: var(--radius-sketch-2);
+}
+
+/* ── 波浪分隔线（平铺 SVG，替代直线） ── */
+.wave-divider {
+  height: 12rpx;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='6'%3E%3Cpath d='M0 3 Q3 0.6 6 3 T12 3 T18 3 T24 3' fill='none' stroke='%233A3125' stroke-opacity='0.42' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: left center;
+  background-size: 48rpx 12rpx;
+}
+
+/* ── SketchFrame 描边组件底样式（背景 SVG 由组件内联注入） ── */
+.sketch-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+/* ── StatusMark 记号底样式（背景 SVG 由组件内联注入） ── */
+.status-mark {
+  display: inline-block;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  flex: none;
+}
+
+/* ── 纸张噪点纹理。⚠️ weapp 对 SVG feTurbulence 滤镜支持不确定，需真机验证；
+ * 不渲染时退化为纯纸色底（.paper-card / page 背景已是纸色，视觉可接受）。 ── */
+.paper-grain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 240rpx 240rpx;
+  background-repeat: repeat;
+}
