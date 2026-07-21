@@ -3,6 +3,8 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
+const { addNotification } = require('./_shared/notify')
+const { studentsLabel } = require('./_shared/subscribe')
 
 const db = cloud.database()
 const _ = db.command
@@ -222,6 +224,20 @@ exports.main = async (event = {}) => {
         }
         const rec = await recurrences.add({ data: recDoc })
         await addSessions(toCreate, { _id: rec._id, ...recDoc }, ctx)
+        // 批量只写一条汇总，不写 N 条
+        const nmRes = await students.where({ _id: _.in(studentIds) }).get()
+        const nmMap = {}
+        nmRes.data.forEach((s) => (nmMap[s._id] = s.name))
+        await addNotification({
+          ownerId: ctx.openid,
+          type: 'sessionCreate',
+          title: '批量排课',
+          body: `${ct.courseTypeName} · ${studentsLabel(
+            studentIds.map((id) => nmMap[id]).filter(Boolean)
+          )}，生成 ${toCreate.length} 节课`,
+          refType: null,
+          refId: null
+        })
         return ok({ _id: rec._id, generated: toCreate.length, skipped: mode === 'skip' ? conflicts.length : 0 })
       }
 

@@ -3,7 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
-const { sendSubscribe, lowCreditData, TEMPLATES } = require('./_shared/subscribe')
+const { sendSubscribe, lowCreditData, TEMPLATES, studentsLabel } = require('./_shared/subscribe')
 const { addNotification } = require('./_shared/notify')
 
 const db = cloud.database()
@@ -48,14 +48,30 @@ async function computeBalance(studentId) {
   return r.list && r.list[0] ? r.list[0].total : 0
 }
 
+// 学员集合 → 「前2人+等N人」标签（消息快照用，≤20 字）
+async function namesLabel(studentIds) {
+  if (!studentIds || !studentIds.length) return '学员'
+  const r = await students.where({ _id: _.in(studentIds) }).get()
+  const map = {}
+  r.data.forEach((s) => (map[s._id] = s.name))
+  return studentsLabel(studentIds.map((id) => map[id]).filter(Boolean))
+}
+
+// 毫秒 → 北京时间「M/D HH:mm」（消息里的短时间）
+function fmtShort(ms) {
+  const d = new Date(ms + 8 * 3600000)
+  const p = (n) => String(n).padStart(2, '0')
+  return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`
+}
+
 // 课时变动后检查：首次跌破 ≤阈值且未通知过 → 发课时不足提醒给老师；余额回升则清标记以便下次再触发。
 // 用 students.lowCreditNotified 布尔标记去重，保证「首次跌破」只发一次。发送失败不影响主流程。
-async function checkLowCredit(studentId, ownerId) {
+async function checkLowCredit(studentId, ownerId, knownBalance) {
   try {
     const sres = await students.where({ _id: studentId }).get()
     const stu = sres.data[0]
     if (!stu) return
-    const balance = await computeBalance(studentId)
+    const balance = knownBalance !== undefined ? knownBalance : await computeBalance(studentId)
     if (balance <= LOW_CREDIT_THRESHOLD) {
       if (stu.lowCreditNotified === true) return // 已通知过，不重复
       await sendSubscribe({
@@ -189,6 +205,16 @@ exports.main = async (event = {}) => {
           createdAt: db.serverDate()
         }
         const res = await sessions.add({ data: doc })
+        await addNotification({
+          ownerId: ctx.openid,
+          type: 'sessionCreate',
+          title: '新建课程',
+          body: `${await namesLabel(data.studentIds)} · ${ct.courseTypeName}，${fmtShort(
+            new Date(data.startTime).getTime()
+          )}`,
+          refType: 'session',
+          refId: res._id
+        })
         return ok({ _id: res._id, ...doc })
       }
 
@@ -262,6 +288,22 @@ exports.main = async (event = {}) => {
           }
         }
         await sessions.doc(doc._id).update({ data: patch })
+        if (data.startTime !== undefined) {
+          const oldMs = new Date(doc.startTime).getTime()
+          const newMs = nextStart.getTime()
+          if (oldMs !== newMs) {
+            await addNotification({
+              ownerId: ctx.openid,
+              type: 'sessionReschedule',
+              title: '课程改期',
+              body: `${await namesLabel(patch.studentIds || doc.studentIds)} 的课 从 ${fmtShort(
+                oldMs
+              )} 改到 ${fmtShort(newMs)}`,
+              refType: 'session',
+              refId: doc._id
+            })
+          }
+        }
         return ok({ _id: doc._id, ...patch })
       }
 
@@ -270,6 +312,16 @@ exports.main = async (event = {}) => {
         const doc = await loadOwned(data.id, ctx)
         if (doc.status !== 'scheduled') return fail(40002, '仅未上课的课程可取消')
         await sessions.doc(doc._id).update({ data: { status: 'cancelled' } })
+        await addNotification({
+          ownerId: ctx.openid,
+          type: 'sessionCancel',
+          title: '取消课程',
+          body: `取消 ${await namesLabel(doc.studentIds)} ${fmtShort(
+            new Date(doc.startTime).getTime()
+          )} 的课`,
+          refType: 'session',
+          refId: doc._id
+        })
         return ok({ _id: doc._id, status: 'cancelled' })
       }
 
@@ -304,7 +356,18 @@ exports.main = async (event = {}) => {
         })
         // 扣课时后检查余额，首次跌破 ≤2 发课时不足提醒（事务外，失败不影响完成结果）
         for (const sid of doc.studentIds) {
-          if (attendance[sid] === 'present') await checkLowCredit(sid, ctx.openid)
+          if (attendance[sid] !== 'present') continue
+          const bal = await computeBalance(sid)
+          const nm = await studentNameById(sid)
+          await addNotification({
+            ownerId: ctx.openid,
+            type: 'creditDeduct',
+            title: '扣课时',
+            body: `${nm} 扣 1 课时，剩余 ${bal}`,
+            refType: 'student',
+            refId: sid
+          })
+          await checkLowCredit(sid, ctx.openid, bal)
         }
         return ok({ _id: doc._id, status: 'completed', attendance })
       }

@@ -3,21 +3,26 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
+const { addNotification } = require('./_shared/notify')
 
 const db = cloud.database()
 const $ = db.command.aggregate
 
+async function computeBalance(studentId) {
+  const r = await db
+    .collection('creditLogs')
+    .aggregate()
+    .match({ studentId })
+    .group({ _id: null, total: $.sum('$delta') })
+    .end()
+  return r.list && r.list[0] ? r.list[0].total : 0
+}
+
 // 充值后若余额回升越过阈值，清除课时不足标记，便于下次再触发提醒
-async function resetLowCreditFlag(studentId) {
+async function resetLowCreditFlag(studentId, balance) {
   try {
-    const r = await db
-      .collection('creditLogs')
-      .aggregate()
-      .match({ studentId })
-      .group({ _id: null, total: $.sum('$delta') })
-      .end()
-    const balance = r.list && r.list[0] ? r.list[0].total : 0
-    if (balance > 2) {
+    const bal = balance !== undefined ? balance : await computeBalance(studentId)
+    if (bal > 2) {
       await db.collection('students').doc(studentId).update({ data: { lowCreditNotified: false } })
     }
   } catch (e) {
@@ -50,7 +55,7 @@ exports.main = async (event = {}) => {
         if (!Number.isInteger(totalCredits) || totalCredits <= 0) {
           return fail(40001, '充值次数必须为正整数')
         }
-        await assertStudentOwned(studentId, ctx)
+        const stu = await assertStudentOwned(studentId, ctx)
 
         const now = db.serverDate()
         const result = await db.runTransaction(async (transaction) => {
@@ -75,7 +80,16 @@ exports.main = async (event = {}) => {
           return { _id: pkg._id }
         })
 
-        await resetLowCreditFlag(studentId)
+        const balance = await computeBalance(studentId)
+        await resetLowCreditFlag(studentId, balance)
+        await addNotification({
+          ownerId: ctx.openid,
+          type: 'recharge',
+          title: '充值',
+          body: `${stu.name} 充值 ${totalCredits} 课时，余额 ${balance}`,
+          refType: 'student',
+          refId: studentId
+        })
         return ok({ _id: result._id, studentId, totalCredits })
       }
 
