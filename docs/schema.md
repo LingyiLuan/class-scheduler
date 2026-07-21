@@ -97,7 +97,7 @@
 | studentId | String | |
 | sessionId | String | |
 | delta | Number | 正数充值 / 负数消耗 |
-| reason | String | purchase / attend / absent / manual |
+| reason | String | purchase(充值) / attend(出席扣减) / absent(缺勤扣减，一期未用) / revert(撤销完成的反向入账) / manual(手工调整) |
 | createdAt | Date | |
 
 ---

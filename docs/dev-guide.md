@@ -65,7 +65,7 @@ docs/
 
 课程状态：`scheduled` / `completed` / `absent` / `cancelled`
 
-流水原因：`purchase` / `attend` / `absent` / `manual`
+流水原因：`purchase` / `attend` / `absent` / `revert`（撤销完成的反向入账）/ `manual`
 
 所有枚举值集中定义在 `src/constants/`，不在业务代码里写字符串字面量。
 

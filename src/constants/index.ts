@@ -16,6 +16,8 @@ export enum CreditReason {
   Purchase = 'purchase',
   Attend = 'attend',
   Absent = 'absent',
+  /** 撤销完成时的反向入账（与老师手工 manual 区分，便于对账） */
+  Revert = 'revert',
   Manual = 'manual'
 }
 

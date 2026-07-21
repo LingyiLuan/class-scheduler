@@ -1,0 +1,9 @@
+{
+  "name": "sessions",
+  "version": "1.0.0",
+  "description": "课程管理：单次课 CRUD、冲突检测、完成/缺勤/取消/撤销（事务扣退课时）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
