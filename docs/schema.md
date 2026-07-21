@@ -81,7 +81,7 @@
 |---|---|---|
 | _id | String | |
 | ownerId | String | |
-| weekday | Number | 0-6 |
+| weekdays | Array | 星期数组，可多选，0-6（0=周日） |
 | timeOfDay | String | HH:mm |
 | durationMin | Number | |
 | courseType | String | |

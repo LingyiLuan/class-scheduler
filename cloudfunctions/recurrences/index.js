@@ -13,6 +13,7 @@ const students = db.collection('students')
 const COURSE_DEFAULT_DURATION = { makeup: 90, cambridge: 120 }
 const MAX_WEEKS = 26
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/
+const ACTIVE_STATUSES = ['scheduled', 'completed', 'absent']
 
 async function assertStudentsOwned(studentIds, ctx) {
   if (!Array.isArray(studentIds) || studentIds.length === 0) {
@@ -39,9 +40,10 @@ async function loadOwnedRec(id, ctx) {
   return doc
 }
 
-// 生成 [startDate, endDate] 间每个匹配 weekday 的上课时间；上限 26 周。
+// 生成 [startDate, endDate] 间每个匹配 weekdays（可多选）的上课时间；上限 26 周。
 // 用 UTC 纯日期算星期，再以 +08:00 拼出真实上课时刻，避免云函数 UTC 运行环境的时区偏移。
-function generateStartTimes(startDate, endDate, weekday, timeOfDay) {
+function generateStartTimes(startDate, endDate, weekdays, timeOfDay) {
+  const wdSet = new Set(weekdays)
   const [sy, sm, sd] = startDate.split('-').map(Number)
   const [ey, em, ed] = endDate.split('-').map(Number)
   const startTs = Date.UTC(sy, sm - 1, sd)
@@ -52,13 +54,13 @@ function generateStartTimes(startDate, endDate, weekday, timeOfDay) {
   const out = []
   for (let ts = startTs; ts <= endTs; ts += 86400000) {
     const dt = new Date(ts)
-    if (dt.getUTCDay() === weekday) {
+    if (wdSet.has(dt.getUTCDay())) {
       const ymd = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(
         dt.getUTCDate()
       ).padStart(2, '0')}`
       out.push(new Date(`${ymd}T${timeOfDay}:00+08:00`))
     }
-    if (out.length > 200) break // 安全上限
+    if (out.length > 400) break // 安全上限
   }
   return out
 }
@@ -98,11 +100,20 @@ exports.main = async (event = {}) => {
     const { action, data = {} } = event
 
     switch (action) {
-      // 创建循环规则并一次性生成实例（≤26 周），endDate 必填
+      // 创建循环规则并一次性生成实例（≤26 周），endDate 必填，weekdays 可多选。
+      // 生成前查冲突：mode='auto' 有冲突则返回 40901+conflicts（不写库）；
+      // 'skip' 只建不冲突的；'force' 全部建。
       case 'create': {
-        const { courseType, weekday, timeOfDay, studentIds, startDate, endDate } = data
+        const { courseType, timeOfDay, studentIds, startDate, endDate } = data
+        const weekdays = Array.isArray(data.weekdays)
+          ? data.weekdays
+          : Number.isInteger(data.weekday)
+            ? [data.weekday]
+            : []
         if (!COURSE_DEFAULT_DURATION[courseType]) return fail(40001, '课程类型无效')
-        if (!(Number.isInteger(weekday) && weekday >= 0 && weekday <= 6)) return fail(40001, '星期取值无效')
+        if (!weekdays.length || !weekdays.every((w) => Number.isInteger(w) && w >= 0 && w <= 6)) {
+          return fail(40001, '请选择星期')
+        }
         if (!HHMM.test(timeOfDay || '')) return fail(40001, '时间格式应为 HH:mm')
         if (!startDate || !endDate) return fail(40001, '开始与结束日期必填')
         if (endDate < startDate) return fail(40001, '结束日期不能早于开始日期')
@@ -110,10 +121,50 @@ exports.main = async (event = {}) => {
         if (durationMin <= 0) return fail(40001, '时长无效')
         await assertStudentsOwned(studentIds, ctx)
 
+        const starts = generateStartTimes(startDate, endDate, weekdays, timeOfDay)
+        if (!starts.length) return fail(40001, '所选范围内没有匹配的上课日')
+        const durMs = durationMin * 60000
+
+        // 冲突检测：拉区间内本人「占用时段」的现有课，逐个实例判重叠
+        const rangeStart = new Date(starts[0].getTime())
+        const rangeEnd = new Date(starts[starts.length - 1].getTime() + durMs)
+        const ex = await sessions
+          .where({
+            ownerId: ctx.openid,
+            status: _.in(ACTIVE_STATUSES),
+            startTime: _.gte(rangeStart).and(_.lt(rangeEnd))
+          })
+          .orderBy('startTime', 'asc')
+          .limit(1000)
+          .get()
+        const existing = ex.data.map((s) => {
+          const st = new Date(s.startTime).getTime()
+          return { start: st, end: st + (s.durationMin || 0) * 60000, courseType: s.courseType }
+        })
+        const conflicts = []
+        const okStarts = []
+        for (const st of starts) {
+          const s = st.getTime()
+          const e = s + durMs
+          const hit = existing.find((x) => x.start < e && s < x.end)
+          if (hit) conflicts.push({ startTime: st.toISOString(), withCourseType: hit.courseType })
+          else okStarts.push(st)
+        }
+
+        const mode = data.mode || 'auto'
+        if (conflicts.length && mode === 'auto') {
+          return fail(40901, '部分课程与已有课程冲突', {
+            conflicts,
+            total: starts.length,
+            conflictCount: conflicts.length
+          })
+        }
+        const toCreate = mode === 'skip' ? okStarts : starts
+
         const recDoc = {
           ownerId: ctx.openid,
           courseType,
-          weekday,
+          weekdays,
           timeOfDay,
           durationMin,
           studentIds,
@@ -123,9 +174,8 @@ exports.main = async (event = {}) => {
           createdAt: db.serverDate()
         }
         const rec = await recurrences.add({ data: recDoc })
-        const starts = generateStartTimes(startDate, endDate, weekday, timeOfDay)
-        await addSessions(starts, { _id: rec._id, ...recDoc }, ctx)
-        return ok({ _id: rec._id, generated: starts.length })
+        await addSessions(toCreate, { _id: rec._id, ...recDoc }, ctx)
+        return ok({ _id: rec._id, generated: toCreate.length, skipped: mode === 'skip' ? conflicts.length : 0 })
       }
 
       // 列出本人未删除的循环规则
@@ -144,11 +194,11 @@ exports.main = async (event = {}) => {
           if (!COURSE_DEFAULT_DURATION[data.courseType]) return fail(40001, '课程类型无效')
           patch.courseType = data.courseType
         }
-        if (data.weekday !== undefined) {
-          if (!(Number.isInteger(data.weekday) && data.weekday >= 0 && data.weekday <= 6)) {
+        if (data.weekdays !== undefined) {
+          if (!Array.isArray(data.weekdays) || !data.weekdays.every((w) => Number.isInteger(w) && w >= 0 && w <= 6)) {
             return fail(40001, '星期取值无效')
           }
-          patch.weekday = data.weekday
+          patch.weekdays = data.weekdays
         }
         if (data.timeOfDay !== undefined) {
           if (!HHMM.test(data.timeOfDay)) return fail(40001, '时间格式应为 HH:mm')
@@ -175,7 +225,7 @@ exports.main = async (event = {}) => {
         const starts = generateStartTimes(
           merged.startDate,
           merged.endDate,
-          merged.weekday,
+          merged.weekdays || (Number.isInteger(merged.weekday) ? [merged.weekday] : []),
           merged.timeOfDay
         ).filter((st) => st.getTime() >= now)
         await addSessions(starts, merged, ctx)

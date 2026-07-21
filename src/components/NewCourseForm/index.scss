@@ -2,6 +2,70 @@
   padding-top: 4rpx;
 }
 
+/* 单次/循环 切换 */
+.mode-row {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 4rpx;
+}
+
+.mode-chip {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: var(--font-name);
+  font-weight: var(--weight-bold);
+  color: var(--ink-body);
+  background: var(--paper-card);
+  border: 2rpx solid var(--ink-stroke);
+  border-radius: var(--radius-sketch-5);
+}
+
+.mode-chip.on {
+  color: var(--btn-primary-ink);
+  background: var(--btn-primary-bg);
+  border-color: var(--btn-primary-bg);
+}
+
+/* 星期多选 */
+.wd-wrap {
+  display: flex;
+  gap: 12rpx;
+}
+
+.wd-chip {
+  flex: 1;
+  text-align: center;
+  padding: 14rpx 0;
+  font-size: var(--font-name);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-body);
+  background: var(--paper-card);
+  border: 2rpx dashed var(--ink-stroke);
+  border-radius: var(--radius-sketch-5);
+}
+
+.wd-chip.on {
+  color: var(--btn-primary-ink);
+  background: var(--btn-primary-bg);
+  border-style: solid;
+  border-color: var(--btn-primary-bg);
+}
+
+/* 生成预览 */
+.preview {
+  margin-top: 28rpx;
+  padding: 18rpx 22rpx;
+  background: var(--accent-teal-bg);
+  border-radius: var(--radius-sketch-3);
+}
+
+.preview-txt {
+  font-size: var(--font-name);
+  font-weight: var(--weight-bold);
+  color: var(--accent-teal-ink);
+}
+
 .sec {
   margin-top: 28rpx;
 }

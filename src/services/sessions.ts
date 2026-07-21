@@ -22,20 +22,15 @@ export function listSessions(from: string, to: string): Promise<{ list: SessionR
 export async function listSessionsRange(from: string, to: string): Promise<{ list: SessionRow[] }> {
   const all: SessionRow[] = []
   let skip = 0
-  let round = 0
   for (;;) {
     const res = await callFunction<{ list: SessionRow[] }>('sessions', {
       action: 'list',
       data: { from, to, skip }
     })
-    round += 1
-    // TODO 临时日志，定位后删除
-    console.log('[stats] 分页', round, 'skip=', skip, '返回', res.list.length, '条')
     all.push(...res.list)
     if (res.list.length < 100 || skip > 5000) break
     skip += 100
   }
-  console.log('[stats] 分页共', round, '次，合计', all.length, '条')
   return { list: all }
 }
 
