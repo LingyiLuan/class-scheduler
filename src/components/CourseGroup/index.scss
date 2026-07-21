@@ -1,0 +1,55 @@
+.cgroup {
+  margin-bottom: 14rpx;
+  padding-top: 4rpx;
+}
+
+/* 冲突标签：红铅笔手写体 + 手绘虚线描边 */
+.cgroup-tag-wrap {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8rpx;
+  margin-bottom: 10rpx;
+  padding: 2rpx 18rpx;
+  border: 2rpx dashed var(--accent-coral);
+  border-radius: var(--radius-sketch-5);
+}
+
+.cgroup-tag {
+  font-size: 30rpx;
+  color: var(--accent-coral-ink);
+  transform: rotate(-1.5deg);
+}
+
+.cgroup-body {
+  display: flex;
+}
+
+/* 左侧竖直手绘线（波浪 SVG 纵向平铺），连接组内卡片 */
+.cgroup-line {
+  flex: none;
+  width: 16rpx;
+  margin-right: 6rpx;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='40' viewBox='0 0 16 40'%3E%3Cpath d='M9 0 Q5 10 9 20 Q13 30 9 40' fill='none' stroke='%23F07850' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-y;
+  background-position: left top;
+  background-size: 16rpx 40rpx;
+}
+
+.cgroup-cards {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 轻微角度偏移 + 右缩进，像几张纸叠着（非绝对定位，点击区域正常） */
+.cgroup-card {
+  margin-left: 8rpx;
+}
+
+.cgroup-card.off0 {
+  transform: rotate(-0.5deg);
+}
+
+.cgroup-card.off1 {
+  margin-left: 22rpx;
+  transform: rotate(0.7deg);
+}

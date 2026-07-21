@@ -6,7 +6,7 @@ import TabBar from '../../components/TabBar'
 import SheetModal from '../../components/SheetModal'
 import NewCourseForm from '../../components/NewCourseForm'
 import { PaperToastHost } from '../../components/PaperToast'
-import CourseCard from '../../components/CourseCard'
+import CourseGroup, { groupOverlaps } from '../../components/CourseGroup'
 import { listSessions, SessionRow } from '../../services/sessions'
 import { listStudents } from '../../services/students'
 import { bjDateStr, bjMidnight, bjWeekday } from '../../utils/datetime'
@@ -124,12 +124,12 @@ export default function Schedule() {
                 <Text className='day-empty-cn'>当天没有课</Text>
               </View>
             ) : (
-              d.courses.map((c) => (
-                <CourseCard
-                  key={c._id}
-                  session={c}
+              groupOverlaps(d.courses).map((g, gi) => (
+                <CourseGroup
+                  key={gi}
+                  courses={g}
                   nameMap={nameMap}
-                  onClick={() => Taro.navigateTo({ url: `/pages/course/detail/index?id=${c._id}` })}
+                  onOpen={(cid) => Taro.navigateTo({ url: `/pages/course/detail/index?id=${cid}` })}
                 />
               ))
             )}
