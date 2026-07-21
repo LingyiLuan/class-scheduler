@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { SketchFrame, StatusMark } from '../../components/sketch'
+import { SketchFrame, SketchIcon, StatusMark } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
 import { listSessions, SessionRow } from '../../services/sessions'
 import { listStudents } from '../../services/students'
@@ -65,15 +65,10 @@ export default function Schedule() {
   }, [])
 
   useEffect(() => {
-    // TODO 临时调试日志，定位后删除
-    console.log('[周视图] 查询区间 from/to =', from, to)
     setLoading(true)
     listSessions(from, to)
-      .then(({ list }) => {
-        console.log('[周视图] 云函数返回原始 =', JSON.stringify(list))
-        setSessions(list)
-      })
-      .catch((e) => console.log('[周视图] 查询失败 =', e))
+      .then(({ list }) => setSessions(list))
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [from, to])
 
@@ -86,13 +81,11 @@ export default function Schedule() {
     }))
   }, [days, sessions])
 
-  useEffect(() => {
-    // TODO 临时调试日志，定位后删除
-    console.log('[周视图] 分组每天课程数 =', grouped.map((d) => `${d.dateStr}:${d.courses.length}`).join(' '))
-  }, [grouped])
-
+  function studentName(id: string): string {
+    return nameMap[id] || '学员已删除'
+  }
   function names(ids: string[]): string {
-    return ids.map((id) => nameMap[id] || '?').join('、')
+    return ids.map(studentName).join('、')
   }
 
   return (
@@ -159,7 +152,9 @@ export default function Schedule() {
                       </View>
                     </View>
                     <View className='cc-bottom'>
-                      <View className='cc-avatar'>{(nameMap[c.studentIds[0]] || '?').slice(0, 1)}</View>
+                      <View className='cc-avatar'>
+                        {nameMap[c.studentIds[0]] ? nameMap[c.studentIds[0]].slice(0, 1) : '–'}
+                      </View>
                       <View className='cc-info'>
                         <Text className='cc-names'>{names(c.studentIds)}</Text>
                         <Text className='cc-meta'>
@@ -173,6 +168,13 @@ export default function Schedule() {
             )}
           </View>
         ))}
+      </View>
+
+      <View
+        className='fab'
+        onClick={() => Taro.navigateTo({ url: '/pages/course/new/index' })}
+      >
+        <SketchIcon name='plus' size={52} color='#FBF3E0' />
       </View>
 
       <TabBar current='schedule' />

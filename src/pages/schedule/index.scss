@@ -225,3 +225,19 @@
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
 }
+
+/* ── 新建课程 FAB ── */
+.fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: 150rpx;
+  z-index: 90;
+  width: 96rpx;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--btn-primary-bg);
+  border-radius: var(--radius-sketch-1);
+  box-shadow: var(--shadow-btn);
+}
