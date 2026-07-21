@@ -8,10 +8,59 @@ const db = cloud.database()
 const _ = db.command
 const col = db.collection('notifications')
 
+const RETAIN_DAYS = 90 // 超过则删
+const MAX_PER_OWNER = 300 // 每人超出则删最老的
+
+// 清理：两个条件取先满足的——超 90 天的删，或每人超 300 条的删最老的。由每日定时触发器调用。
+async function cleanup() {
+  const cutoff = new Date(Date.now() - RETAIN_DAYS * 86400000)
+
+  // 1) 全局删超 90 天
+  let removedOld = 0
+  try {
+    const r = await col.where({ createdAt: _.lt(cutoff) }).remove()
+    removedOld = (r.stats && r.stats.removed) || 0
+  } catch (e) {
+    console.error('[cleanup] 删旧失败', e && e.message)
+  }
+
+  // 2) 每人超 300 条：以第 300 新的那条时间为界，早于它的删
+  let removedExcess = 0
+  try {
+    const owners = await col.aggregate().group({ _id: '$ownerId' }).limit(1000).end()
+    for (const o of owners.list) {
+      const ownerId = o._id
+      if (!ownerId) continue
+      const { total } = await col.where({ ownerId }).count()
+      if (total <= MAX_PER_OWNER) continue
+      const boundary = await col
+        .where({ ownerId })
+        .orderBy('createdAt', 'desc')
+        .skip(MAX_PER_OWNER - 1)
+        .limit(1)
+        .get()
+      if (!boundary.data.length) continue
+      const r = await col
+        .where({ ownerId, createdAt: _.lt(boundary.data[0].createdAt) })
+        .remove()
+      removedExcess += (r.stats && r.stats.removed) || 0
+    }
+  } catch (e) {
+    console.error('[cleanup] 删超额失败', e && e.message)
+  }
+
+  console.log(`[notifications.cleanup] 删旧 ${removedOld}，删超额 ${removedExcess}`)
+  return ok({ removedOld, removedExcess })
+}
+
 exports.main = async (event = {}) => {
+  const { action, data = {} } = event
+
+  // 定时触发器无 action → 走清理，不鉴权
+  if (!action) return cleanup()
+
   try {
     const ctx = await requireRole(['owner', 'teacher'])
-    const { action, data = {} } = event
 
     switch (action) {
       // 本人消息流，按时间倒序分页
