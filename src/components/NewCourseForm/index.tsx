@@ -114,6 +114,8 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
             if (r.confirm) doCreateSingle(true)
           }
         })
+      } else if (err.code === 40902) {
+        Taro.showModal({ title: '无法排课', content: err.message, showCancel: false })
       } else {
         Taro.showToast({ title: err.message || '创建失败', icon: 'none' })
       }
@@ -156,6 +158,19 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
           success: (r) => {
             doCreateRecurring(r.confirm ? 'force' : 'skip')
           }
+        })
+      } else if (err.code === 40902) {
+        const d = (err.data || {}) as { conflicts?: any[] }
+        const list = d.conflicts || []
+        const lines = list.slice(0, 8).map((c) => {
+          const s = new Date(c.startTime).getTime()
+          return `${bjDateStr(s).slice(5)} ${bjTimeStr(s)}`
+        })
+        const more = list.length > 8 ? `\n…共 ${list.length} 节` : ''
+        Taro.showModal({
+          title: '存在学员重复排课',
+          content: `${err.message}\n${lines.join('\n')}${more}\n请调整循环规则`,
+          showCancel: false
         })
       } else {
         Taro.showToast({ title: err.message || '生成失败', icon: 'none' })

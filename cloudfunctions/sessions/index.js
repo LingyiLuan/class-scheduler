@@ -60,6 +60,21 @@ async function findConflicts(ownerId, startTime, durationMin, excludeId) {
   })
 }
 
+// 冲突里是否有「同一学员」重叠（硬冲突，数据错误，不允许强建）。返回该学员 id 或 null
+function sharedStudentConflict(conflicts, studentIds) {
+  const set = new Set(studentIds || [])
+  for (const c of conflicts) {
+    const hit = (c.studentIds || []).find((sid) => set.has(sid))
+    if (hit) return hit
+  }
+  return null
+}
+
+async function studentNameById(id) {
+  const r = await students.where({ _id: id }).get()
+  return (r.data[0] && r.data[0].name) || '该学员'
+}
+
 exports.main = async (event = {}) => {
   try {
     const ctx = await requireRole(['owner', 'teacher'])
@@ -76,6 +91,11 @@ exports.main = async (event = {}) => {
         await assertStudentsOwned(data.studentIds, ctx)
 
         const conflicts = await findConflicts(ctx.openid, data.startTime, durationMin, null)
+        const hardSid = sharedStudentConflict(conflicts, data.studentIds)
+        if (hardSid) {
+          const name = await studentNameById(hardSid)
+          return fail(40902, `${name} 在该时段已有课程，无法重复排课`)
+        }
         if (conflicts.length && data.force !== true) {
           return fail(40901, '该时段与已有课程冲突', { conflicts })
         }
@@ -151,6 +171,12 @@ exports.main = async (event = {}) => {
 
         if (data.startTime !== undefined || data.durationMin !== undefined) {
           const conflicts = await findConflicts(ctx.openid, nextStart, nextDuration, doc._id)
+          const nextStudents = data.studentIds !== undefined ? data.studentIds : doc.studentIds
+          const hardSid = sharedStudentConflict(conflicts, nextStudents)
+          if (hardSid) {
+            const name = await studentNameById(hardSid)
+            return fail(40902, `${name} 在该时段已有课程，无法重复排课`)
+          }
           if (conflicts.length && data.force !== true) {
             return fail(40901, '该时段与已有课程冲突', { conflicts })
           }

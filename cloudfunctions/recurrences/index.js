@@ -139,16 +139,37 @@ exports.main = async (event = {}) => {
           .get()
         const existing = ex.data.map((s) => {
           const st = new Date(s.startTime).getTime()
-          return { start: st, end: st + (s.durationMin || 0) * 60000, courseType: s.courseType }
+          return {
+            start: st,
+            end: st + (s.durationMin || 0) * 60000,
+            courseType: s.courseType,
+            studentIds: s.studentIds || []
+          }
         })
-        const conflicts = []
+        const studentSet = new Set(studentIds)
+        const conflicts = [] // 软冲突（不同学员）
+        const hardConflicts = [] // 硬冲突（同一学员重叠，数据错误）
         const okStarts = []
         for (const st of starts) {
           const s = st.getTime()
           const e = s + durMs
-          const hit = existing.find((x) => x.start < e && s < x.end)
-          if (hit) conflicts.push({ startTime: st.toISOString(), withCourseType: hit.courseType })
-          else okStarts.push(st)
+          const hits = existing.filter((x) => x.start < e && s < x.end)
+          if (!hits.length) {
+            okStarts.push(st)
+          } else if (hits.some((h) => h.studentIds.some((sid) => studentSet.has(sid)))) {
+            hardConflicts.push({ startTime: st.toISOString() })
+          } else {
+            conflicts.push({ startTime: st.toISOString(), withCourseType: hits[0].courseType })
+          }
+        }
+
+        // 硬冲突（同学员重复排课）整批拦截，不允许强建/跳过，需老师调整规则
+        if (hardConflicts.length) {
+          return fail(40902, `有 ${hardConflicts.length} 节与学员已有课程重复，无法生成`, {
+            hard: true,
+            conflicts: hardConflicts,
+            hardCount: hardConflicts.length
+          })
         }
 
         const mode = data.mode || 'auto'
