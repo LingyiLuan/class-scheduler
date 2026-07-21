@@ -5,6 +5,7 @@ const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
 
 const db = cloud.database()
+const _ = db.command
 const students = db.collection('students')
 
 // 邀请码字符集：去掉易混淆的 0/O、1/I/L 等
@@ -33,7 +34,7 @@ async function loadOwned(id, ctx) {
   if (!id) throw new AuthError(40001, '缺少学员 id')
   const res = await students.where({ _id: id }).get()
   const doc = res.data[0]
-  if (!doc) throw new AuthError(40400, '学员不存在')
+  if (!doc || doc.isDeleted === true) throw new AuthError(40400, '学员不存在')
   if (ctx.user.role !== 'owner' && doc.ownerId !== ctx.openid) {
     throw new AuthError(40301, '无权操作该学员')
   }
@@ -59,15 +60,17 @@ exports.main = async (event = {}) => {
           note: data.note || '',
           inviteCode,
           userId: null,
+          isDeleted: false,
           createdAt: db.serverDate()
         }
         const res = await students.add({ data: doc })
         return ok({ _id: res._id, ...doc })
       }
 
-      // 列表：owner 看全部，teacher 仅看自己的；按创建时间倒序
+      // 列表：owner 看全部，teacher 仅看自己的；过滤软删；按创建时间倒序
       case 'list': {
-        const where = ctx.user.role === 'owner' ? {} : { ownerId: ctx.openid }
+        const where = { isDeleted: _.neq(true) }
+        if (ctx.user.role !== 'owner') where.ownerId = ctx.openid
         const res = await students.where(where).orderBy('createdAt', 'desc').limit(100).get()
         return ok({ list: res.data })
       }
@@ -93,10 +96,10 @@ exports.main = async (event = {}) => {
         return ok({ _id: data.id, ...patch })
       }
 
-      // 删除学员档案本身（关联的课程/流水不在此级联，历史留存）
+      // 软删：置 isDeleted=true，不实际删除文档，保留其关联流水/历史课的可追溯
       case 'delete': {
         await loadOwned(data.id, ctx)
-        await students.doc(data.id).remove()
+        await students.doc(data.id).update({ data: { isDeleted: true } })
         return ok({ _id: data.id })
       }
 

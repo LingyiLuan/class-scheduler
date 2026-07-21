@@ -44,6 +44,7 @@
 | note | String | |
 | inviteCode | String | 6 位，创建时生成，二期绑定用；字符集 `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`（避易混淆） |
 | userId | String | 一期为 null，二期绑定后填入 |
+| isDeleted | Boolean | 软删标记，默认 false；删除只置 true，保留关联流水/历史课的可追溯 |
 | createdAt | Date | |
 
 ### packages — 课包（购买事件）
