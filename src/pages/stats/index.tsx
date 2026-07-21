@@ -88,8 +88,7 @@ export default function Stats() {
       setLoadErr(false)
       // 默认滚到最右（最近的周）
       setTimeout(() => setScrollLeft(99999), 80)
-    } catch (e) {
-      console.log('[stats] 加载失败', e)
+    } catch {
       setLoadErr(true)
     }
   }

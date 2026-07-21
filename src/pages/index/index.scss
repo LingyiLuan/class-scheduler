@@ -88,23 +88,6 @@
   transform: rotate(3deg);
 }
 
-/* 仅开发环境：真机调试发送入口 */
-.debug-row {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  gap: 16rpx;
-  margin: 12rpx 8rpx 0;
-}
-
-.debug-btn {
-  padding: 8rpx 20rpx;
-  font-size: var(--font-caption);
-  color: var(--accent-coral-ink);
-  border: 2rpx dashed var(--accent-coral);
-  border-radius: var(--radius-sketch-4);
-}
-
 /* ── 快捷入口 ── */
 .quick-row {
   position: relative;

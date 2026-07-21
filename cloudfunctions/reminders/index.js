@@ -18,8 +18,8 @@ const _ = db.command
 const sessions = db.collection('classSessions')
 const students = db.collection('students')
 
-// 调试入口总开关：上线前置 false，关闭手动触发发送
-const ALLOW_DEBUG = true
+// 调试入口总开关：上线前置 false，关闭手动触发发送。本地开发临时测试时改回 true
+const ALLOW_DEBUG = false
 
 // 取一节课的学员名（保持传入顺序）
 async function studentNames(studentIds) {

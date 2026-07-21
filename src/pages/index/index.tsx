@@ -12,12 +12,9 @@ import CourseCard from '../../components/CourseCard'
 import { listSessions, SessionRow } from '../../services/sessions'
 import { listStudents, getBalance } from '../../services/students'
 import { refreshQuotaSetting } from '../../services/subscribe'
-import { debugSendClassReminder, debugSendLowCredit } from '../../services/reminders'
 import { unreadCount } from '../../services/notifications'
 import { bjDateStr, bjMidnight, bjWeekday } from '../../utils/datetime'
 import './index.scss'
-
-const IS_DEV = process.env.NODE_ENV === 'development'
 
 interface Quick {
   key: string
@@ -143,16 +140,6 @@ export default function Index() {
     Taro.navigateTo({ url: '/pages/messages/index' })
   }
 
-  // 仅开发环境：真机手动触发发送，验证订阅消息
-  async function onDebug(kind: 'class' | 'low') {
-    try {
-      const r = kind === 'class' ? await debugSendClassReminder() : await debugSendLowCredit()
-      Taro.showModal({ title: '调试发送结果', content: JSON.stringify(r, null, 2), showCancel: false })
-    } catch {
-      // api 层已 toast
-    }
-  }
-
   const quick: Quick[] = [
     { key: 'students', label: '学员', icon: 'people', sk: 'sk-1', onTap: () => Taro.reLaunch({ url: '/pages/students/list/index' }) },
     { key: 'recharge', label: '充值', icon: 'wallet', sk: 'sk-2', onTap: () => setShowRecharge(true) },
@@ -180,17 +167,6 @@ export default function Index() {
           </View>
         </View>
       </View>
-
-      {IS_DEV ? (
-        <View className='debug-row'>
-          <Text className='debug-btn' onClick={() => onDebug('class')}>
-            调试·课前提醒
-          </Text>
-          <Text className='debug-btn' onClick={() => onDebug('low')}>
-            调试·课时不足
-          </Text>
-        </View>
-      ) : null}
 
       <View className='quick-row'>
         {quick.map((q) => (
