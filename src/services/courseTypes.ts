@@ -11,8 +11,11 @@ export interface CourseType {
   slug?: string | null
 }
 
-/** 列出课程类型。activeOnly=true 只返回启用的（建课表单用，停用的完全不出现） */
-export function listCourseTypes(activeOnly = false): Promise<{ list: CourseType[] }> {
+/** 列出课程类型。activeOnly=true 只返回启用的（建课表单用，停用的完全不出现）。
+ *  needsMigration：管理页用，是否还有未回填快照的历史数据（迁移后转 false，用于隐藏迁移入口） */
+export function listCourseTypes(
+  activeOnly = false
+): Promise<{ list: CourseType[]; needsMigration?: boolean }> {
   return callFunction('courseTypes', { action: 'list', data: { activeOnly } })
 }
 

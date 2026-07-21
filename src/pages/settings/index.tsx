@@ -27,13 +27,15 @@ export default function Settings() {
   const [editName, setEditName] = useState('')
   const [editDur, setEditDur] = useState('')
   const [busy, setBusy] = useState(false)
+  const [needsMigration, setNeedsMigration] = useState(false)
 
   useLoad(() => load())
 
   async function load() {
     try {
-      const { list } = await listCourseTypes(false)
+      const { list, needsMigration: nm } = await listCourseTypes(false)
       setTypes(list)
+      setNeedsMigration(!!nm)
     } catch {
       // toasted
     }
@@ -169,28 +171,37 @@ export default function Settings() {
         <Text className='set-sec-hint'>停用后新建课时不再出现，历史课程仍正常显示</Text>
       </View>
 
-      {/* 新增 */}
+      {/* 新增：两栏各自独立描边，避免填错行 */}
       <View className='add-card paper-card sk-2'>
         <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
-        <Input
-          className='add-name'
-          value={newName}
-          onInput={(e) => setNewName(e.detail.value)}
-          placeholder='类型名称，如 自然拼读'
-          placeholderStyle={PH}
-        />
-        <View className='add-bottom'>
-          <Input
-            className='add-dur'
-            type='number'
-            value={newDur}
-            onInput={(e) => setNewDur(e.detail.value)}
-            placeholder='默认时长(分钟)'
-            placeholderStyle={PH}
-          />
-          <View className={`add-btn ${busy ? 'off' : ''}`} onClick={busy ? undefined : onAdd}>
-            <Text className='add-btn-txt'>添加</Text>
+        <View className='fld'>
+          <Text className='fld-label'>名称</Text>
+          <View className='fld-box'>
+            <Input
+              className='fld-input'
+              value={newName}
+              onInput={(e) => setNewName(e.detail.value)}
+              placeholder='类型名称'
+              placeholderStyle={PH}
+            />
           </View>
+        </View>
+        <View className='fld'>
+          <Text className='fld-label'>默认时长</Text>
+          <View className='fld-box dur'>
+            <Input
+              className='fld-input'
+              type='number'
+              value={newDur}
+              onInput={(e) => setNewDur(e.detail.value)}
+              placeholder='90'
+              placeholderStyle={PH}
+            />
+            <Text className='fld-suffix'>分钟</Text>
+          </View>
+        </View>
+        <View className={`add-btn ${busy ? 'off' : ''}`} onClick={busy ? undefined : onAdd}>
+          <Text className='add-btn-txt'>添加</Text>
         </View>
       </View>
 
@@ -225,10 +236,11 @@ export default function Settings() {
           ) : (
             <View className='ct-main'>
               <View className='ct-info'>
-                <Text className='ct-name'>{t.name}</Text>
-                <Text className='ct-dur'>
-                  {t.durationMin} 分钟{t.isActive ? '' : ' · 已停用'}
-                </Text>
+                <View className='ct-name-row'>
+                  <Text className='ct-name'>{t.name}</Text>
+                  {t.isActive ? null : <Text className='ct-badge'>已停用</Text>}
+                </View>
+                <Text className='ct-dur'>{t.durationMin} 分钟</Text>
               </View>
               <View className='ct-ops'>
                 <Text className='ct-move' onClick={() => move(i, -1)}>
@@ -252,9 +264,11 @@ export default function Settings() {
         </View>
       ))}
 
-      <Text className='migrate-link' onClick={onMigrate}>
-        迁移历史数据
-      </Text>
+      {needsMigration ? (
+        <Text className='migrate-link' onClick={onMigrate}>
+          迁移历史数据
+        </Text>
+      ) : null}
 
       <PaperToastHost />
     </View>

@@ -46,30 +46,53 @@
   padding: 20rpx;
 }
 
-.add-name {
-  font-size: var(--font-body);
-  color: var(--ink-title);
-  padding: 6rpx 4rpx;
-}
-
-.add-bottom {
+/* 独立描边字段，名称/时长明显分隔，避免填错行 */
+.fld {
   display: flex;
   align-items: center;
   gap: 16rpx;
-  margin-top: 12rpx;
+  margin-bottom: 14rpx;
 }
 
-.add-dur {
+.fld-label {
+  flex: none;
+  width: 120rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-secondary);
+}
+
+.fld-box {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 18rpx;
+  background: var(--paper-soft, #faf3e1);
+  border: 2rpx solid var(--pencil-faint, #c9bb9a);
+  border-radius: var(--radius-sketch-3);
+}
+
+.fld-box.dur {
+  max-width: 260rpx;
+}
+
+.fld-input {
+  flex: 1;
+  min-width: 0;
   font-size: var(--font-body);
   color: var(--ink-title);
-  padding: 6rpx 4rpx;
-  border-bottom: 2rpx dashed var(--pencil-faint, #c9bb9a);
+}
+
+.fld-suffix {
+  flex: none;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
 }
 
 .add-btn {
-  flex: none;
-  padding: 10rpx 32rpx;
+  margin-top: 6rpx;
+  padding: 12rpx 0;
+  text-align: center;
   background: var(--ink-title);
   border-radius: var(--radius-sketch-3);
 }
@@ -106,10 +129,26 @@
   flex: 1;
 }
 
+.ct-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
 .ct-name {
   font-size: var(--font-name);
   font-family: var(--font-brush);
   color: var(--ink-title);
+}
+
+.ct-badge {
+  flex: none;
+  padding: 2rpx 14rpx;
+  font-size: var(--font-tag);
+  color: var(--ink-tertiary);
+  background: rgba(51, 41, 28, 0.08);
+  border: 2rpx solid var(--pencil-faint, #c9bb9a);
+  border-radius: var(--radius-sketch-5);
 }
 
 .ct-dur {

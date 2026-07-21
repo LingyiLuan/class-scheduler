@@ -75,7 +75,23 @@ exports.main = async (event = {}) => {
           .orderBy('createdAt', 'asc')
           .limit(100)
           .get()
-        return ok({ list: res.data })
+        // 管理页用：是否还有未回填快照的历史数据（用于迁移后隐藏「迁移」入口）
+        let needsMigration = false
+        if (!data.activeOnly) {
+          const s = await sessions
+            .where({ ownerId: ctx.openid, courseTypeId: _.exists(false) })
+            .limit(1)
+            .get()
+          if (s.data.length) needsMigration = true
+          else {
+            const r = await recurrences
+              .where({ ownerId: ctx.openid, courseTypeId: _.exists(false), deleted: _.neq(true) })
+              .limit(1)
+              .get()
+            needsMigration = r.data.length > 0
+          }
+        }
+        return ok({ list: res.data, needsMigration })
       }
 
       case 'create': {

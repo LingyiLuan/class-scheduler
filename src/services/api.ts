@@ -62,6 +62,19 @@ export interface CallOptions {
   silent?: boolean
 }
 
+// showLoading 与 hideLoading 必须配对。并发调用用引用计数：仅首个显示、末个隐藏，
+// 避免「showLoading 应与 hideLoading 配对使用」的重复告警（多个带 loading 的请求同时在飞时）。
+let loadingCount = 0
+function showLoadingRC(title: string): void {
+  if (loadingCount === 0) Taro.showLoading({ title, mask: true })
+  loadingCount += 1
+}
+function hideLoadingRC(): void {
+  if (loadingCount === 0) return
+  loadingCount -= 1
+  if (loadingCount === 0) Taro.hideLoading()
+}
+
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => reject(new ApiError(-2, '请求超时，请重试')), ms)
@@ -91,7 +104,7 @@ export async function callFunction<T = unknown>(
   const { loading = false, timeout = 15000, silent = false } = options
 
   if (loading) {
-    Taro.showLoading({ title: typeof loading === 'string' ? loading : '加载中', mask: true })
+    showLoadingRC(typeof loading === 'string' ? loading : '加载中')
   }
 
   try {
@@ -127,7 +140,7 @@ export async function callFunction<T = unknown>(
     throw err
   } finally {
     if (loading) {
-      Taro.hideLoading()
+      hideLoadingRC()
     }
   }
 }
