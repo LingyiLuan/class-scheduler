@@ -92,6 +92,13 @@
 .type-row {
   display: flex;
   gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.type-empty {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+  padding: 12rpx 4rpx;
 }
 
 .type-chip {

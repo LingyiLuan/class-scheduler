@@ -4,6 +4,8 @@ export interface SessionRow {
   _id: string
   ownerId?: string
   courseType: string
+  courseTypeId?: string | null
+  courseTypeName?: string | null
   startTime: string
   durationMin: number
   status: string
@@ -35,7 +37,8 @@ export async function listSessionsRange(from: string, to: string): Promise<{ lis
 }
 
 export interface CreateSessionInput {
-  courseType: string
+  courseTypeId?: string
+  courseType?: string
   startTime: string
   durationMin: number
   studentIds: string[]

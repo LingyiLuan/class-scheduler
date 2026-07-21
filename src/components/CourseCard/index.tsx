@@ -3,6 +3,7 @@ import { StatusMark } from '../sketch'
 import { SessionRow } from '../../services/sessions'
 import { SessionStatus } from '../../constants'
 import { bjTimeStr } from '../../utils/datetime'
+import { courseTypeLabel } from '../../utils/courseType'
 import './index.scss'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -11,7 +12,6 @@ const STATUS_LABEL: Record<string, string> = {
   absent: '缺勤',
   cancelled: '已取消'
 }
-const COURSE_LABEL: Record<string, string> = { makeup: '补课', cambridge: '剑桥课程' }
 
 /** 课程卡片（周视图与首页今日课程共用） */
 export default function CourseCard({
@@ -50,7 +50,7 @@ export default function CourseCard({
         <View className='cc-info'>
           <Text className='cc-names'>{names}</Text>
           <Text className='cc-meta'>
-            {COURSE_LABEL[c.courseType] || c.courseType} · {cnt > 1 ? `${cnt}人小班` : '一对一'}
+            {courseTypeLabel(c)} · {cnt > 1 ? `${cnt}人小班` : '一对一'}
           </Text>
         </View>
       </View>

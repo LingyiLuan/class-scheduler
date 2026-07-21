@@ -1,0 +1,9 @@
+{
+  "name": "courseTypes",
+  "version": "1.0.0",
+  "description": "课程类型：增删改停用、引用校验删除、历史数据迁移",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -10,8 +10,31 @@ const _ = db.command
 const $ = db.command.aggregate
 const sessions = db.collection('classSessions')
 const students = db.collection('students')
+const courseTypesCol = db.collection('courseTypes')
 
 const LOW_CREDIT_THRESHOLD = 2
+const LEGACY_LABEL = { makeup: '补课', cambridge: '剑桥课程' }
+
+// 解析课程类型：优先 courseTypeId（新），回退 courseType 字符串（旧兼容）。
+// 返回 { courseTypeId, courseTypeName（快照）, legacyType, defaultDur }。requireActive=建课时校验停用。
+async function resolveCourseType(data, ctx, requireActive) {
+  if (data.courseTypeId) {
+    const t = (await courseTypesCol.where({ _id: data.courseTypeId }).get()).data[0]
+    if (!t || (ctx.user.role !== 'owner' && t.ownerId !== ctx.openid)) {
+      throw new AuthError(40400, '课程类型不存在')
+    }
+    if (requireActive && t.isActive === false) throw new AuthError(40002, '该课程类型已停用')
+    return { courseTypeId: t._id, courseTypeName: t.name, legacyType: t.slug || null, defaultDur: t.durationMin }
+  }
+  const legacy = data.courseType
+  if (!COURSE_DEFAULT_DURATION[legacy]) throw new AuthError(40001, '课程类型无效')
+  return {
+    courseTypeId: null,
+    courseTypeName: LEGACY_LABEL[legacy] || legacy,
+    legacyType: legacy,
+    defaultDur: COURSE_DEFAULT_DURATION[legacy]
+  }
+}
 
 // 累加该学员所有流水的 delta = 当前余额
 async function computeBalance(studentId) {
@@ -125,10 +148,9 @@ exports.main = async (event = {}) => {
     switch (action) {
       // 新建单次课，studentIds 支持多人（小班课）。冲突默认阻止，force=true 可强建
       case 'create': {
-        const { courseType } = data
-        if (!COURSE_DEFAULT_DURATION[courseType]) return fail(40001, '课程类型无效')
         if (!data.startTime) return fail(40001, '缺少开始时间')
-        const durationMin = Number(data.durationMin) || COURSE_DEFAULT_DURATION[courseType]
+        const ct = await resolveCourseType(data, ctx, true)
+        const durationMin = Number(data.durationMin) || ct.defaultDur
         if (durationMin <= 0) return fail(40001, '时长无效')
         await assertStudentsOwned(data.studentIds, ctx)
 
@@ -144,7 +166,9 @@ exports.main = async (event = {}) => {
 
         const doc = {
           ownerId: ctx.openid,
-          courseType,
+          courseType: ct.legacyType,
+          courseTypeId: ct.courseTypeId,
+          courseTypeName: ct.courseTypeName,
           startTime: new Date(data.startTime),
           durationMin,
           status: 'scheduled',
@@ -192,9 +216,11 @@ exports.main = async (event = {}) => {
         let nextDuration = doc.durationMin
         let nextStart = doc.startTime
 
-        if (data.courseType !== undefined) {
-          if (!COURSE_DEFAULT_DURATION[data.courseType]) return fail(40001, '课程类型无效')
-          patch.courseType = data.courseType
+        if (data.courseTypeId !== undefined || data.courseType !== undefined) {
+          const ct = await resolveCourseType(data, ctx, true)
+          patch.courseType = ct.legacyType
+          patch.courseTypeId = ct.courseTypeId
+          patch.courseTypeName = ct.courseTypeName
         }
         if (data.durationMin !== undefined) {
           nextDuration = Number(data.durationMin)

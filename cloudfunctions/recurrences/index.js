@@ -9,8 +9,30 @@ const _ = db.command
 const recurrences = db.collection('recurrences')
 const sessions = db.collection('classSessions')
 const students = db.collection('students')
+const courseTypesCol = db.collection('courseTypes')
 
 const COURSE_DEFAULT_DURATION = { makeup: 90, cambridge: 120 }
+const LEGACY_LABEL = { makeup: '补课', cambridge: '剑桥课程' }
+
+// 解析课程类型：优先 courseTypeId（新），回退 courseType 字符串（旧兼容）
+async function resolveCourseType(data, ctx, requireActive) {
+  if (data.courseTypeId) {
+    const t = (await courseTypesCol.where({ _id: data.courseTypeId }).get()).data[0]
+    if (!t || (ctx.user.role !== 'owner' && t.ownerId !== ctx.openid)) {
+      throw new AuthError(40400, '课程类型不存在')
+    }
+    if (requireActive && t.isActive === false) throw new AuthError(40002, '该课程类型已停用')
+    return { courseTypeId: t._id, courseTypeName: t.name, legacyType: t.slug || null, defaultDur: t.durationMin }
+  }
+  const legacy = data.courseType
+  if (!COURSE_DEFAULT_DURATION[legacy]) throw new AuthError(40001, '课程类型无效')
+  return {
+    courseTypeId: null,
+    courseTypeName: LEGACY_LABEL[legacy] || legacy,
+    legacyType: legacy,
+    defaultDur: COURSE_DEFAULT_DURATION[legacy]
+  }
+}
 const MAX_WEEKS = 26
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/
 const ACTIVE_STATUSES = ['scheduled', 'completed', 'absent']
@@ -71,6 +93,8 @@ async function addSessions(startTimes, rule, ctx) {
       data: {
         ownerId: ctx.openid,
         courseType: rule.courseType,
+        courseTypeId: rule.courseTypeId || null,
+        courseTypeName: rule.courseTypeName || null,
         startTime: st,
         durationMin: rule.durationMin,
         status: 'scheduled',
@@ -104,20 +128,20 @@ exports.main = async (event = {}) => {
       // 生成前查冲突：mode='auto' 有冲突则返回 40901+conflicts（不写库）；
       // 'skip' 只建不冲突的；'force' 全部建。
       case 'create': {
-        const { courseType, timeOfDay, studentIds, startDate, endDate } = data
+        const { timeOfDay, studentIds, startDate, endDate } = data
         const weekdays = Array.isArray(data.weekdays)
           ? data.weekdays
           : Number.isInteger(data.weekday)
             ? [data.weekday]
             : []
-        if (!COURSE_DEFAULT_DURATION[courseType]) return fail(40001, '课程类型无效')
+        const ct = await resolveCourseType(data, ctx, true)
         if (!weekdays.length || !weekdays.every((w) => Number.isInteger(w) && w >= 0 && w <= 6)) {
           return fail(40001, '请选择星期')
         }
         if (!HHMM.test(timeOfDay || '')) return fail(40001, '时间格式应为 HH:mm')
         if (!startDate || !endDate) return fail(40001, '开始与结束日期必填')
         if (endDate < startDate) return fail(40001, '结束日期不能早于开始日期')
-        const durationMin = Number(data.durationMin) || COURSE_DEFAULT_DURATION[courseType]
+        const durationMin = Number(data.durationMin) || ct.defaultDur
         if (durationMin <= 0) return fail(40001, '时长无效')
         await assertStudentsOwned(studentIds, ctx)
 
@@ -184,7 +208,9 @@ exports.main = async (event = {}) => {
 
         const recDoc = {
           ownerId: ctx.openid,
-          courseType,
+          courseType: ct.legacyType,
+          courseTypeId: ct.courseTypeId,
+          courseTypeName: ct.courseTypeName,
           weekdays,
           timeOfDay,
           durationMin,
@@ -211,9 +237,11 @@ exports.main = async (event = {}) => {
       case 'updateSeries': {
         const rec = await loadOwnedRec(data.id, ctx)
         const patch = {}
-        if (data.courseType !== undefined) {
-          if (!COURSE_DEFAULT_DURATION[data.courseType]) return fail(40001, '课程类型无效')
-          patch.courseType = data.courseType
+        if (data.courseTypeId !== undefined || data.courseType !== undefined) {
+          const ct = await resolveCourseType(data, ctx, true)
+          patch.courseType = ct.legacyType
+          patch.courseTypeId = ct.courseTypeId
+          patch.courseTypeName = ct.courseTypeName
         }
         if (data.weekdays !== undefined) {
           if (!Array.isArray(data.weekdays) || !data.weekdays.every((w) => Number.isInteger(w) && w >= 0 && w <= 6)) {

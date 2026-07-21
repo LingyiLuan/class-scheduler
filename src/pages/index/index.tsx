@@ -292,6 +292,12 @@ export default function Index() {
         </View>
       ) : null}
 
+      <View className='home-foot'>
+        <Text className='foot-link' onClick={() => Taro.navigateTo({ url: '/pages/settings/index' })}>
+          设置
+        </Text>
+      </View>
+
       <TabBar current='home' />
 
       <SheetModal visible={showRecharge} onClose={() => setShowRecharge(false)} title='课时充值'>

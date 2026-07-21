@@ -42,12 +42,12 @@ function studentsLabel(names) {
   return clip(`${arr[0]}、${arr[1]} 等${arr.length}人`, 20)
 }
 
-// 课前提醒字段值
-function classReminderData({ startMs, courseType, names, durationMin }) {
+// 课前提醒字段值。courseTypeName 为 session 快照名，优先使用；回退旧字符串映射
+function classReminderData({ startMs, courseType, courseTypeName, names, durationMin }) {
   const cnt = (names || []).length
   return {
     time6: { value: fmtBjTime(startMs) },
-    thing12: { value: clip(COURSE_LABEL[courseType] || courseType || '课程', 20) },
+    thing12: { value: clip(courseTypeName || COURSE_LABEL[courseType] || courseType || '课程', 20) },
     thing15: { value: studentsLabel(names) },
     thing4: { value: clip(`${durationMin || 0}分钟 · ${cnt > 1 ? '小班课' : '一对一'}`, 20) }
   }

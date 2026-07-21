@@ -1,5 +1,5 @@
 import { callFunction, CallOptions } from './api'
-import { SessionStatus, CourseType } from '../constants'
+import { SessionStatus } from '../constants'
 
 export interface Student {
   _id: string
@@ -21,7 +21,8 @@ export interface StudentInput {
 
 export interface SessionBrief {
   _id: string
-  courseType: CourseType
+  courseType: string
+  courseTypeName?: string | null
   startTime: string
   durationMin: number
   status: SessionStatus

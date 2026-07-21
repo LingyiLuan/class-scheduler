@@ -1,0 +1,180 @@
+.settings {
+  position: relative;
+  min-height: 100vh;
+  background: var(--paper-kraft);
+  padding: var(--space-screen) var(--space-screen) 120rpx;
+  overflow: hidden;
+}
+
+.set-head {
+  position: relative;
+  z-index: 1;
+  padding: 12rpx 8rpx 8rpx;
+}
+
+.set-title {
+  font-size: var(--font-page-title);
+  font-family: var(--font-brush);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.set-sec {
+  position: relative;
+  z-index: 1;
+  margin: 24rpx 8rpx 12rpx;
+}
+
+.set-sec-title {
+  font-size: var(--font-section);
+  font-family: var(--font-brush);
+  color: var(--ink-title);
+}
+
+.set-sec-hint {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+/* 新增卡 */
+.add-card {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 20rpx;
+  padding: 20rpx;
+}
+
+.add-name {
+  font-size: var(--font-body);
+  color: var(--ink-title);
+  padding: 6rpx 4rpx;
+}
+
+.add-bottom {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.add-dur {
+  flex: 1;
+  font-size: var(--font-body);
+  color: var(--ink-title);
+  padding: 6rpx 4rpx;
+  border-bottom: 2rpx dashed var(--pencil-faint, #c9bb9a);
+}
+
+.add-btn {
+  flex: none;
+  padding: 10rpx 32rpx;
+  background: var(--ink-title);
+  border-radius: var(--radius-sketch-3);
+}
+
+.add-btn.off {
+  opacity: 0.5;
+}
+
+.add-btn-txt {
+  font-size: var(--font-body);
+  color: var(--paper-kraft);
+}
+
+/* 类型卡 */
+.ct-card {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 14rpx;
+  padding: 18rpx 20rpx;
+}
+
+.ct-card.inactive {
+  opacity: 0.62;
+}
+
+.ct-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ct-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.ct-name {
+  font-size: var(--font-name);
+  font-family: var(--font-brush);
+  color: var(--ink-title);
+}
+
+.ct-dur {
+  display: block;
+  margin-top: 2rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-secondary);
+}
+
+.ct-ops {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.ct-move {
+  font-size: 30rpx;
+  color: var(--ink-tertiary);
+  padding: 0 2rpx;
+}
+
+.ct-op {
+  font-size: var(--font-caption);
+  color: var(--accent-teal-ink);
+}
+
+.ct-op.danger {
+  color: var(--accent-coral-ink);
+}
+
+.ct-op.save {
+  color: var(--accent-teal-ink);
+  font-weight: var(--weight-bold);
+}
+
+.ct-edit {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.ct-edit-name {
+  flex: 1;
+  font-size: var(--font-body);
+  color: var(--ink-title);
+  border-bottom: 2rpx dashed var(--pencil-faint, #c9bb9a);
+  padding: 4rpx;
+}
+
+.ct-edit-dur {
+  width: 140rpx;
+  font-size: var(--font-body);
+  color: var(--ink-title);
+  border-bottom: 2rpx dashed var(--pencil-faint, #c9bb9a);
+  padding: 4rpx;
+}
+
+.migrate-link {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin: 40rpx auto 0;
+  text-align: center;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+  text-decoration: underline;
+}

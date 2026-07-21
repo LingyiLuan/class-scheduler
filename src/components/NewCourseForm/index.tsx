@@ -5,18 +5,15 @@ import { SketchFrame } from '../sketch'
 import { listStudents, Student } from '../../services/students'
 import { createSession } from '../../services/sessions'
 import { createRecurrence } from '../../services/recurrences'
+import { listCourseTypes, CourseType } from '../../services/courseTypes'
 import { ApiError } from '../../services/api'
 import { ensureQuota } from '../../services/subscribe'
-import { CourseType, COURSE_TYPE_DEFAULT_DURATION } from '../../constants'
+import { courseTypeLabel } from '../../utils/courseType'
 import { bjDateStr, bjTimeStr } from '../../utils/datetime'
 import { showPaperToast } from '../PaperToast'
 import './index.scss'
 
-const TYPES = [
-  { key: CourseType.Makeup, name: '补课', dur: COURSE_TYPE_DEFAULT_DURATION[CourseType.Makeup], sk: 'sk-1' },
-  { key: CourseType.Cambridge, name: '剑桥课程', dur: COURSE_TYPE_DEFAULT_DURATION[CourseType.Cambridge], sk: 'sk-2' }
-]
-const COURSE_LABEL: Record<string, string> = { makeup: '补课', cambridge: '剑桥课程' }
+const TYPE_SK = ['sk-1', 'sk-2', 'sk-3', 'sk-4']
 // 周一优先展示；wd 用 0=周日..6=周六
 const WEEKDAYS = [
   { label: '一', wd: 1 },
@@ -50,8 +47,9 @@ function countOccurrences(startDate: string, endDate: string, weekdays: number[]
 /** 新建课程表单（用于底部抽屉）。支持单次课与循环课。创建成功回调 onCreated */
 export default function NewCourseForm({ onCreated }: { onCreated: () => void }) {
   const [students, setStudents] = useState<Student[]>([])
+  const [types, setTypes] = useState<CourseType[]>([])
   const [mode, setMode] = useState<'single' | 'recurring'>('single')
-  const [courseType, setCourseType] = useState<string>('')
+  const [courseTypeId, setCourseTypeId] = useState<string>('')
   const [durationMin, setDurationMin] = useState('')
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [time, setTime] = useState('15:00')
@@ -67,11 +65,15 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
     listStudents()
       .then(({ list }) => setStudents(list))
       .catch(() => {})
+    // 只拉启用的类型；停用的完全不出现
+    listCourseTypes(true)
+      .then(({ list }) => setTypes(list))
+      .catch(() => {})
   }, [])
 
-  function pickType(t: string, dur: number) {
-    setCourseType(t)
-    setDurationMin(String(dur))
+  function pickType(t: CourseType) {
+    setCourseTypeId(t._id)
+    setDurationMin(String(t.durationMin))
   }
   function toggleStu(id: string) {
     setSelectedIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
@@ -87,7 +89,7 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
     setSaving(true)
     try {
       await createSession({
-        courseType,
+        courseTypeId,
         startTime: `${date}T${time}:00+08:00`,
         durationMin: Number(durationMin),
         studentIds: selectedIds,
@@ -103,7 +105,7 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
           conflicts
             .map((c) => {
               const s = new Date(c.startTime).getTime()
-              return `${bjTimeStr(s)}–${bjTimeStr(s + c.durationMin * 60000)} ${COURSE_LABEL[c.courseType] || c.courseType}`
+              return `${bjTimeStr(s)}–${bjTimeStr(s + c.durationMin * 60000)} ${courseTypeLabel(c)}`
             })
             .join('\n') || '与已有课程时间冲突'
         Taro.showModal({
@@ -130,7 +132,7 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
     setSaving(true)
     try {
       const r = await createRecurrence({
-        courseType,
+        courseTypeId,
         weekdays,
         timeOfDay: time,
         durationMin: Number(durationMin),
@@ -185,7 +187,7 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
   }
 
   function submit() {
-    if (!courseType) return Taro.showToast({ title: '请选择课程类型', icon: 'none' })
+    if (!courseTypeId) return Taro.showToast({ title: '请选择课程类型', icon: 'none' })
     if (!selectedIds.length) return Taro.showToast({ title: '请至少选择一名学员', icon: 'none' })
     if (!Number(durationMin) || Number(durationMin) <= 0) return Taro.showToast({ title: '时长无效', icon: 'none' })
     if (mode === 'single') {
@@ -216,17 +218,21 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
       <View className='sec'>
         <Text className='sec-label'>课程类型</Text>
         <View className='type-row'>
-          {TYPES.map((t) => (
-            <View
-              key={t.key}
-              className={`type-chip paper-card ${t.sk} ${courseType === t.key ? 'on' : ''}`}
-              onClick={() => pickType(t.key, t.dur)}
-            >
-              <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
-              <Text className='type-name'>{t.name}</Text>
-              <Text className='type-dur'>{t.dur} 分钟</Text>
-            </View>
-          ))}
+          {types.length === 0 ? (
+            <Text className='type-empty'>暂无课程类型，去「设置 · 课程类型」添加</Text>
+          ) : (
+            types.map((t, i) => (
+              <View
+                key={t._id}
+                className={`type-chip paper-card ${TYPE_SK[i % TYPE_SK.length]} ${courseTypeId === t._id ? 'on' : ''}`}
+                onClick={() => pickType(t)}
+              >
+                <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
+                <Text className='type-name'>{t.name}</Text>
+                <Text className='type-dur'>{t.durationMin} 分钟</Text>
+              </View>
+            ))
+          )}
         </View>
       </View>
 

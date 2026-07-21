@@ -13,6 +13,7 @@ import {
 } from '../../../services/sessions'
 import { listStudents, getBalance } from '../../../services/students'
 import { ensureQuota } from '../../../services/subscribe'
+import { courseTypeLabel } from '../../../utils/courseType'
 import { SessionStatus } from '../../../constants'
 import { bjDateStr, bjTimeStr, bjWeekday } from '../../../utils/datetime'
 import { PaperToastHost, showPaperToast } from '../../../components/PaperToast'
@@ -25,7 +26,6 @@ const STATUS_LABEL: Record<string, string> = {
   absent: '缺勤',
   cancelled: '已取消'
 }
-const COURSE_LABEL: Record<string, string> = { makeup: '补课', cambridge: '剑桥课程' }
 
 export default function CourseDetail() {
   const router = useRouter()
@@ -197,7 +197,7 @@ export default function CourseDetail() {
           <Text className='cd-time'>{timeRange}</Text>
           <View className='cd-meta'>
             <Text className='cd-date'>{dateLabel}</Text>
-            <Text className='cd-type'>{COURSE_LABEL[session.courseType] || session.courseType}</Text>
+            <Text className='cd-type'>{courseTypeLabel(session)}</Text>
           </View>
         </View>
 

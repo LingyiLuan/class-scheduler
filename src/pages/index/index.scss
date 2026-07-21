@@ -63,6 +63,22 @@
   transform: rotate(3deg);
 }
 
+/* 页面底部低调「设置」入口（低频功能，不占快捷四格） */
+.home-foot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  margin: 44rpx 0 8rpx;
+}
+
+.foot-link {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+  padding: 8rpx 28rpx;
+  text-decoration: underline;
+}
+
 /* 仅开发环境：真机调试发送入口 */
 .debug-row {
   position: relative;

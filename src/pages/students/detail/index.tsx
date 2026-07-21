@@ -15,6 +15,7 @@ import StudentForm from '../../../components/StudentForm'
 import RechargeForm from '../../../components/RechargeForm'
 import { SessionStatus } from '../../../constants'
 import { bjDateStr, bjTimeStr } from '../../../utils/datetime'
+import { courseTypeLabel } from '../../../utils/courseType'
 import { PaperToastHost, showPaperToast } from '../../../components/PaperToast'
 import './index.scss'
 
@@ -24,7 +25,6 @@ const STATUS_LABEL: Record<string, string> = {
   absent: '缺勤',
   cancelled: '已取消'
 }
-const COURSE_LABEL: Record<string, string> = { makeup: '补课', cambridge: '剑桥' }
 
 export default function StudentDetail() {
   const router = useRouter()
@@ -126,7 +126,7 @@ export default function StudentDetail() {
               <View key={s._id} className='sd-rec'>
                 <StatusMark status={s.status as SessionStatus} size={34} />
                 <Text className='sd-rec-title'>
-                  {bjDateStr(ts).slice(5)} {bjTimeStr(ts)} · {COURSE_LABEL[s.courseType] || s.courseType}
+                  {bjDateStr(ts).slice(5)} {bjTimeStr(ts)} · {courseTypeLabel(s)}
                 </Text>
                 <Text className='sd-rec-status' style={{ color: `var(--status-${s.status})` }}>
                   {STATUS_LABEL[s.status] || s.status}

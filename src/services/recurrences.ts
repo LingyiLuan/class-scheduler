@@ -1,7 +1,8 @@
 import { callFunction } from './api'
 
 export interface CreateRecurrenceInput {
-  courseType: string
+  courseTypeId?: string
+  courseType?: string
   weekdays: number[]
   timeOfDay: string
   durationMin: number

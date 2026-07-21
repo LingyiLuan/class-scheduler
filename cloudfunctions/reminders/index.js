@@ -35,7 +35,13 @@ async function remindSession(s, miniprogramState) {
     touser: s.ownerId,
     templateId: TEMPLATES.classReminder,
     page: `pages/course/detail/index?id=${s._id}`,
-    data: classReminderData({ startMs, courseType: s.courseType, names, durationMin: s.durationMin }),
+    data: classReminderData({
+      startMs,
+      courseType: s.courseType,
+      courseTypeName: s.courseTypeName,
+      names,
+      durationMin: s.durationMin
+    }),
     kind: 'classReminder',
     refId: s._id,
     miniprogramState
@@ -115,6 +121,7 @@ exports.main = async (event = {}) => {
             data: classReminderData({
               startMs: new Date(s.startTime).getTime(),
               courseType: s.courseType,
+              courseTypeName: s.courseTypeName,
               names,
               durationMin: s.durationMin
             }),
