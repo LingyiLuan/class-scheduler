@@ -19,23 +19,74 @@
   color: var(--ink-title);
 }
 
-.set-sec {
+/* 板块标题 + 手绘分隔线，建立信息层级（后续板块沿用同一结构） */
+.group-head {
   position: relative;
   z-index: 1;
-  margin: 24rpx 8rpx 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin: 28rpx 8rpx 6rpx;
 }
 
-.set-sec-title {
+.group-head.second {
+  margin-top: 48rpx;
+}
+
+.group-title {
+  flex: none;
   font-size: var(--font-section);
   font-family: var(--font-brush);
   color: var(--ink-title);
 }
 
-.set-sec-hint {
+.group-rule {
+  flex: 1;
+  height: 2rpx;
+  background-image: linear-gradient(
+    to right,
+    var(--pencil-faint, #c9bb9a) 0,
+    var(--pencil-faint, #c9bb9a) 60%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 14rpx 2rpx;
+  background-repeat: repeat-x;
+  opacity: 0.8;
+}
+
+.group-hint {
+  position: relative;
+  z-index: 1;
   display: block;
-  margin-top: 4rpx;
+  margin: 0 8rpx 14rpx;
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
+}
+
+/* 预留板块的占位行（未上线，灰态不可点） */
+.future-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 12rpx;
+  border-bottom: 2rpx dashed rgba(201, 187, 154, 0.5);
+}
+
+.future-name {
+  font-size: var(--font-body);
+  color: var(--ink-tertiary);
+}
+
+.future-tag {
+  font-size: var(--font-tag);
+  color: var(--ink-tertiary);
+  padding: 2rpx 14rpx;
+  border: 2rpx solid var(--pencil-faint, #c9bb9a);
+  border-radius: var(--radius-sketch-5);
+  opacity: 0.8;
 }
 
 /* 新增卡 */

@@ -50,33 +50,30 @@
   color: var(--ink-secondary);
 }
 
-/* 铃铛：订阅提醒主授权入口，落在 hero 右上 */
-.hero-bell {
+/* 右上角操作区：齿轮（设置）+ 铃铛（提醒授权）并排 */
+.hero-actions {
   position: absolute;
-  top: 24rpx;
-  right: 8rpx;
+  top: 20rpx;
+  right: 4rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.hero-act {
   width: 72rpx;
   height: 72rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.hero-act:first-child {
+  transform: rotate(-4deg);
+}
+
+.hero-act:last-child {
   transform: rotate(3deg);
-}
-
-/* 页面底部低调「设置」入口（低频功能，不占快捷四格） */
-.home-foot {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  margin: 44rpx 0 8rpx;
-}
-
-.foot-link {
-  font-size: var(--font-caption);
-  color: var(--ink-tertiary);
-  padding: 8rpx 28rpx;
-  text-decoration: underline;
 }
 
 /* 仅开发环境：真机调试发送入口 */

@@ -18,6 +18,8 @@ import './index.scss'
 
 const PH = 'font-size:26rpx;color:#B5A88C'
 const SK = ['sk-1', 'sk-2', 'sk-3', 'sk-4']
+// 预留的后续设置板块（结构占位，功能陆续加入）
+const FUTURE = ['提醒设置', '课时阈值', '账号信息']
 
 export default function Settings() {
   const [types, setTypes] = useState<CourseType[]>([])
@@ -166,10 +168,11 @@ export default function Settings() {
         <Text className='set-title'>设置</Text>
       </View>
 
-      <View className='set-sec'>
-        <Text className='set-sec-title'>课程类型</Text>
-        <Text className='set-sec-hint'>停用后新建课时不再出现，历史课程仍正常显示</Text>
+      <View className='group-head'>
+        <Text className='group-title'>课程类型</Text>
+        <View className='group-rule' />
       </View>
+      <Text className='group-hint'>停用后新建课时不再出现，历史课程仍正常显示</Text>
 
       {/* 新增：两栏各自独立描边，避免填错行 */}
       <View className='add-card paper-card sk-2'>
@@ -269,6 +272,18 @@ export default function Settings() {
           迁移历史数据
         </Text>
       ) : null}
+
+      {/* 预留后续板块：分组结构就位，功能陆续加入 */}
+      <View className='group-head second'>
+        <Text className='group-title'>更多设置</Text>
+        <View className='group-rule' />
+      </View>
+      {FUTURE.map((f) => (
+        <View key={f} className='future-row'>
+          <Text className='future-name'>{f}</Text>
+          <Text className='future-tag'>即将上线</Text>
+        </View>
+      ))}
 
       <PaperToastHost />
     </View>

@@ -188,8 +188,13 @@ export default function Index() {
         <Text className='hero-sub'>
           {roleLabel} · {dateLabel}
         </Text>
-        <View className='hero-bell' onClick={onBell}>
-          <SketchIcon name='bell' size={46} color='#4A4030' />
+        <View className='hero-actions'>
+          <View className='hero-act' onClick={() => Taro.navigateTo({ url: '/pages/settings/index' })}>
+            <SketchIcon name='gear' size={44} color='#4A4030' />
+          </View>
+          <View className='hero-act' onClick={onBell}>
+            <SketchIcon name='bell' size={46} color='#4A4030' />
+          </View>
         </View>
       </View>
 
@@ -291,12 +296,6 @@ export default function Index() {
           ))}
         </View>
       ) : null}
-
-      <View className='home-foot'>
-        <Text className='foot-link' onClick={() => Taro.navigateTo({ url: '/pages/settings/index' })}>
-          设置
-        </Text>
-      </View>
 
       <TabBar current='home' />
 
