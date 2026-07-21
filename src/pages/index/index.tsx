@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
+import { Button } from '@nutui/nutui-react-taro'
 import { ensureLogin, canAccessApp } from '../../services/user'
 import { UserRole } from '../../constants'
 import './index.scss'
@@ -42,7 +43,14 @@ export default function Index() {
     <View className='home'>
       <Text className='home-title'>课表管理</Text>
       <Text className='home-sub'>{role === UserRole.Owner ? '管理员' : '教师'}</Text>
-      <Text className='home-hint'>学员、课表、课时功能开发中</Text>
+      <Button
+        type='primary'
+        block
+        onClick={() => Taro.navigateTo({ url: '/pages/students/list/index' })}
+      >
+        学员管理
+      </Button>
+      <Text className='home-hint'>课表、课时功能开发中</Text>
     </View>
   )
 }

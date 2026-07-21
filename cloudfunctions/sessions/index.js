@@ -237,6 +237,15 @@ exports.main = async (event = {}) => {
         return ok({ _id: doc._id, status: 'scheduled' })
       }
 
+      // 某学员的历史课程（studentIds 数组包含该学员），按时间倒序
+      case 'listByStudent': {
+        if (!data.studentId) return fail(40001, '缺少学员 id')
+        const where = { studentIds: data.studentId }
+        if (ctx.user.role !== 'owner') where.ownerId = ctx.openid
+        const res = await sessions.where(where).orderBy('startTime', 'desc').limit(100).get()
+        return ok({ list: res.data })
+      }
+
       default:
         return fail(40000, `未知操作：${action}`)
     }

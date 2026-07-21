@@ -8,7 +8,13 @@ export default defineConfig(async (merge) => {
   const baseConfig: UserConfigExport = {
     projectName: 'class-scheduler',
     date: '2026-7-20',
-    designWidth: 750,
+    // NutUI React 以 375 设计稿，本工程为 750：按文件路径区分换算基准
+    designWidth(input: any) {
+      if (input && input.file && /@nutui/.test(String(input.file).replace(/\\+/g, '/'))) {
+        return 375
+      }
+      return 750
+    },
     deviceRatio: {
       640: 2.34 / 2,
       750: 1,
