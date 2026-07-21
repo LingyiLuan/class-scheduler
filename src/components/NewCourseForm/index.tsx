@@ -6,6 +6,8 @@ import { listStudents, Student } from '../../services/students'
 import { createSession } from '../../services/sessions'
 import { createRecurrence } from '../../services/recurrences'
 import { ApiError } from '../../services/api'
+import { requestSubscribe } from '../../services/subscribe'
+import { TMPL_CLASS_REMINDER } from '../../constants/subscribe'
 import { CourseType, COURSE_TYPE_DEFAULT_DURATION } from '../../constants'
 import { bjDateStr, bjTimeStr } from '../../utils/datetime'
 import { showPaperToast } from '../PaperToast'
@@ -138,7 +140,10 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
         endDate,
         mode: m
       })
-      showPaperToast([`已生成 ${r.generated} 节课${r.skipped ? `，跳过 ${r.skipped} 节冲突` : ''}`])
+      showPaperToast([
+        `已生成 ${r.generated} 节课${r.skipped ? `，跳过 ${r.skipped} 节冲突` : ''}`,
+        '提醒额度有限，将优先提醒最近的课程'
+      ])
       onCreated()
     } catch (e) {
       const err = e as ApiError
@@ -180,18 +185,21 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
     }
   }
 
-  function submit() {
+  async function submit() {
     if (!courseType) return Taro.showToast({ title: '请选择课程类型', icon: 'none' })
     if (!selectedIds.length) return Taro.showToast({ title: '请至少选择一名学员', icon: 'none' })
     if (!Number(durationMin) || Number(durationMin) <= 0) return Taro.showToast({ title: '时长无效', icon: 'none' })
     if (mode === 'single') {
       if (!date || !time) return Taro.showToast({ title: '请选择日期和时间', icon: 'none' })
+      // 在点击手势内请求课前提醒授权（微信要求 tap 内调用），再创建
+      await requestSubscribe([TMPL_CLASS_REMINDER])
       doCreateSingle(false)
     } else {
       if (!weekdays.length) return Taro.showToast({ title: '请选择星期', icon: 'none' })
       if (!startDate || !endDate) return Taro.showToast({ title: '请选择开始与结束日期', icon: 'none' })
       if (endDate < startDate) return Taro.showToast({ title: '结束日期不能早于开始日期', icon: 'none' })
       if (!preview) return Taro.showToast({ title: '所选范围内没有课', icon: 'none' })
+      await requestSubscribe([TMPL_CLASS_REMINDER])
       doCreateRecurring('auto')
     }
   }

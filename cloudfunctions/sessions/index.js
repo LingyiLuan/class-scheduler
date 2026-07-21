@@ -3,11 +3,53 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
+const { sendSubscribe, lowCreditData, TEMPLATES } = require('./_shared/subscribe')
 
 const db = cloud.database()
 const _ = db.command
+const $ = db.command.aggregate
 const sessions = db.collection('classSessions')
 const students = db.collection('students')
+
+const LOW_CREDIT_THRESHOLD = 2
+
+// 累加该学员所有流水的 delta = 当前余额
+async function computeBalance(studentId) {
+  const r = await db
+    .collection('creditLogs')
+    .aggregate()
+    .match({ studentId })
+    .group({ _id: null, total: $.sum('$delta') })
+    .end()
+  return r.list && r.list[0] ? r.list[0].total : 0
+}
+
+// 课时变动后检查：首次跌破 ≤阈值且未通知过 → 发课时不足提醒给老师；余额回升则清标记以便下次再触发。
+// 用 students.lowCreditNotified 布尔标记去重，保证「首次跌破」只发一次。发送失败不影响主流程。
+async function checkLowCredit(studentId, ownerId) {
+  try {
+    const sres = await students.where({ _id: studentId }).get()
+    const stu = sres.data[0]
+    if (!stu) return
+    const balance = await computeBalance(studentId)
+    if (balance <= LOW_CREDIT_THRESHOLD) {
+      if (stu.lowCreditNotified === true) return // 已通知过，不重复
+      await sendSubscribe({
+        touser: ownerId,
+        templateId: TEMPLATES.lowCredit,
+        page: `pages/students/detail/index?id=${studentId}`,
+        data: lowCreditData({ name: stu.name, balance, atMs: Date.now() }),
+        kind: 'lowCredit',
+        refId: studentId
+      })
+      await students.doc(studentId).update({ data: { lowCreditNotified: true } })
+    } else if (stu.lowCreditNotified === true) {
+      await students.doc(studentId).update({ data: { lowCreditNotified: false } })
+    }
+  } catch (e) {
+    console.error('[checkLowCredit] 失败', studentId, e && e.message)
+  }
+}
 
 const COURSE_DEFAULT_DURATION = { makeup: 90, cambridge: 120 }
 // 占用时段（参与冲突检测）的状态；cancelled 不占用
@@ -162,6 +204,8 @@ exports.main = async (event = {}) => {
         if (data.startTime !== undefined) {
           nextStart = new Date(data.startTime)
           patch.startTime = nextStart
+          // 改期后重置课前提醒标记，让定时器按新时间重新提醒
+          patch.classReminderSentAt = _.remove()
         }
         if (data.studentIds !== undefined) {
           await assertStudentsOwned(data.studentIds, ctx)
@@ -222,6 +266,10 @@ exports.main = async (event = {}) => {
             .doc(doc._id)
             .update({ data: { status: 'completed', attendance } })
         })
+        // 扣课时后检查余额，首次跌破 ≤2 发课时不足提醒（事务外，失败不影响完成结果）
+        for (const sid of doc.studentIds) {
+          if (attendance[sid] === 'present') await checkLowCredit(sid, ctx.openid)
+        }
         return ok({ _id: doc._id, status: 'completed', attendance })
       }
 
@@ -261,6 +309,11 @@ exports.main = async (event = {}) => {
               .doc(doc._id)
               .update({ data: { status: 'scheduled', attendance: {} } })
           })
+          // 回退 +1 后余额回升，可能越过阈值 → 清除课时不足标记，便于下次再触发
+          const att0 = doc.attendance || {}
+          for (const sid of Object.keys(att0)) {
+            if (att0[sid] === 'present') await checkLowCredit(sid, ctx.openid)
+          }
           return ok({ _id: doc._id, status: 'scheduled' })
         }
 

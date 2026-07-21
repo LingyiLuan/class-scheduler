@@ -5,6 +5,25 @@ const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
 
 const db = cloud.database()
+const $ = db.command.aggregate
+
+// 充值后若余额回升越过阈值，清除课时不足标记，便于下次再触发提醒
+async function resetLowCreditFlag(studentId) {
+  try {
+    const r = await db
+      .collection('creditLogs')
+      .aggregate()
+      .match({ studentId })
+      .group({ _id: null, total: $.sum('$delta') })
+      .end()
+    const balance = r.list && r.list[0] ? r.list[0].total : 0
+    if (balance > 2) {
+      await db.collection('students').doc(studentId).update({ data: { lowCreditNotified: false } })
+    }
+  } catch (e) {
+    console.error('[resetLowCreditFlag] 失败', studentId, e && e.message)
+  }
+}
 
 // 校验学员存在且归调用者（owner 全权），返回学员文档
 async function assertStudentOwned(studentId, ctx) {
@@ -56,6 +75,7 @@ exports.main = async (event = {}) => {
           return { _id: pkg._id }
         })
 
+        await resetLowCreditFlag(studentId)
         return ok({ _id: result._id, studentId, totalCredits })
       }
 

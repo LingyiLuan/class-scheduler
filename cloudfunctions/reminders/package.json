@@ -1,0 +1,9 @@
+{
+  "name": "reminders",
+  "version": "1.0.0",
+  "description": "订阅消息提醒：定时扫描发送课前提醒；提供真机调试触发入口",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
