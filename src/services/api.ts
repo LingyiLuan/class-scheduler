@@ -19,10 +19,12 @@ export type ApiResponse<T> = ApiOk<T> | ApiFail
 
 export class ApiError extends Error {
   code: number
-  constructor(code: number, message: string) {
+  data?: unknown
+  constructor(code: number, message: string, data?: unknown) {
     super(message)
     this.name = 'ApiError'
     this.code = code
+    this.data = data
   }
 }
 
@@ -81,7 +83,11 @@ export async function callFunction<T = unknown>(
       throw new ApiError(-1, '云函数返回格式异常')
     }
     if (payload.code !== 0) {
-      throw new ApiError(payload.code, (payload as ApiFail).msg || '操作失败')
+      throw new ApiError(
+        payload.code,
+        (payload as ApiFail).msg || '操作失败',
+        (payload as { data?: unknown }).data
+      )
     }
     return (payload as ApiOk<T>).data
   } catch (e) {
