@@ -1,0 +1,9 @@
+{
+  "name": "students",
+  "version": "1.0.0",
+  "description": "学员 CRUD：建档（自动生成邀请码）、列表、详情、更新、删除",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
