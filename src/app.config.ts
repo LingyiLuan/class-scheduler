@@ -2,7 +2,7 @@ export default defineAppConfig({
   cloud: true,
   pages: [
     'pages/index/index',
-    'pages/debug/index'
+    'pages/pending/index'
   ],
   window: {
     backgroundTextStyle: 'light',

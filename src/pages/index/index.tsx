@@ -1,40 +1,45 @@
-import { View, Button } from '@tarojs/components'
-import Taro, { useLoad } from '@tarojs/taro'
-import { callFunction, ApiError } from '../../services/api'
+import { useState } from 'react'
+import { View, Text } from '@tarojs/components'
+import Taro, { useDidShow } from '@tarojs/taro'
+import { ensureLogin, isOwnerActive } from '../../services/user'
 import './index.scss'
 
 export default function Index() {
+  const [loading, setLoading] = useState(true)
 
-  useLoad(() => {
-    console.log('Page loaded.')
+  useDidShow(() => {
+    route()
   })
 
-  // TODO 临时调试：验证小程序端 → login 云函数完整链路，验证后删除
-  const handleTestLogin = async () => {
+  async function route() {
+    setLoading(true)
     try {
-      const data = await callFunction('login', {}, { loading: '登录中', silent: true })
-      console.log('[测试登录] 成功，返回：', data)
-      Taro.showModal({
-        title: '登录成功',
-        content: JSON.stringify(data),
-        showCancel: false
-      })
-    } catch (e) {
-      const err = e as ApiError
-      console.log('[测试登录] 失败：', err)
-      Taro.showModal({
-        title: '登录失败',
-        content: `code=${err.code}\n${err.message}`,
-        showCancel: false
-      })
+      const info = await ensureLogin()
+      if (isOwnerActive(info)) {
+        setLoading(false)
+      } else {
+        // 非管理员或未激活 → 待激活提示页
+        Taro.redirectTo({ url: '/pages/pending/index' })
+      }
+    } catch {
+      setLoading(false)
+      Taro.showToast({ title: '登录失败，请下拉重试', icon: 'none' })
     }
   }
 
+  if (loading) {
+    return (
+      <View className='center'>
+        <Text className='muted'>登录中…</Text>
+      </View>
+    )
+  }
+
   return (
-    <View className='index'>
-      {/* TODO 临时调试入口，验证后删除 */}
-      <Button type='primary' onClick={handleTestLogin}>测试登录</Button>
-      <Button onClick={() => Taro.navigateTo({ url: '/pages/debug/index' })}>打开调试面板</Button>
+    <View className='home'>
+      <Text className='home-title'>课表管理</Text>
+      <Text className='home-sub'>管理员</Text>
+      <Text className='home-hint'>学员、课表、课时功能开发中</Text>
     </View>
   )
 }
