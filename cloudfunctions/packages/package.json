@@ -1,0 +1,9 @@
+{
+  "name": "packages",
+  "version": "1.0.0",
+  "description": "课包充值：新增课包并在事务中同步写入 +N 购买流水",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
