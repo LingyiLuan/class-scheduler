@@ -1,0 +1,9 @@
+{
+  "name": "credits",
+  "version": "1.0.0",
+  "description": "课时查询：余额聚合累加、流水明细分页",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
