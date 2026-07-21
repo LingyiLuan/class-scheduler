@@ -38,6 +38,11 @@ export default defineConfig(async (merge) => {
       enable: false // Webpack 持久化缓存配置，建议开启。默认配置请参考：https://docs.taro.zone/docs/config-detail#cache
     },
     mini: {
+      // NutUI 按需引入后，同一组件样式在不同页面的引入顺序可能不同，
+      // 这些组件样式互相独立、顺序无影响，忽略 mini-css-extract 的顺序告警
+      miniCssExtractPluginOption: {
+        ignoreOrder: true
+      },
       postcss: {
         pxtransform: {
           enable: true,

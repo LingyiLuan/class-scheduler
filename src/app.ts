@@ -1,6 +1,5 @@
 import { PropsWithChildren } from 'react'
 import Taro, { useLaunch } from '@tarojs/taro'
-import '@nutui/nutui-react-taro/dist/style.css'
 import { CLOUD_ENV } from './constants/cloud'
 import './app.scss'
 
