@@ -1,0 +1,115 @@
+/**
+ * 设计 tokens —— 全局 CSS 变量。说明见 docs/design-tokens.md。
+ * 由 app.scss 引入；各页面直接用 var(--x)。定义在 page 上，weapp 全局生效。
+ * 单位：设计稿 375px，本工程 designWidth 750，故 1 设计px = 2rpx。
+ */
+page {
+  /* ── 主色（青绿） ── */
+  --color-primary: #5faebe;
+  --color-primary-strong: #2e8595;
+  --color-primary-tint: #eaf1f3;
+  --color-primary-muted: #7aa6ae;
+
+  /* ── 中性（蓝灰阶） ── */
+  --color-ink: #1c2329;
+  --color-text-strong: #2a333b;
+  --color-text: #3a424a;
+  --color-text-label: #5a6570;
+  --color-text-secondary: #8a929b;
+  --color-text-tertiary: #98a0a8;
+  --color-text-quaternary: #a9b0b7;
+  --color-text-disabled: #b7bec5;
+  --color-icon-muted: #c4cacf;
+
+  /* ── 背景与描边 ── */
+  --color-bg: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-fill: #f6f7f9;
+  --color-fill-chip: #f0f2f4;
+  --color-row-active: #f7f8fa;
+  --color-border: #eef0f2;
+  --color-border-strong: #d8dce0;
+  --color-divider: #f0f2f4;
+
+  /* ── 危险 / 警示（陶土橙红） ── */
+  --color-danger: #d6552f;
+  --color-danger-strong: #c24a28;
+  --color-danger-accent: #f07850;
+  --color-danger-bg: #fbebe5;
+  --color-danger-bg-soft: #fdeee8;
+  --color-danger-border: #f0d4cb;
+  --color-danger-sub: #cc9977;
+
+  /* ── 课程四种状态：字色 / 底色 / 圆点 ── */
+  --status-scheduled: #2e8595;
+  --status-scheduled-bg: #e4f1f3;
+  --status-scheduled-dot: #5faebe;
+  --status-completed: #4e9b6b;
+  --status-completed-bg: #e9f3ec;
+  --status-completed-dot: #5fb07d;
+  --status-absent: #d6552f;
+  --status-absent-bg: #fbebe5;
+  --status-absent-dot: #f07850;
+  --status-cancelled: #98a0a8;
+  --status-cancelled-bg: #f0f2f4;
+  --status-cancelled-dot: #b7bec5;
+
+  /* ── 课时充足 / 不足 ── */
+  --credit-ok: #2e8595;
+  --credit-ok-num: #2a333b; /* 列表内数字用更中性的深灰 */
+  --credit-ok-bg: #eaf1f3;
+  --credit-ok-sub: #7aa6ae;
+  --credit-low: #d6552f;
+  --credit-low-bg: #fbebe5;
+  --credit-low-sub: #cc9977;
+  --credit-low-threshold: 2; /* 剩余课时 < 该值记为不足（设计稿口径；需求曾写 ≤2，待确认） */
+
+  /* ── 字号（rpx） ── */
+  --font-hero: 46rpx;
+  --font-stat: 52rpx;
+  --font-page-title: 40rpx;
+  --font-number: 36rpx;
+  --font-nav-title: 34rpx;
+  --font-section: 32rpx;
+  --font-name: 30rpx;
+  --font-body: 28rpx;
+  --font-body-sm: 26rpx;
+  --font-caption: 24rpx;
+  --font-tag: 22rpx;
+  --font-micro: 21rpx;
+
+  /* ── 字重 ── */
+  --weight-bold: 700;
+  --weight-semibold: 600;
+  --weight-medium: 500;
+  --weight-regular: 400;
+
+  /* ── 间距（rpx） ── */
+  --space-xs: 8rpx;
+  --space-sm: 16rpx;
+  --space-md: 20rpx;
+  --space-lg: 28rpx;
+  --space-xl: 32rpx;
+  --space-2xl: 40rpx;
+  --space-screen: 32rpx;
+
+  /* ── 圆角（rpx） ── */
+  --radius-xs: 10rpx;
+  --radius-sm: 20rpx;
+  --radius-md: 24rpx;
+  --radius-lg: 28rpx;
+  --radius-xl: 32rpx;
+  --radius-pill: 34rpx;
+
+  /* ── 阴影 ── */
+  --shadow-card: 0 2rpx 6rpx rgba(20, 30, 40, 0.05);
+  --shadow-subtle: 0 2rpx 4rpx rgba(20, 30, 40, 0.04);
+  --shadow-raised: 0 2rpx 6rpx rgba(20, 30, 40, 0.06);
+  --shadow-fab: 0 16rpx 40rpx -8rpx rgba(46, 133, 149, 0.55);
+
+  /* ── NutUI 主题对齐（NutUI 默认主色为红，此处改为本设计青绿）──
+   * 变量名以 NutUI React 3.x 为准，重构接入 NutUI 组件时校验并按需增补。 */
+  --nutui-color-primary: #5faebe;
+  --nutui-color-primary-stop-1: #5faebe;
+  --nutui-color-primary-stop-2: #2e8595;
+}
