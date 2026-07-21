@@ -41,6 +41,7 @@ export default function Stats() {
   const [selected, setSelected] = useState<string>('')
   const [showDay, setShowDay] = useState(false)
   const [loadErr, setLoadErr] = useState(false)
+  const [scrollLeft, setScrollLeft] = useState(0)
 
   useLoad(() => {
     load()
@@ -88,6 +89,25 @@ export default function Stats() {
       setLoadErr(false)
       // TODO 临时日志，定位后删除
       console.log('[stats] 汇总 本月消耗', mC, '本月完成', mDone, '近半年消耗', hC, '有课天数', Object.keys(map).length)
+      console.log('[stats] 网格范围', bjDateStr(startMonday), '~', bjDateStr(startMonday + (WEEKS * 7 - 1) * DAY))
+      Object.keys(map).forEach((k) => {
+        const idx = Math.round((bjMidnight(k) - startMonday) / DAY)
+        console.log(
+          '[stats] 有课日',
+          k,
+          '消耗',
+          map[k].consumed,
+          '网格 idx',
+          idx,
+          '周列',
+          Math.floor(idx / 7),
+          '行',
+          (idx % 7) + 1,
+          idx < 0 || idx >= WEEKS * 7 ? '← 超出网格范围!' : ''
+        )
+      })
+      // 默认滚到最右（最近的周）
+      setTimeout(() => setScrollLeft(99999), 80)
     } catch (e) {
       console.log('[stats] 加载失败', e)
       setLoadErr(true)
@@ -172,7 +192,7 @@ export default function Stats() {
               </View>
             ))}
           </View>
-          <ScrollView scrollX className='heat-scroll'>
+          <ScrollView scrollX scrollLeft={scrollLeft} scrollWithAnimation className='heat-scroll'>
             <View className='heat-body'>
               <View className='heat-months'>
                 {weeks.map((wk, wi) => {

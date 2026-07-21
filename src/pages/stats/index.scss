@@ -124,7 +124,7 @@
 
 .heat-daylabel {
   height: 34rpx;
-  margin-bottom: 6rpx;
+  margin-bottom: 8rpx;
   line-height: 34rpx;
   text-align: right;
   font-size: 20rpx;
@@ -147,7 +147,7 @@
 }
 
 .heat-month {
-  width: 40rpx;
+  width: 42rpx;
   font-size: 20rpx;
   color: var(--ink-tertiary);
   white-space: nowrap;
@@ -161,25 +161,26 @@
 .heat-col {
   display: flex;
   flex-direction: column;
-  margin-right: 6rpx;
+  margin-right: 8rpx;
 }
 
 .heat-cell {
+  box-sizing: border-box;
   width: 34rpx;
   height: 34rpx;
-  margin-bottom: 6rpx;
-  background: var(--heat-l0);
+  margin-bottom: 8rpx;
+  border: 1rpx solid rgba(58, 49, 37, 0.16);
 }
 
-/* 色阶（纸→铅笔） */
+/* 色阶（纸→铅笔），0 用比纸底浅的暖白 + 边框保证网格可见 */
 .l0 {
-  background: #e4d8b8;
+  background: #f2e9cf;
 }
 .l1 {
-  background: #cdba8a;
+  background: #cdad6a;
 }
 .l2 {
-  background: #a88f5e;
+  background: #a07f4a;
 }
 .l3 {
   background: #4a4030;
@@ -215,8 +216,10 @@
 }
 
 .legend-cell {
+  box-sizing: border-box;
   width: 26rpx;
   height: 26rpx;
+  border: 1rpx solid rgba(58, 49, 37, 0.16);
   border-radius: 6rpx 5rpx 7rpx 5rpx;
 }
 
