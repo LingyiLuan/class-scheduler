@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 import { callFunction } from './api'
-import { UserRole } from '../constants'
+import { UserRole, STORAGE_LOGIN } from '../constants'
 
 export interface LoginInfo {
   role: string
@@ -8,30 +8,41 @@ export interface LoginInfo {
   boundStudentIds: string[]
 }
 
-const STORAGE_KEY = 'loginInfo'
+interface CacheEnvelope {
+  info: LoginInfo
+  ts: number
+}
 
-export function getCachedLogin(): LoginInfo | null {
+// 缓存有效期 30 分钟：过期后 ensureLogin 重新请求，避免云端停用/改权限后本地长期不刷新
+const TTL = 30 * 60 * 1000
+
+function readCache(): CacheEnvelope | null {
   try {
-    return (Taro.getStorageSync(STORAGE_KEY) as LoginInfo) || null
+    return (Taro.getStorageSync(STORAGE_LOGIN) as CacheEnvelope) || null
   } catch {
     return null
   }
 }
 
+export function getCachedLogin(): LoginInfo | null {
+  const c = readCache()
+  return c ? c.info : null
+}
+
 async function fetchLogin(): Promise<LoginInfo> {
   const info = await callFunction<LoginInfo>('login', {}, { silent: true })
   try {
-    Taro.setStorageSync(STORAGE_KEY, info)
+    Taro.setStorageSync(STORAGE_LOGIN, { info, ts: Date.now() } as CacheEnvelope)
   } catch {
     // 存储失败不阻断登录
   }
   return info
 }
 
-/** 缓存优先：有缓存直接用，避免每次启动都请求；无缓存才向服务端登录 */
+/** 缓存优先且带 30 分钟过期：未过期直接用缓存，过期或无缓存才向服务端登录 */
 export async function ensureLogin(): Promise<LoginInfo> {
-  const cached = getCachedLogin()
-  if (cached) return cached
+  const c = readCache()
+  if (c && Date.now() - c.ts < TTL) return c.info
   return fetchLogin()
 }
 
@@ -42,12 +53,17 @@ export function refreshLogin(): Promise<LoginInfo> {
 
 export function clearLogin(): void {
   try {
-    Taro.removeStorageSync(STORAGE_KEY)
+    Taro.removeStorageSync(STORAGE_LOGIN)
   } catch {
     // ignore
   }
 }
 
-export function isOwnerActive(info: LoginInfo | null): boolean {
-  return !!info && info.role === UserRole.Owner && info.isActive === true
+/** 可进入应用：owner 或 teacher 且已激活（一期多老师使用）。student 与未激活进待激活页 */
+export function canAccessApp(info: LoginInfo | null): boolean {
+  return (
+    !!info &&
+    (info.role === UserRole.Owner || info.role === UserRole.Teacher) &&
+    info.isActive === true
+  )
 }

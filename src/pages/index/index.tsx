@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { ensureLogin, isOwnerActive } from '../../services/user'
+import { ensureLogin, canAccessApp } from '../../services/user'
+import { UserRole } from '../../constants'
 import './index.scss'
 
 export default function Index() {
   const [loading, setLoading] = useState(true)
+  const [role, setRole] = useState('')
 
   useDidShow(() => {
     route()
@@ -15,15 +17,16 @@ export default function Index() {
     setLoading(true)
     try {
       const info = await ensureLogin()
-      if (isOwnerActive(info)) {
+      if (canAccessApp(info)) {
+        setRole(info.role)
         setLoading(false)
       } else {
-        // 非管理员或未激活 → 待激活提示页
+        // 未激活或非教师角色 → 待激活提示页
         Taro.redirectTo({ url: '/pages/pending/index' })
       }
     } catch {
       setLoading(false)
-      Taro.showToast({ title: '登录失败，请下拉重试', icon: 'none' })
+      Taro.showToast({ title: '登录失败，请重试', icon: 'none' })
     }
   }
 
@@ -38,7 +41,7 @@ export default function Index() {
   return (
     <View className='home'>
       <Text className='home-title'>课表管理</Text>
-      <Text className='home-sub'>管理员</Text>
+      <Text className='home-sub'>{role === UserRole.Owner ? '管理员' : '教师'}</Text>
       <Text className='home-hint'>学员、课表、课时功能开发中</Text>
     </View>
   )

@@ -1,4 +1,29 @@
 import Taro from '@tarojs/taro'
+import { STORAGE_LOGIN } from '../constants'
+
+// 401xx（未登录/未建档/未激活）与 403xx(无权限)视为登录态失效
+function isAuthError(code: number): boolean {
+  return (code >= 40100 && code < 40200) || (code >= 40300 && code < 40400)
+}
+
+let redirecting = false
+
+// 服务端拒绝（每次调用都会实时校验）时，清本地登录缓存并跳转待激活页
+function handleAuthReject(): void {
+  try {
+    Taro.removeStorageSync(STORAGE_LOGIN)
+  } catch {
+    // ignore
+  }
+  const pages = (Taro.getCurrentPages && Taro.getCurrentPages()) || []
+  const top = pages[pages.length - 1]
+  const route = top && (top as { route?: string }).route
+  if (route === 'pages/pending/index' || redirecting) return
+  redirecting = true
+  Taro.redirectTo({ url: '/pages/pending/index' }).catch(() => {}).then(() => {
+    redirecting = false
+  })
+}
 
 /**
  * 云函数调用统一封装。
@@ -83,6 +108,7 @@ export async function callFunction<T = unknown>(
       throw new ApiError(-1, '云函数返回格式异常')
     }
     if (payload.code !== 0) {
+      if (isAuthError(payload.code)) handleAuthReject()
       throw new ApiError(
         payload.code,
         (payload as ApiFail).msg || '操作失败',

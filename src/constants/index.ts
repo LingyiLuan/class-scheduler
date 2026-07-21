@@ -40,6 +40,9 @@ export const COURSE_TYPE_DEFAULT_DURATION: Record<CourseType, number> = {
   [CourseType.Cambridge]: 120
 }
 
+/** 本地存储键 */
+export const STORAGE_LOGIN = 'loginInfo'
+
 /** 云数据库集合名，集中管理避免各处硬编码 */
 export const Collections = {
   Users: 'users',
