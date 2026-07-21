@@ -73,8 +73,13 @@
   color: var(--ink-title);
 }
 
-/* 内部滚动区：显式高度，保证可滚动（72vh - 撕边18 - 头100） */
+/* 内部滚动区：显式高度，保证可滚动（72vh - 撕边18 - 头100）。
+ * padding 放内层容器：scroll-view 的 padding 在 webview 渲染模式不生效，
+ * 会让内容贴右缘、字段值与描边被裁 */
 .sm-body {
   height: calc(72vh - 118rpx);
+}
+
+.sm-body-inner {
   padding: 4rpx var(--space-screen) calc(40rpx + env(safe-area-inset-bottom));
 }

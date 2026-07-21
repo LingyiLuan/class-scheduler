@@ -39,7 +39,7 @@ export default function SheetModal({ visible, onClose, title, children }: Props)
             {title ? <Text className='sm-title'>{title}</Text> : null}
           </View>
           <ScrollView scrollY className='sm-body'>
-            {visible ? children : null}
+            <View className='sm-body-inner'>{visible ? children : null}</View>
           </ScrollView>
         </View>
       </View>
