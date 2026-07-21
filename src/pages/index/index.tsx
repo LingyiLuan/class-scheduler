@@ -3,13 +3,14 @@ import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { ensureLogin, canAccessApp } from '../../services/user'
 import { UserRole } from '../../constants'
-import { SketchFrame } from '../../components/sketch'
+import { SketchFrame, SketchIcon } from '../../components/sketch'
+import TabBar from '../../components/TabBar'
 import './index.scss'
 
-interface Tile {
+interface Quick {
   key: string
   label: string
-  en: string
+  icon: string
   sk: string
   onTap: () => void
 }
@@ -56,32 +57,32 @@ export default function Index() {
   const dateLabel = `${now.getMonth() + 1}月${now.getDate()}日 · ${weekday}`
   const roleLabel = role === UserRole.Owner ? '管理员' : '教师'
 
-  const tiles: Tile[] = [
+  const quick: Quick[] = [
     {
       key: 'students',
       label: '学员',
-      en: 'students',
+      icon: 'people',
       sk: 'sk-1',
-      onTap: () => Taro.navigateTo({ url: '/pages/students/list/index' })
+      onTap: () => Taro.reLaunch({ url: '/pages/students/list/index' })
     },
     {
       key: 'recharge',
-      label: '课时充值',
-      en: 'top-up',
+      label: '充值',
+      icon: 'wallet',
       sk: 'sk-2',
       onTap: () => Taro.navigateTo({ url: '/pages/recharge/index' })
     },
     {
       key: 'week',
       label: '课表',
-      en: 'schedule',
+      icon: 'calendar',
       sk: 'sk-3',
-      onTap: () => Taro.showToast({ title: '课表功能开发中', icon: 'none' })
+      onTap: () => Taro.reLaunch({ url: '/pages/schedule/index' })
     },
     {
       key: 'new',
       label: '新建课程',
-      en: 'new class',
+      icon: 'plus',
       sk: 'sk-4',
       onTap: () => Taro.showToast({ title: '功能开发中', icon: 'none' })
     }
@@ -99,18 +100,22 @@ export default function Index() {
         </Text>
       </View>
 
-      <View className='grid'>
-        {tiles.map((t) => (
-          <View key={t.key} className={`tile paper-card ${t.sk}`} onClick={t.onTap}>
-            <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
-            <Text className='tile-en cav'>{t.en}</Text>
-            <Text className='tile-label'>{t.label}</Text>
+      <View className='quick-row'>
+        {quick.map((q) => (
+          <View key={q.key} className='quick-item' onClick={q.onTap}>
+            <View className={`quick-chip paper-card ${q.sk}`}>
+              <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
+              <SketchIcon name={q.icon} size={44} color='#4A4030' />
+            </View>
+            <Text className='quick-label'>{q.label}</Text>
           </View>
         ))}
       </View>
 
       <View className='wave-divider home-wave' />
-      <Text className='home-note'>今日课程 · 本周统计 · 课时预警 开发中</Text>
+      <Text className='home-note'>今日课程 · 本周统计 · 课时预警（排课完成后补齐）</Text>
+
+      <TabBar current='home' />
     </View>
   )
 }

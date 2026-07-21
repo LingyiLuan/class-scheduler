@@ -1,0 +1,34 @@
+import { View } from '@tarojs/components'
+
+/**
+ * 铅笔线性图标。weapp 用背景 SVG data URI 承载（与 SketchFrame 同技法，已验证可用）。
+ */
+const ICONS: Record<string, string> = {
+  home: "<path d='M3.5 11.5 12 4.5l8.5 7'/><path d='M6 10v9.5h12V10'/>",
+  calendar: "<rect x='3' y='4.5' width='18' height='16' rx='2.5'/><path d='M3 9h18M8 2.5v4M16 2.5v4'/>",
+  people:
+    "<circle cx='9' cy='8' r='3.2'/><path d='M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5'/><path d='M16 5.2a3 3 0 010 5.6M18 20c0-2.6-1-4.4-2.5-5.4'/>",
+  wallet: "<rect x='2.5' y='5.5' width='19' height='13' rx='2.5'/><path d='M2.5 10h19'/><path d='M6 14.5h4'/>",
+  plus: "<circle cx='12' cy='12' r='9'/><path d='M12 8v8M8 12h8'/>"
+}
+
+interface Props {
+  name: keyof typeof ICONS | string
+  size?: number
+  color?: string
+  className?: string
+}
+
+export default function SketchIcon({ name, size = 44, color = '#4A4030', className = '' }: Props) {
+  const inner = ICONS[name] || ''
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${color}' ` +
+    `stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${inner}</svg>`
+  const uri = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+  return (
+    <View
+      className={`sketch-icon ${className}`}
+      style={{ width: `${size}rpx`, height: `${size}rpx`, backgroundImage: uri }}
+    />
+  )
+}

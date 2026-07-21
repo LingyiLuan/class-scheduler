@@ -3,6 +3,7 @@ import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { Button, Cell, Empty } from '@nutui/nutui-react-taro'
 import { listStudents, getBalance, Student } from '../../../services/students'
+import TabBar from '../../../components/TabBar'
 import './index.scss'
 
 interface Row extends Student {
@@ -64,6 +65,8 @@ export default function StudentList() {
           />
         ))
       )}
+
+      <TabBar current='students' />
     </View>
   )
 }

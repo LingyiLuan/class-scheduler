@@ -40,8 +40,9 @@
   pointer-events: none;
 }
 
-/* ── StatusMark 记号底样式（背景 SVG 由组件内联注入） ── */
-.status-mark {
+/* ── StatusMark / SketchIcon 记号底样式（背景 SVG 由组件内联注入） ── */
+.status-mark,
+.sketch-icon {
   display: inline-block;
   background-size: 100% 100%;
   background-repeat: no-repeat;
