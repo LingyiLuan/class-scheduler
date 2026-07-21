@@ -50,7 +50,11 @@ export default function Index() {
       >
         学员管理
       </Button>
-      <Text className='home-hint'>课表、课时功能开发中</Text>
+      <View className='home-gap' />
+      <Button block onClick={() => Taro.navigateTo({ url: '/pages/recharge/index' })}>
+        课时充值
+      </Button>
+      <Text className='home-hint'>课表功能开发中</Text>
     </View>
   )
 }

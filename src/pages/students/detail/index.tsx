@@ -102,6 +102,14 @@ export default function StudentDetail() {
       )}
 
       <View className='actions'>
+        <Button
+          type='primary'
+          block
+          onClick={() => Taro.navigateTo({ url: `/pages/recharge/index?studentId=${id}` })}
+        >
+          充值
+        </Button>
+        <View className='gap' />
         <Button block onClick={() => Taro.navigateTo({ url: `/pages/students/form/index?id=${id}` })}>
           编辑
         </Button>

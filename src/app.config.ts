@@ -5,7 +5,8 @@ export default defineAppConfig({
     'pages/pending/index',
     'pages/students/list/index',
     'pages/students/form/index',
-    'pages/students/detail/index'
+    'pages/students/detail/index',
+    'pages/recharge/index'
   ],
   window: {
     backgroundTextStyle: 'light',
