@@ -1,34 +1,236 @@
-.stu-detail {
-  background: #f5f6f7;
+.sd {
+  position: relative;
   min-height: 100vh;
-  padding-bottom: 40rpx;
+  background: var(--paper-kraft);
+  overflow: hidden;
 }
 
-.center {
-  min-height: 60vh;
+.sd-loading {
+  position: relative;
+  z-index: 1;
+  padding: 80rpx;
+  text-align: center;
+  color: var(--ink-tertiary);
+  font-size: var(--font-caption);
+}
+
+.sd-inner {
+  position: relative;
+  z-index: 1;
+  padding: var(--space-screen) var(--space-screen) 60rpx;
+}
+
+/* ── 信息卡 ── */
+.sd-card {
+  position: relative;
+  padding: 28rpx 26rpx;
+}
+
+.sd-top {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.sd-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  flex: none;
+  border-radius: 52% 48% 50% 50%;
+  background: var(--accent-teal-bg);
+  color: var(--accent-teal-ink);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 42rpx;
+  font-weight: var(--weight-bold);
 }
 
-.muted {
-  color: #999;
+.sd-idbox {
+  flex: 1;
+  min-width: 0;
 }
 
-.section-title {
-  padding: 28rpx 24rpx 12rpx;
-  color: #888;
-  font-size: 26rpx;
+.sd-nameline {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
 }
 
-.actions {
-  padding: 32rpx 24rpx;
+.sd-name {
+  font-size: var(--font-page-title);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
 }
 
-.gap {
-  height: 16rpx;
+.sd-level {
+  font-size: var(--font-tag);
+  color: var(--ink-secondary);
+  background: var(--paper-kraft);
+  border: 2rpx solid var(--ink-stroke-soft);
+  border-radius: var(--radius-sketch-5);
+  padding: 2rpx 12rpx;
 }
 
-.danger {
-  color: #c0392b;
+.sd-phone {
+  display: block;
+  margin-top: 6rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+.sd-stats {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: 24rpx;
+}
+
+.sd-stat {
+  flex: 1;
+  background: var(--paper-kraft);
+  border-radius: var(--radius-sketch-3);
+  padding: 18rpx 20rpx;
+}
+
+.sd-stat-label {
+  display: block;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+.sd-stat-val {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+  margin-top: 6rpx;
+}
+
+.sd-hours {
+  font-size: var(--font-stat);
+  font-weight: var(--weight-bold);
+  color: var(--credit-ok);
+  font-variant-numeric: tabular-nums;
+}
+
+.sd-hours.low {
+  color: var(--credit-low);
+}
+
+.sd-hours-unit {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+.sd-invite {
+  display: block;
+  margin-top: 10rpx;
+  font-size: var(--font-nav-title);
+  font-weight: var(--weight-bold);
+  letter-spacing: 2rpx;
+  color: var(--ink-title);
+  font-family: ui-monospace, Menlo, monospace;
+}
+
+/* ── 上课记录 ── */
+.sd-section {
+  display: block;
+  padding: 32rpx 4rpx 14rpx;
+  font-size: var(--font-section);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.sd-rec {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 20rpx 22rpx;
+  background: var(--highlight-cream);
+  border: 2rpx solid var(--ink-stroke-soft);
+  border-radius: var(--radius-sketch-3);
+  margin-bottom: 12rpx;
+}
+
+.sd-rec-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-title);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sd-rec-status {
+  font-size: var(--font-tag);
+  font-weight: var(--weight-semibold);
+}
+
+.sd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  padding: 40rpx 0;
+}
+
+.sd-empty-en {
+  font-size: 40rpx;
+  color: var(--ink-tertiary);
+  transform: rotate(-2deg);
+}
+
+.sd-empty-cn {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+/* ── 操作按钮 ── */
+.sd-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: 44rpx;
+}
+
+.sd-btn {
+  position: relative;
+  height: 92rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sketch-5);
+}
+
+.sd-btn.primary {
+  flex: 1.4;
+  background: var(--btn-primary-bg);
+  box-shadow: var(--shadow-btn);
+}
+
+.sd-btn.secondary {
+  flex: 1;
+  background: var(--btn-secondary-bg);
+  border: var(--stroke-w) solid var(--ink-stroke);
+}
+
+.sd-btn.danger {
+  flex: 1;
+  background: var(--btn-danger-bg);
+  border: var(--stroke-w) solid var(--btn-danger-border);
+}
+
+.sd-btn-txt {
+  position: relative;
+  font-size: var(--font-name);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.sd-btn-txt.on-dark {
+  color: var(--btn-primary-ink);
+}
+
+.sd-btn-txt.on-danger {
+  color: var(--btn-danger-ink);
 }

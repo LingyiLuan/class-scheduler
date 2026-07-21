@@ -14,6 +14,8 @@ const TYPES = [
   { key: CourseType.Cambridge, name: '剑桥课程', dur: COURSE_TYPE_DEFAULT_DURATION[CourseType.Cambridge], sk: 'sk-2' }
 ]
 const COURSE_LABEL: Record<string, string> = { makeup: '补课', cambridge: '剑桥课程' }
+// placeholder 用次要字号+浅色
+const PH = 'font-size:26rpx;color:#B5A88C'
 
 /** 新建课程表单（用于底部抽屉）。创建成功回调 onCreated */
 export default function NewCourseForm({ onCreated }: { onCreated: () => void }) {
@@ -149,6 +151,7 @@ export default function NewCourseForm({ onCreated }: { onCreated: () => void }) 
             value={durationMin}
             onInput={(e) => setDurationMin(e.detail.value)}
             placeholder='90'
+            placeholderStyle={PH}
           />
           <Text className='dur-unit'>分钟</Text>
         </View>

@@ -7,6 +7,8 @@ import { createPackage } from '../../services/packages'
 import './index.scss'
 
 const QUICK = [10, 20, 30]
+// placeholder 用次要字号+浅色，不与输入值同级
+const PH = 'font-size:26rpx;color:#B5A88C'
 
 /** 课时充值表单（用于底部抽屉）。传 studentId 锁定学员，否则内部选择。完成回调 onDone */
 export default function RechargeForm({ studentId, onDone }: { studentId?: string; onDone: () => void }) {
@@ -105,6 +107,7 @@ export default function RechargeForm({ studentId, onDone }: { studentId?: string
           value={count}
           onInput={(e) => setCount(e.detail.value)}
           placeholder='请输入正整数'
+          placeholderStyle={PH}
         />
         <View className='rf-quick'>
           {QUICK.map((q) => (
@@ -122,6 +125,7 @@ export default function RechargeForm({ studentId, onDone }: { studentId?: string
           value={note}
           onInput={(e) => setNote(e.detail.value)}
           placeholder='如 现金 / 微信收款'
+          placeholderStyle={PH}
         />
       </View>
 

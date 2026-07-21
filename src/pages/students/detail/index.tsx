@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useRouter, useDidShow } from '@tarojs/taro'
-import { Button, Cell, CellGroup, Empty } from '@nutui/nutui-react-taro'
-import dayjs from 'dayjs'
 import {
   getStudent,
   getBalance,
@@ -11,9 +9,12 @@ import {
   Student,
   SessionBrief
 } from '../../../services/students'
+import { SketchFrame, StatusMark } from '../../../components/sketch'
 import SheetModal from '../../../components/SheetModal'
 import StudentForm from '../../../components/StudentForm'
 import RechargeForm from '../../../components/RechargeForm'
+import { SessionStatus } from '../../../constants'
+import { bjDateStr, bjTimeStr } from '../../../utils/datetime'
 import './index.scss'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -22,10 +23,7 @@ const STATUS_LABEL: Record<string, string> = {
   absent: '缺勤',
   cancelled: '已取消'
 }
-const COURSE_LABEL: Record<string, string> = {
-  makeup: '补课',
-  cambridge: '剑桥'
-}
+const COURSE_LABEL: Record<string, string> = { makeup: '补课', cambridge: '剑桥' }
 
 export default function StudentDetail() {
   const router = useRouter()
@@ -58,7 +56,7 @@ export default function StudentDetail() {
       title: '删除学员',
       content: `确认删除「${stu?.name}」？删除后列表不再显示，其课时流水与历史课程保留。`,
       confirmText: '删除',
-      confirmColor: '#c0392b',
+      confirmColor: '#C24A28',
       success: async (res) => {
         if (!res.confirm) return
         try {
@@ -74,50 +72,81 @@ export default function StudentDetail() {
 
   if (!stu) {
     return (
-      <View className='center'>
-        <Text className='muted'>加载中…</Text>
+      <View className='sd'>
+        <View className='paper-grain' />
+        <View className='sd-loading'>加载中…</View>
       </View>
     )
   }
 
+  const low = (balance ?? 0) <= 2
+
   return (
-    <View className='stu-detail'>
-      <CellGroup>
-        <Cell title='姓名' extra={stu.name} />
-        <Cell title='手机号' extra={stu.phone || '—'} />
-        <Cell title='级别' extra={stu.levelTag || '—'} />
-        <Cell title='邀请码' extra={stu.inviteCode || '—'} />
-        <Cell title='剩余课时' extra={`${balance ?? '…'} 次`} />
-        {stu.note ? <Cell title='备注' extra={stu.note} /> : null}
-      </CellGroup>
+    <View className='sd'>
+      <View className='paper-grain' />
+      <View className='sd-inner'>
+        <View className='sd-card paper-card sk-2'>
+          <SketchFrame color='#3A3125' opacity={0.45} sw={1.5} />
+          <View className='sd-top'>
+            <View className='sd-avatar'>{stu.name.slice(0, 1)}</View>
+            <View className='sd-idbox'>
+              <View className='sd-nameline'>
+                <Text className='sd-name'>{stu.name}</Text>
+                {stu.levelTag ? <Text className='sd-level'>{stu.levelTag}</Text> : null}
+              </View>
+              <Text className='sd-phone'>{stu.phone || '未填手机号'}</Text>
+            </View>
+          </View>
+          <View className='sd-stats'>
+            <View className='sd-stat'>
+              <Text className='sd-stat-label'>剩余课时</Text>
+              <View className='sd-stat-val'>
+                <Text className={`sd-hours ${low ? 'low' : ''}`}>{balance ?? '…'}</Text>
+                <Text className='sd-hours-unit'>次</Text>
+              </View>
+            </View>
+            <View className='sd-stat'>
+              <Text className='sd-stat-label'>邀请码</Text>
+              <Text className='sd-invite'>{stu.inviteCode || '—'}</Text>
+            </View>
+          </View>
+        </View>
 
-      <View className='section-title'>历史上课记录</View>
-      {history.length === 0 ? (
-        <Empty description='暂无上课记录' />
-      ) : (
-        <CellGroup>
-          {history.map((s) => (
-            <Cell
-              key={s._id}
-              title={`${dayjs(s.startTime).format('MM-DD HH:mm')} · ${COURSE_LABEL[s.courseType] || s.courseType}`}
-              extra={STATUS_LABEL[s.status] || s.status}
-            />
-          ))}
-        </CellGroup>
-      )}
+        <Text className='sd-section'>上课记录</Text>
+        {history.length === 0 ? (
+          <View className='sd-empty'>
+            <Text className='cav sd-empty-en'>no records yet</Text>
+            <Text className='sd-empty-cn'>还没有上课记录</Text>
+          </View>
+        ) : (
+          history.map((s) => {
+            const ts = new Date(s.startTime).getTime()
+            return (
+              <View key={s._id} className='sd-rec'>
+                <StatusMark status={s.status as SessionStatus} size={34} />
+                <Text className='sd-rec-title'>
+                  {bjDateStr(ts).slice(5)} {bjTimeStr(ts)} · {COURSE_LABEL[s.courseType] || s.courseType}
+                </Text>
+                <Text className='sd-rec-status' style={{ color: `var(--status-${s.status})` }}>
+                  {STATUS_LABEL[s.status] || s.status}
+                </Text>
+              </View>
+            )
+          })
+        )}
 
-      <View className='actions'>
-        <Button type='primary' block onClick={() => setShowRecharge(true)}>
-          充值
-        </Button>
-        <View className='gap' />
-        <Button block onClick={() => setShowEdit(true)}>
-          编辑
-        </Button>
-        <View className='gap' />
-        <Button block className='danger' onClick={onDelete}>
-          删除学员
-        </Button>
+        <View className='sd-actions'>
+          <View className='sd-btn primary' onClick={() => setShowRecharge(true)}>
+            <SketchFrame color='#20180E' opacity={0.5} sw={1.6} />
+            <Text className='sd-btn-txt on-dark'>充值</Text>
+          </View>
+          <View className='sd-btn secondary' onClick={() => setShowEdit(true)}>
+            <Text className='sd-btn-txt'>编辑</Text>
+          </View>
+          <View className='sd-btn danger' onClick={onDelete}>
+            <Text className='sd-btn-txt on-danger'>删除</Text>
+          </View>
+        </View>
       </View>
 
       <SheetModal visible={showEdit} onClose={() => setShowEdit(false)} title='编辑学员'>

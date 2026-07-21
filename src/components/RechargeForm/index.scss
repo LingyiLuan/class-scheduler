@@ -36,8 +36,14 @@
 }
 
 .rf-num {
+  width: 100%;
+  box-sizing: border-box;
   margin-top: 14rpx;
-  font-size: var(--font-stat);
+  padding: 22rpx 24rpx;
+  min-height: 92rpx;
+  background: var(--paper-kraft);
+  border-radius: var(--radius-sketch-3);
+  font-size: 44rpx;
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
@@ -61,7 +67,13 @@
 }
 
 .rf-note {
+  width: 100%;
+  box-sizing: border-box;
   margin-top: 14rpx;
+  padding: 20rpx 24rpx;
+  min-height: 84rpx;
+  background: var(--paper-kraft);
+  border-radius: var(--radius-sketch-3);
   font-size: var(--font-body);
   color: var(--ink-title);
 }
