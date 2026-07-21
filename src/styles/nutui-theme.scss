@@ -1,0 +1,12 @@
+/**
+ * NutUI 主题覆盖：主色 = 深铅笔填充（红仅留危险）。
+ * NutUI primary 背景来自 var(--nutui-color-primary-stop-1/2, 红fallback)，
+ * tokens.scss 已覆盖这两个 stop 变量；此处再对类名显式兜底，确保深铅笔生效。
+ */
+.nut-button-primary-solid {
+  background: linear-gradient(var(--btn-primary-bg), var(--nutui-color-primary-stop-2)) !important;
+  border-color: var(--btn-primary-bg) !important;
+}
+.nut-button-primary {
+  color: var(--btn-primary-ink);
+}

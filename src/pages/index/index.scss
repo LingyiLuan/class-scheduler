@@ -1,3 +1,11 @@
+.home {
+  position: relative;
+  min-height: 100vh;
+  background: var(--paper-kraft);
+  padding: var(--space-screen);
+  overflow: hidden;
+}
+
 .center {
   min-height: 60vh;
   display: flex;
@@ -6,33 +14,88 @@
 }
 
 .muted {
-  color: #999;
+  color: var(--ink-tertiary);
+  font-size: var(--font-caption);
 }
 
-.home {
-  padding: 48rpx 32rpx;
+/* ── Hero ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  padding: 24rpx 8rpx 12rpx;
 }
 
-.home-title {
+.hero-eyebrow {
   display: block;
   font-size: 40rpx;
-  font-weight: bold;
+  color: var(--accent-teal-ink);
+  transform: rotate(-2deg);
+  transform-origin: left center;
 }
 
-.home-sub {
+.hero-greeting {
+  display: block;
+  margin-top: 6rpx;
+  font-size: var(--font-page-title);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+  letter-spacing: -0.5rpx;
+}
+
+.hero-sub {
   display: block;
   margin-top: 8rpx;
-  color: #2f6f4f;
-  font-size: 26rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-secondary);
 }
 
-.home-gap {
-  height: 20rpx;
-}
-
-.home-hint {
-  display: block;
+/* ── 快捷入口纸片 ── */
+.grid {
+  position: relative;
+  z-index: 1;
   margin-top: 32rpx;
-  color: #999;
-  font-size: 26rpx;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.tile {
+  position: relative;
+  padding: 30rpx 26rpx 26rpx;
+  min-height: 150rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.tile-en {
+  display: block;
+  font-size: 34rpx;
+  color: var(--ink-tertiary);
+  transform: rotate(-1.5deg);
+  transform-origin: left center;
+}
+
+.tile-label {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-section);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+/* ── 分隔与说明 ── */
+.home-wave {
+  position: relative;
+  z-index: 1;
+  margin: 40rpx 8rpx 20rpx;
+}
+
+.home-note {
+  position: relative;
+  z-index: 1;
+  display: block;
+  text-align: center;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
 }

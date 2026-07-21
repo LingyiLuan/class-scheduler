@@ -1,10 +1,18 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { Button } from '@nutui/nutui-react-taro'
 import { ensureLogin, canAccessApp } from '../../services/user'
 import { UserRole } from '../../constants'
+import { SketchFrame } from '../../components/sketch'
 import './index.scss'
+
+interface Tile {
+  key: string
+  label: string
+  en: string
+  sk: string
+  onTap: () => void
+}
 
 export default function Index() {
   const [loading, setLoading] = useState(true)
@@ -22,7 +30,6 @@ export default function Index() {
         setRole(info.role)
         setLoading(false)
       } else {
-        // 未激活或非教师角色 → 待激活提示页
         Taro.redirectTo({ url: '/pages/pending/index' })
       }
     } catch {
@@ -33,28 +40,77 @@ export default function Index() {
 
   if (loading) {
     return (
-      <View className='center'>
-        <Text className='muted'>登录中…</Text>
+      <View className='home'>
+        <View className='paper-grain' />
+        <View className='center'>
+          <Text className='muted'>登录中…</Text>
+        </View>
       </View>
     )
   }
 
+  const now = new Date()
+  const h = now.getHours()
+  const greeting = h < 11 ? '早上好' : h < 13 ? '中午好' : h < 18 ? '下午好' : '晚上好'
+  const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][now.getDay()]
+  const dateLabel = `${now.getMonth() + 1}月${now.getDate()}日 · ${weekday}`
+  const roleLabel = role === UserRole.Owner ? '管理员' : '教师'
+
+  const tiles: Tile[] = [
+    {
+      key: 'students',
+      label: '学员',
+      en: 'students',
+      sk: 'sk-1',
+      onTap: () => Taro.navigateTo({ url: '/pages/students/list/index' })
+    },
+    {
+      key: 'recharge',
+      label: '课时充值',
+      en: 'top-up',
+      sk: 'sk-2',
+      onTap: () => Taro.navigateTo({ url: '/pages/recharge/index' })
+    },
+    {
+      key: 'week',
+      label: '课表',
+      en: 'schedule',
+      sk: 'sk-3',
+      onTap: () => Taro.showToast({ title: '课表功能开发中', icon: 'none' })
+    },
+    {
+      key: 'new',
+      label: '新建课程',
+      en: 'new class',
+      sk: 'sk-4',
+      onTap: () => Taro.showToast({ title: '功能开发中', icon: 'none' })
+    }
+  ]
+
   return (
     <View className='home'>
-      <Text className='home-title'>课表管理</Text>
-      <Text className='home-sub'>{role === UserRole.Owner ? '管理员' : '教师'}</Text>
-      <Button
-        type='primary'
-        block
-        onClick={() => Taro.navigateTo({ url: '/pages/students/list/index' })}
-      >
-        学员管理
-      </Button>
-      <View className='home-gap' />
-      <Button block onClick={() => Taro.navigateTo({ url: '/pages/recharge/index' })}>
-        课时充值
-      </Button>
-      <Text className='home-hint'>课表功能开发中</Text>
+      <View className='paper-grain' />
+
+      <View className='hero'>
+        <Text className='cav hero-eyebrow'>today</Text>
+        <Text className='hero-greeting'>{greeting}</Text>
+        <Text className='hero-sub'>
+          {roleLabel} · {dateLabel}
+        </Text>
+      </View>
+
+      <View className='grid'>
+        {tiles.map((t) => (
+          <View key={t.key} className={`tile paper-card ${t.sk}`} onClick={t.onTap}>
+            <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
+            <Text className='tile-en cav'>{t.en}</Text>
+            <Text className='tile-label'>{t.label}</Text>
+          </View>
+        ))}
+      </View>
+
+      <View className='wave-divider home-wave' />
+      <Text className='home-note'>今日课程 · 本周统计 · 课时预警 开发中</Text>
     </View>
   )
 }
