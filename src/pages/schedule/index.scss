@@ -1,17 +1,16 @@
 .sched {
   position: relative;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh;
   background: var(--paper-kraft);
   overflow: hidden;
 }
 
-/* ── 顶部：标题 + 周切换 ── */
+/* ── 顶部：标题 + 周切换（页面原生滚动，顶部 sticky 固定） ── */
 .sched-head {
-  position: relative;
-  z-index: 1;
-  flex: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--paper-kraft);
   padding: var(--space-screen) var(--space-screen) 12rpx;
 }
 
@@ -55,15 +54,10 @@
 }
 
 /* ── 主体滚动 ── */
-.sched-body {
+/* 内容区：底部留白避开固定 tabbar */
+.sched-inner {
   position: relative;
   z-index: 1;
-  flex: 1;
-}
-
-/* padding 放内层容器：scroll-view 的 padding 在 webview 渲染模式不生效，
- * 会让纸片贴到屏幕右缘、SketchFrame 右侧描边被裁 */
-.sched-inner {
   padding: 8rpx var(--space-screen) 160rpx;
 }
 

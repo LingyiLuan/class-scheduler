@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { View, Text, ScrollView } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { SketchFrame, StatusMark } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
@@ -65,10 +65,15 @@ export default function Schedule() {
   }, [])
 
   useEffect(() => {
+    // TODO 临时调试日志，定位后删除
+    console.log('[周视图] 查询区间 from/to =', from, to)
     setLoading(true)
     listSessions(from, to)
-      .then(({ list }) => setSessions(list))
-      .catch(() => {})
+      .then(({ list }) => {
+        console.log('[周视图] 云函数返回原始 =', JSON.stringify(list))
+        setSessions(list)
+      })
+      .catch((e) => console.log('[周视图] 查询失败 =', e))
       .finally(() => setLoading(false))
   }, [from, to])
 
@@ -80,6 +85,11 @@ export default function Schedule() {
         .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
     }))
   }, [days, sessions])
+
+  useEffect(() => {
+    // TODO 临时调试日志，定位后删除
+    console.log('[周视图] 分组每天课程数 =', grouped.map((d) => `${d.dateStr}:${d.courses.length}`).join(' '))
+  }, [grouped])
 
   function names(ids: string[]): string {
     return ids.map((id) => nameMap[id] || '?').join('、')
@@ -107,9 +117,8 @@ export default function Schedule() {
         </View>
       </View>
 
-      <ScrollView scrollY className='sched-body'>
-        <View className='sched-inner'>
-          {loading ? <Text className='sched-loading'>加载中…</Text> : null}
+      <View className='sched-inner'>
+        {loading ? <Text className='sched-loading'>加载中…</Text> : null}
           {grouped.map((d, i) => (
           <View key={d.dateStr} className={`day-block paper-card ${SK[i]} ${d.isToday ? 'is-today' : ''}`}>
             <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
@@ -163,9 +172,8 @@ export default function Schedule() {
               })
             )}
           </View>
-          ))}
-        </View>
-      </ScrollView>
+        ))}
+      </View>
 
       <TabBar current='schedule' />
     </View>
