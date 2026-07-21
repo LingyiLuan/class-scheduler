@@ -37,6 +37,7 @@
   display: block;
   margin-top: 6rpx;
   font-size: var(--font-page-title);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
   letter-spacing: -0.5rpx;
@@ -92,6 +93,7 @@
 
 .sec-title {
   font-size: var(--font-section);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
@@ -125,6 +127,7 @@
 }
 
 .today-empty-cn {
+  font-family: var(--font-brush);
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
 }

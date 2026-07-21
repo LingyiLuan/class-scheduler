@@ -17,6 +17,7 @@
 .sched-title {
   display: block;
   font-size: var(--font-page-title);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
@@ -91,6 +92,7 @@
 
 .day-num {
   font-size: var(--font-section);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-secondary);
 }
@@ -128,6 +130,7 @@
 }
 
 .day-empty-cn {
+  font-family: var(--font-brush);
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
 }

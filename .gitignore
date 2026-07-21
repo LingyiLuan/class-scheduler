@@ -12,4 +12,4 @@ node_modules/
 project.private.config.json
 
 # 云函数部署前由 sync:cloud 生成的 _shared 副本（只提交源 cloudfunctions/_shared）
-cloudfunctions/*/_shared/
+cloudfunctions/*/_shared/scratch_tmp/

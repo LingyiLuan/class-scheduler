@@ -23,6 +23,7 @@
   display: block;
   margin-top: 4rpx;
   font-size: var(--font-page-title);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
@@ -102,6 +103,7 @@
 
 .heat-title {
   font-size: var(--font-section);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }

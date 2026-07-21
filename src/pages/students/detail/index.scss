@@ -59,6 +59,7 @@
 
 .sd-name {
   font-size: var(--font-page-title);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
@@ -125,6 +126,7 @@
   display: block;
   margin-top: 10rpx;
   font-size: var(--font-nav-title);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   letter-spacing: 2rpx;
   color: var(--ink-title);
@@ -136,6 +138,7 @@
   display: block;
   padding: 32rpx 4rpx 14rpx;
   font-size: var(--font-section);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
@@ -182,6 +185,7 @@
 }
 
 .sd-empty-cn {
+  font-family: var(--font-brush);
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
 }

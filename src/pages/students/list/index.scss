@@ -19,6 +19,7 @@
 
 .sl-title {
   font-size: var(--font-page-title);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
@@ -157,6 +158,7 @@
 }
 
 .sl-empty-cn {
+  font-family: var(--font-brush);
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
 }

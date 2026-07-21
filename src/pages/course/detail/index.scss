@@ -81,6 +81,7 @@
   display: block;
   padding: 32rpx 4rpx 14rpx;
   font-size: var(--font-section);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
 }
@@ -132,6 +133,7 @@
 
 .cd-stu-num {
   font-size: var(--font-nav-title);
+  font-family: var(--font-brush);
   font-weight: var(--weight-bold);
   color: var(--ink-title);
   font-variant-numeric: tabular-nums;
