@@ -3,6 +3,8 @@ import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { SketchFrame, SketchIcon, StatusMark } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
+import SheetModal from '../../components/SheetModal'
+import NewCourseForm from '../../components/NewCourseForm'
 import { listSessions, SessionRow } from '../../services/sessions'
 import { listStudents } from '../../services/students'
 import { SessionStatus } from '../../constants'
@@ -51,6 +53,8 @@ export default function Schedule() {
   const [sessions, setSessions] = useState<SessionRow[]>([])
   const [nameMap, setNameMap] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
+  const [showNew, setShowNew] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const { days, from, to, rangeLabel } = useMemo(() => computeWeek(weekOffset), [weekOffset])
 
@@ -70,7 +74,7 @@ export default function Schedule() {
       .then(({ list }) => setSessions(list))
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [from, to])
+  }, [from, to, refreshKey])
 
   const grouped = useMemo(() => {
     return days.map((d) => ({
@@ -170,14 +174,20 @@ export default function Schedule() {
         ))}
       </View>
 
-      <View
-        className='fab'
-        onClick={() => Taro.navigateTo({ url: '/pages/course/new/index' })}
-      >
+      <View className='fab' onClick={() => setShowNew(true)}>
         <SketchIcon name='plus' size={52} color='#FBF3E0' />
       </View>
 
       <TabBar current='schedule' />
+
+      <SheetModal visible={showNew} onClose={() => setShowNew(false)} title='新建课程'>
+        <NewCourseForm
+          onCreated={() => {
+            setShowNew(false)
+            setRefreshKey((k) => k + 1)
+          }}
+        />
+      </SheetModal>
     </View>
   )
 }

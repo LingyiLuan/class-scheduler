@@ -1,0 +1,80 @@
+.sm-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: rgba(20, 15, 8, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease;
+}
+
+.sm-mask.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sm-sheet {
+  position: relative;
+  height: 72vh;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.sm-mask.show .sm-sheet {
+  transform: translateY(0);
+}
+
+/* 撕纸顶边：纸色填充 + 锯齿顶（锯齿之上透明，露出暗背景 → 撕开感） */
+.sm-torn {
+  flex: none;
+  height: 18rpx;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='18' viewBox='0 0 120 18'%3E%3Cpath d='M0 8 L12 5 L24 9 L36 4 L48 8 L60 5 L72 9 L84 4 L96 8 L108 5 L120 8 L120 18 L0 18 Z' fill='%23FAF3E1'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 120rpx 18rpx;
+}
+
+.sm-paper {
+  flex: 1;
+  min-height: 0;
+  background: var(--paper-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sm-head {
+  flex: none;
+  height: 100rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.sm-grip {
+  width: 76rpx;
+  height: 8rpx;
+  border-radius: 4rpx;
+  background: var(--ink-placeholder);
+}
+
+.sm-title {
+  margin-top: 12rpx;
+  font-size: var(--font-nav-title);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+/* 内部滚动区：显式高度，保证可滚动（72vh - 撕边18 - 头100） */
+.sm-body {
+  height: calc(72vh - 118rpx);
+  padding: 4rpx var(--space-screen) calc(40rpx + env(safe-area-inset-bottom));
+}

@@ -8,8 +8,7 @@ export default defineAppConfig({
     'pages/students/detail/index',
     'pages/recharge/index',
     'pages/schedule/index',
-    'pages/course/detail/index',
-    'pages/course/new/index'
+    'pages/course/detail/index'
   ],
   window: {
     backgroundTextStyle: 'light',
