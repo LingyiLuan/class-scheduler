@@ -8,6 +8,8 @@ export default defineConfig(async (merge) => {
   const baseConfig: UserConfigExport = {
     projectName: 'class-scheduler',
     date: '2026-7-20',
+    // 提高模板递归层级：统计热力图等深层嵌套结构，默认 16 会「白屏 + tmpl not found 警告」
+    baseLevel: 30,
     // NutUI React 以 375 设计稿，本工程为 750：按文件路径区分换算基准
     designWidth(input: any) {
       if (input && input.file && /@nutui/.test(String(input.file).replace(/\\+/g, '/'))) {

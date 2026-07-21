@@ -27,6 +27,19 @@
   color: var(--ink-title);
 }
 
+.stats-err {
+  margin-top: 20rpx;
+  padding: 20rpx 24rpx;
+  background: var(--accent-coral-bg);
+  border: 2rpx solid var(--btn-danger-border);
+  border-radius: var(--radius-sketch-3);
+}
+
+.stats-err-txt {
+  font-size: var(--font-body);
+  color: var(--accent-coral-ink);
+}
+
 /* ── 汇总 ── */
 .sum-card {
   position: relative;

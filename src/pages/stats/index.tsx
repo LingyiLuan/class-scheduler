@@ -40,6 +40,7 @@ export default function Stats() {
   const [halfConsumed, setHalfConsumed] = useState(0)
   const [selected, setSelected] = useState<string>('')
   const [showDay, setShowDay] = useState(false)
+  const [loadErr, setLoadErr] = useState(false)
 
   useLoad(() => {
     load()
@@ -53,6 +54,7 @@ export default function Stats() {
       const startMonday = thisMonday - (WEEKS - 1) * 7 * DAY
       const from = new Date(startMonday).toISOString()
       const to = new Date(thisMonday + 7 * DAY).toISOString()
+      console.log('[stats] 请求区间', from, '~', to)
 
       const { list } = await listSessionsRange(from, to)
       const stu = await listStudents()
@@ -83,8 +85,12 @@ export default function Stats() {
       setMonthConsumed(mC)
       setMonthCompleted(mDone)
       setHalfConsumed(hC)
-    } catch {
-      // api 层已 toast
+      setLoadErr(false)
+      // TODO 临时日志，定位后删除
+      console.log('[stats] 汇总 本月消耗', mC, '本月完成', mDone, '近半年消耗', hC, '有课天数', Object.keys(map).length)
+    } catch (e) {
+      console.log('[stats] 加载失败', e)
+      setLoadErr(true)
     }
   }
 
@@ -121,6 +127,12 @@ export default function Stats() {
       <View className='stats-inner'>
         <Text className='cav stats-eyebrow'>statistics</Text>
         <Text className='stats-title'>消耗统计</Text>
+
+        {loadErr ? (
+          <View className='stats-err' onClick={load}>
+            <Text className='stats-err-txt'>加载失败，点此重试</Text>
+          </View>
+        ) : null}
 
         {/* 汇总 */}
         <View className='sum-card paper-card sk-2'>
