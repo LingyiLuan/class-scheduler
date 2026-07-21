@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { View, Text } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { SketchFrame, SketchIcon, StatusMark } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
 import SheetModal from '../../components/SheetModal'
@@ -57,6 +57,11 @@ export default function Schedule() {
   const [refreshKey, setRefreshKey] = useState(0)
 
   const { days, from, to, rangeLabel } = useMemo(() => computeWeek(weekOffset), [weekOffset])
+
+  // 从课程详情操作返回后刷新当前周
+  useDidShow(() => {
+    setRefreshKey((k) => k + 1)
+  })
 
   useEffect(() => {
     listStudents()
