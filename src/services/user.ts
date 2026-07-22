@@ -6,6 +6,7 @@ export interface LoginInfo {
   role: string
   isActive: boolean
   boundStudentIds: string[]
+  displayName?: string
 }
 
 interface CacheEnvelope {
@@ -49,6 +50,12 @@ export async function ensureLogin(): Promise<LoginInfo> {
 /** 强制向服务端刷新登录态（如「重新检测激活状态」） */
 export function refreshLogin(): Promise<LoginInfo> {
   return fetchLogin()
+}
+
+/** 设置当前登录老师的显示名（欢迎语用），成功后刷新登录缓存 */
+export async function setDisplayName(name: string): Promise<void> {
+  await callFunction('login', { action: 'setDisplayName', data: { name } })
+  await refreshLogin()
 }
 
 export function clearLogin(): void {

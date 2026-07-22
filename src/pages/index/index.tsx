@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { ensureLogin, canAccessApp } from '../../services/user'
+import { ensureLogin, canAccessApp, setDisplayName } from '../../services/user'
 import { UserRole } from '../../constants'
 import { SketchFrame, SketchIcon, StatusMark } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
@@ -41,6 +41,7 @@ function presentCount(s: SessionRow): number {
 export default function Index() {
   const [loading, setLoading] = useState(true)
   const [role, setRole] = useState('')
+  const [teacherName, setTeacherName] = useState('')
   const [showRecharge, setShowRecharge] = useState(false)
   const [weekSessions, setWeekSessions] = useState<SessionRow[]>([])
   const [nameMap, setNameMap] = useState<Record<string, string>>({})
@@ -57,9 +58,11 @@ export default function Index() {
       const info = await ensureLogin()
       if (canAccessApp(info)) {
         setRole(info.role)
+        setTeacherName(info.displayName || '')
         setLoading(false)
         refreshQuotaSetting() // 预热订阅设置缓存，供铃铛引导判断
         loadData()
+        if (!info.displayName) promptName() // 首次未填名，引导填一次
       } else {
         Taro.redirectTo({ url: '/pages/pending/index' })
       }
@@ -134,6 +137,26 @@ export default function Index() {
   const completed = weekSessions.filter((s) => s.status === 'completed')
   const consumed = completed.reduce((acc, s) => acc + presentCount(s), 0)
 
+  // 首次进入引导填名（欢迎语用）。用系统 modal 的可编辑输入
+  async function promptName() {
+    const res = await Taro.showModal({
+      title: '你的名字',
+      content: '',
+      editable: true,
+      placeholderText: '如 Ruby / 王老师',
+      confirmText: '保存',
+      cancelText: '以后再说'
+    })
+    const name = (res.confirm && res.content && res.content.trim()) || ''
+    if (!name) return
+    try {
+      await setDisplayName(name)
+      setTeacherName(name)
+    } catch {
+      // api 层已 toast
+    }
+  }
+
   // 铃铛：进消息中心（方案 A）。授权引导移到消息中心页内 banner。
   function onBell() {
     setUnread(0)
@@ -153,7 +176,7 @@ export default function Index() {
 
       <View className='hero'>
         <Text className='cav hero-eyebrow'>today</Text>
-        <Text className='hero-greeting'>{greeting}</Text>
+        <Text className='hero-greeting'>{teacherName ? `${greeting}，${teacherName}` : greeting}</Text>
         <Text className='hero-sub'>
           {roleLabel} · {dateLabel}
         </Text>
