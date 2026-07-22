@@ -13,6 +13,9 @@ import {
   migrateCourseTypes,
   CourseType
 } from '../../services/courseTypes'
+import { getGreeting, setGreeting } from '../../services/config'
+import { getCachedLogin } from '../../services/user'
+import { UserRole } from '../../constants'
 import { ApiError } from '../../services/api'
 import './index.scss'
 
@@ -30,6 +33,8 @@ export default function Settings() {
   const [editDur, setEditDur] = useState('')
   const [busy, setBusy] = useState(false)
   const [needsMigration, setNeedsMigration] = useState(false)
+  const [greeting, setGreetingVal] = useState('')
+  const isOwner = getCachedLogin()?.role === UserRole.Owner
 
   useLoad(() => load())
 
@@ -40,6 +45,28 @@ export default function Settings() {
       setNeedsMigration(!!nm)
     } catch {
       // toasted
+    }
+    if (isOwner) {
+      try {
+        const g = await getGreeting()
+        setGreetingVal(g.greeting)
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  async function onSaveGreeting() {
+    const g = greeting.trim()
+    if (!g) return Taro.showToast({ title: '欢迎语不能为空', icon: 'none' })
+    setBusy(true)
+    try {
+      await setGreeting(g)
+      showPaperToast(['已保存'])
+    } catch {
+      // toasted
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -167,6 +194,36 @@ export default function Settings() {
       <View className='set-head'>
         <Text className='set-title'>设置</Text>
       </View>
+
+      {isOwner ? (
+        <View>
+          <View className='group-head'>
+            <Text className='group-title'>工作室</Text>
+            <View className='group-rule' />
+          </View>
+          <Text className='group-hint'>主页欢迎语，所有登录者看到的一样</Text>
+          <View className='add-card paper-card sk-1'>
+            <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
+            <View className='fld'>
+              <Text className='fld-label'>欢迎语</Text>
+              <View className='fld-box'>
+                <Input
+                  className='fld-input'
+                  value={greeting}
+                  onInput={(e) => setGreetingVal(e.detail.value)}
+                  placeholder='欢迎 Ruby & Yumi 老师'
+                  placeholderStyle={PH}
+                />
+              </View>
+            </View>
+            <View className='add-actions'>
+              <View className={`add-btn ${busy ? 'off' : ''}`} onClick={busy ? undefined : onSaveGreeting}>
+                <Text className='add-btn-txt'>保存</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      ) : null}
 
       <View className='group-head'>
         <Text className='group-title'>课程类型</Text>

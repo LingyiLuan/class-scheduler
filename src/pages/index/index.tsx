@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { ensureLogin, canAccessApp, setDisplayName } from '../../services/user'
+import { ensureLogin, canAccessApp } from '../../services/user'
+import { getGreeting } from '../../services/config'
 import { UserRole } from '../../constants'
 import { SketchFrame, SketchIcon, StatusMark } from '../../components/sketch'
 import TabBar from '../../components/TabBar'
@@ -41,7 +42,7 @@ function presentCount(s: SessionRow): number {
 export default function Index() {
   const [loading, setLoading] = useState(true)
   const [role, setRole] = useState('')
-  const [teacherName, setTeacherName] = useState('')
+  const [wsGreeting, setWsGreeting] = useState('')
   const [showRecharge, setShowRecharge] = useState(false)
   const [weekSessions, setWeekSessions] = useState<SessionRow[]>([])
   const [nameMap, setNameMap] = useState<Record<string, string>>({})
@@ -58,11 +59,12 @@ export default function Index() {
       const info = await ensureLogin()
       if (canAccessApp(info)) {
         setRole(info.role)
-        setTeacherName(info.displayName || '')
         setLoading(false)
         refreshQuotaSetting() // 预热订阅设置缓存，供铃铛引导判断
+        getGreeting()
+          .then((g) => setWsGreeting(g.greeting))
+          .catch(() => {})
         loadData()
-        if (!info.displayName) promptName() // 首次未填名，引导填一次
       } else {
         Taro.redirectTo({ url: '/pages/pending/index' })
       }
@@ -123,8 +125,6 @@ export default function Index() {
   }
 
   const now = new Date()
-  const h = now.getHours()
-  const greeting = h < 11 ? '早上好' : h < 13 ? '中午好' : h < 18 ? '下午好' : '晚上好'
   const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][now.getDay()]
   const dateLabel = `${now.getMonth() + 1}月${now.getDate()}日 · ${weekday}`
   const roleLabel = role === UserRole.Owner ? '管理员' : '教师'
@@ -136,26 +136,6 @@ export default function Index() {
   const scheduledCount = weekSessions.filter((s) => s.status === 'scheduled').length
   const completed = weekSessions.filter((s) => s.status === 'completed')
   const consumed = completed.reduce((acc, s) => acc + presentCount(s), 0)
-
-  // 首次进入引导填名（欢迎语用）。用系统 modal 的可编辑输入
-  async function promptName() {
-    const res = await Taro.showModal({
-      title: '你的名字',
-      content: '',
-      editable: true,
-      placeholderText: '如 Ruby / 王老师',
-      confirmText: '保存',
-      cancelText: '以后再说'
-    })
-    const name = (res.confirm && res.content && res.content.trim()) || ''
-    if (!name) return
-    try {
-      await setDisplayName(name)
-      setTeacherName(name)
-    } catch {
-      // api 层已 toast
-    }
-  }
 
   // 铃铛：进消息中心（方案 A）。授权引导移到消息中心页内 banner。
   function onBell() {
@@ -176,7 +156,7 @@ export default function Index() {
 
       <View className='hero'>
         <Text className='cav hero-eyebrow'>today</Text>
-        <Text className='hero-greeting'>{teacherName ? `${greeting}，${teacherName}` : greeting}</Text>
+        <Text className='hero-greeting'>{wsGreeting || '欢迎'}</Text>
         <Text className='hero-sub'>
           {roleLabel} · {dateLabel}
         </Text>
