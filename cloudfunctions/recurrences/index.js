@@ -3,7 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
-const { WS_STAMP } = require('./_shared/workspace')
+const { WS_STAMP, WORKSPACE_DEFAULT } = require('./_shared/workspace')
 const { addNotification } = require('./_shared/notify')
 const { studentsLabel } = require('./_shared/subscribe')
 
@@ -154,7 +154,8 @@ exports.main = async (event = {}) => {
         const rangeEnd = new Date(starts[starts.length - 1].getTime() + durMs)
         const ex = await sessions
           .where({
-            ownerId: ctx.openid,
+            // 二期冲突检测按 workspaceId 全局（跨所有老师）
+            workspaceId: WORKSPACE_DEFAULT,
             status: _.in(ACTIVE_STATUSES),
             startTime: _.gte(rangeStart).and(_.lt(rangeEnd))
           })

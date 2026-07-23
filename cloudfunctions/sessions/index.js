@@ -3,7 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
-const { WS_STAMP } = require('./_shared/workspace')
+const { WS_STAMP, WORKSPACE_DEFAULT } = require('./_shared/workspace')
 const {
   sendSubscribe,
   lowCreditData,
@@ -135,15 +135,15 @@ async function loadOwned(id, ctx) {
   return doc
 }
 
-// 冲突检测：老师单资源，返回与 [start, start+dur) 时间区间相交的其它课
-// 相交判定 A.start < B.end && B.start < A.end；首尾相接不算冲突
+// 冲突检测：二期按 workspaceId 全局（跨所有老师），返回与 [start, start+dur) 相交的其它课。
+// 相交判定 A.start < B.end && B.start < A.end；首尾相接不算冲突。ownerId 入参已不用于过滤。
 async function findConflicts(ownerId, startTime, durationMin, excludeId) {
   const start = new Date(startTime).getTime()
   const end = start + durationMin * 60000
   const winStart = new Date(start - 4 * 60 * 60000) // 回溯 4h，足够覆盖任何时长的候选课
   const res = await sessions
     .where({
-      ownerId,
+      workspaceId: WORKSPACE_DEFAULT,
       status: _.in(ACTIVE_STATUSES),
       startTime: _.gte(winStart).and(_.lt(new Date(end)))
     })
