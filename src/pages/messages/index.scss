@@ -32,6 +32,20 @@
   border-radius: var(--radius-sketch-3);
 }
 
+/* 额度不足：coral 强调 */
+.msg-banner.topup {
+  border: 2rpx dashed var(--accent-coral);
+  background: rgba(240, 120, 80, 0.06);
+}
+
+.msg-banner.topup .banner-title {
+  color: var(--accent-coral-ink);
+}
+
+.msg-banner.topup .banner-btn {
+  background: var(--accent-coral-ink);
+}
+
 .banner-txt {
   flex: 1;
   min-width: 0;

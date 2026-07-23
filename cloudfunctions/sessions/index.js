@@ -6,6 +6,7 @@ const { ok, fail } = require('./_shared/resp')
 const {
   sendSubscribe,
   lowCreditData,
+  creditDeductData,
   TEMPLATES,
   studentsLabel,
   envToState
@@ -362,19 +363,39 @@ exports.main = async (event = {}) => {
             .update({ data: { status: 'completed', attendance } })
         })
         // 扣课时后检查余额，首次跌破 ≤2 发课时不足提醒（事务外，失败不影响完成结果）
-        for (const sid of doc.studentIds) {
-          if (attendance[sid] !== 'present') continue
+        // 逐人扣课时已在事务内完成。事务外：算余额 + 低课时检查 + 汇总（一条应用内消息 + 一条推送）
+        const state = envToState(event.envVersion)
+        const presentSids = doc.studentIds.filter((sid) => attendance[sid] === 'present')
+        const names = []
+        let singleBalance = 0
+        for (const sid of presentSids) {
           const bal = await computeBalance(sid)
-          const nm = await studentNameById(sid)
+          names.push(await studentNameById(sid))
+          if (presentSids.length === 1) singleBalance = bal
+          await checkLowCredit(sid, ctx.openid, bal, state)
+        }
+        if (presentSids.length) {
+          const count = presentSids.length
+          const body = count === 1 ? `${names[0]} 扣 1 课时，剩余 ${singleBalance}` : `本节课 ${count} 人各扣 1 课时`
+          // 应用内一条汇总
           await addNotification({
             ownerId: ctx.openid,
             type: 'creditDeduct',
             title: '扣课时',
-            body: `${nm} 扣 1 课时，剩余 ${bal}`,
-            refType: 'student',
-            refId: sid
+            body,
+            refType: 'session',
+            refId: doc._id
           })
-          await checkLowCredit(sid, ctx.openid, bal, envToState(event.envVersion))
+          // 订阅推送一条汇总（item 3：每次扣课时提醒；一节课多人合并，不炸多条）
+          await sendSubscribe({
+            touser: ctx.openid,
+            templateId: TEMPLATES.lowCredit,
+            page: `pages/course/detail/index?id=${doc._id}`,
+            data: creditDeductData({ names, count, singleBalance, atMs: Date.now() }),
+            kind: 'creditDeduct',
+            refId: doc._id,
+            miniprogramState: state
+          })
         }
         return ok({ _id: doc._id, status: 'completed', attendance })
       }

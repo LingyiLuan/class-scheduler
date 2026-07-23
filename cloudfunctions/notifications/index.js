@@ -82,6 +82,17 @@ exports.main = async (event = {}) => {
         return ok({ count: r.total })
       }
 
+      // 近 24h 是否有 43101（额度耗尽/未授权）发送失败 → 消息中心提示补额
+      case 'quotaLow': {
+        const since = new Date(Date.now() - 24 * 3600000)
+        const r = await db
+          .collection('notifyLogs')
+          .where({ touser: ctx.openid, ok: false, errCode: 43101, createdAt: _.gt(since) })
+          .limit(1)
+          .get()
+        return ok({ quotaLow: r.data.length > 0 })
+      }
+
       // 标记已读：传 id 标单条，否则全部已读
       case 'markRead': {
         const now = db.serverDate()

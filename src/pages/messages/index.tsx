@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { SketchFrame } from '../../components/sketch'
-import { listNotifications, markRead, NotiRow } from '../../services/notifications'
+import { listNotifications, markRead, quotaLow, NotiRow } from '../../services/notifications'
 import { requestSubscribe, refreshQuotaSetting, quotaSettled } from '../../services/subscribe'
 import { SUBSCRIBE_TMPL_IDS } from '../../constants/subscribe'
 import { bjDateStr, bjTimeStr } from '../../utils/datetime'
@@ -18,13 +18,25 @@ function timeLabel(iso: string): string {
 export default function Messages() {
   const [rows, setRows] = useState<NotiRow[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [showBanner, setShowBanner] = useState(false)
+  // none=无 / enable=未勾总是保持 / topup=已勾但额度不足
+  const [banner, setBanner] = useState<'none' | 'enable' | 'topup'>('none')
 
   useLoad(() => load())
 
   async function load() {
     await refreshQuotaSetting()
-    setShowBanner(!quotaSettled())
+    let b: 'none' | 'enable' | 'topup' = 'none'
+    if (!quotaSettled()) {
+      b = 'enable'
+    } else {
+      try {
+        const q = await quotaLow()
+        if (q.quotaLow) b = 'topup'
+      } catch {
+        // ignore
+      }
+    }
+    setBanner(b)
     try {
       const { list } = await listNotifications(1)
       setRows(list)
@@ -37,13 +49,12 @@ export default function Messages() {
     }
   }
 
-  // 授权在按钮点击手势内发起；成功后隐藏 banner
-  function onEnable() {
+  // 授权/补额都在按钮点击手势内发起
+  function onBannerTap() {
     requestSubscribe(SUBSCRIBE_TMPL_IDS)
-    Taro.showToast({ title: '已请求开启提醒', icon: 'none' })
-    setTimeout(() => {
-      refreshQuotaSetting().then(() => setShowBanner(!quotaSettled()))
-    }, 800)
+    Taro.showToast({ title: banner === 'topup' ? '已请求补充额度' : '已请求开启提醒', icon: 'none' })
+    setBanner('none')
+    setTimeout(() => refreshQuotaSetting(), 800)
   }
 
   function openRef(n: NotiRow) {
@@ -62,14 +73,18 @@ export default function Messages() {
         <Text className='msg-title'>消息</Text>
       </View>
 
-      {showBanner ? (
-        <View className='msg-banner sk-2' onClick={onEnable}>
+      {banner !== 'none' ? (
+        <View className={`msg-banner sk-2 ${banner === 'topup' ? 'topup' : ''}`} onClick={onBannerTap}>
           <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
           <View className='banner-txt'>
-            <Text className='banner-title'>开启自动提醒</Text>
-            <Text className='banner-sub'>勾选「总是保持以上选择」后，课前与课时提醒自动送达，无需每次确认</Text>
+            <Text className='banner-title'>{banner === 'topup' ? '提醒额度不足' : '开启自动提醒'}</Text>
+            <Text className='banner-sub'>
+              {banner === 'topup'
+                ? '最近有提醒没能发出去，点此补充额度'
+                : '勾选「总是保持以上选择」后，课前与课时提醒自动送达，无需每次确认'}
+            </Text>
           </View>
-          <Text className='banner-btn'>开启</Text>
+          <Text className='banner-btn'>{banner === 'topup' ? '补充' : '开启'}</Text>
         </View>
       ) : null}
 

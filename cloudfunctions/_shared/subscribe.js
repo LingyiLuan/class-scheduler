@@ -72,6 +72,18 @@ function lowCreditData({ name, balance, atMs }) {
   }
 }
 
+// 每次扣课时的推送（item 3）。复用课时扣减模板（= lowCredit 模板）。
+// 一节课多人合并成一条：单人显示姓名+剩余；多人显示「前2人+等N人」+「N 人各扣 1 课时」。
+function creditDeductData({ names, count, singleBalance, atMs }) {
+  const multi = count > 1
+  return {
+    thing7: { value: studentsLabel(names) },
+    short_thing3: { value: multi ? '各1课时' : clip(`${singleBalance}课时`, 5) },
+    time4: { value: fmtBjTime(atMs) },
+    thing5: { value: multi ? clip(`本节课 ${count} 人各扣 1 课时`, 20) : clip('已扣 1 课时', 20) }
+  }
+}
+
 /**
  * 统一发送订阅消息 + 记录结果（成功失败都写 notifyLogs 与 console，绝不静默失败）。
  * @param {object} o
@@ -133,6 +145,7 @@ module.exports = {
   studentsLabel,
   classReminderData,
   lowCreditData,
+  creditDeductData,
   sendSubscribe,
   envToState
 }
