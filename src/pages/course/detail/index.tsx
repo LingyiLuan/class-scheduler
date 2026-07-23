@@ -3,6 +3,7 @@ import { View, Text } from '@tarojs/components'
 import Taro, { useRouter, useLoad } from '@tarojs/taro'
 import { SketchFrame, StatusMark } from '../../../components/sketch'
 import SheetModal from '../../../components/SheetModal'
+import RescheduleForm from '../../../components/RescheduleForm'
 import {
   getSession,
   completeSession,
@@ -35,6 +36,7 @@ export default function CourseDetail() {
   const [nameMap, setNameMap] = useState<Record<string, string>>({})
   const [balMap, setBalMap] = useState<Record<string, number>>({})
   const [showAtt, setShowAtt] = useState(false)
+  const [showReschedule, setShowReschedule] = useState(false)
   const [attendance, setAttendance] = useState<Record<string, boolean>>({})
   const [busy, setBusy] = useState(false)
 
@@ -248,6 +250,9 @@ export default function CourseDetail() {
                 <SketchFrame color='#20180E' opacity={0.5} sw={1.6} />
                 <Text className='cd-btn-txt on-dark'>完成</Text>
               </View>
+              <View className='cd-btn secondary' onClick={() => setShowReschedule(true)}>
+                <Text className='cd-btn-txt'>改期</Text>
+              </View>
               <View className='cd-btn secondary' onClick={doMarkAbsent}>
                 <Text className='cd-btn-txt'>缺勤</Text>
               </View>
@@ -283,6 +288,16 @@ export default function CourseDetail() {
             <Text className='att-submit-txt'>确认完成</Text>
           </View>
         </View>
+      </SheetModal>
+
+      <SheetModal visible={showReschedule} onClose={() => setShowReschedule(false)} title='改期'>
+        <RescheduleForm
+          session={session}
+          onDone={() => {
+            setShowReschedule(false)
+            load()
+          }}
+        />
       </SheetModal>
 
       <PaperToastHost />

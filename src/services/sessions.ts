@@ -64,6 +64,18 @@ export function getSession(id: string): Promise<SessionRow> {
   return callFunction('sessions', { action: 'get', data: { id } })
 }
 
+export interface UpdateSessionInput {
+  startTime?: string
+  durationMin?: number
+  note?: string
+  force?: boolean
+}
+
+/** 编辑单节（改期/时长/备注）。仅 scheduled 可改；冲突时返回 40901(软)/40902(硬)，调用方处理 */
+export function updateSession(id: string, data: UpdateSessionInput): Promise<{ _id: string }> {
+  return callFunction('sessions', { action: 'update', data: { id, ...data } }, { silent: true })
+}
+
 /** 完成：一对一不传 attendance（默认全出席）；小班课传 {studentId: 'present'|'absent'} */
 export function completeSession(
   id: string,
