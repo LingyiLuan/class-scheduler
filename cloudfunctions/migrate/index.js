@@ -49,6 +49,22 @@ async function verify(name) {
   return r.total
 }
 
+// R3 安全改名：给 notifications 缺 recipientOpenid 的记录回填 recipientOpenid = ownerId（复制，不删 ownerId）。
+// 逐条 update（不能在批量 update 里引用另一字段的值），循环到无缺。
+async function backfillRecipient() {
+  const col = db.collection('notifications')
+  let updated = 0
+  for (let i = 0; i < 10000; i++) {
+    const r = await col.where({ recipientOpenid: _.exists(false) }).limit(100).get()
+    if (!r.data.length) break
+    for (const d of r.data) {
+      await col.doc(d._id).update({ data: { recipientOpenid: d.ownerId || null } })
+      updated++
+    }
+  }
+  return updated
+}
+
 exports.main = async (event = {}) => {
   try {
     // 校验：只读
@@ -57,6 +73,22 @@ exports.main = async (event = {}) => {
       for (const name of TARGETS) missing[name] = await verify(name)
       const allDone = Object.values(missing).every((n) => n === 0)
       return { code: 0, data: { missing, allDone } }
+    }
+
+    // R3 校验：notifications 还有多少缺 recipientOpenid（应为 0）
+    if (event.action === 'verifyRecipient') {
+      const r = await db.collection('notifications').where({ recipientOpenid: _.exists(false) }).count()
+      return { code: 0, data: { notificationsMissingRecipient: r.total, allDone: r.total === 0 } }
+    }
+
+    // R3 回填：recipientOpenid = ownerId（需确认）
+    if (event.action === 'backfillRecipient') {
+      if (event.confirm !== CONFIRM) {
+        return { code: 40001, msg: `未确认：回填需传 confirm:'${CONFIRM}'（或 action:'verifyRecipient' 只读校验）` }
+      }
+      const updated = await backfillRecipient()
+      console.log('[migrate.recipient]', updated)
+      return { code: 0, data: { backfilledRecipient: updated } }
     }
 
     // 回填：需确认

@@ -10,6 +10,7 @@ const col = db.collection('notifications')
 
 const RETAIN_DAYS = 90 // 超过则删
 const MAX_PER_OWNER = 300 // 每人超出则删最老的
+// R3 安全改名：读取一律按 recipientOpenid（迁移已回填、新写入同时写入）；ownerId 为旧死副本，下一轮才删
 
 // 清理：两个条件取先满足的——超 90 天的删，或每人超 300 条的删最老的。由每日定时触发器调用。
 async function cleanup() {
@@ -27,21 +28,21 @@ async function cleanup() {
   // 2) 每人超 300 条：以第 300 新的那条时间为界，早于它的删
   let removedExcess = 0
   try {
-    const owners = await col.aggregate().group({ _id: '$ownerId' }).limit(1000).end()
+    const owners = await col.aggregate().group({ _id: '$recipientOpenid' }).limit(1000).end()
     for (const o of owners.list) {
-      const ownerId = o._id
-      if (!ownerId) continue
-      const { total } = await col.where({ ownerId }).count()
+      const recipientOpenid = o._id
+      if (!recipientOpenid) continue
+      const { total } = await col.where({ recipientOpenid }).count()
       if (total <= MAX_PER_OWNER) continue
       const boundary = await col
-        .where({ ownerId })
+        .where({ recipientOpenid })
         .orderBy('createdAt', 'desc')
         .skip(MAX_PER_OWNER - 1)
         .limit(1)
         .get()
       if (!boundary.data.length) continue
       const r = await col
-        .where({ ownerId, createdAt: _.lt(boundary.data[0].createdAt) })
+        .where({ recipientOpenid, createdAt: _.lt(boundary.data[0].createdAt) })
         .remove()
       removedExcess += (r.stats && r.stats.removed) || 0
     }
@@ -68,7 +69,7 @@ exports.main = async (event = {}) => {
         const page = Math.max(1, Number(data.page) || 1)
         const size = Math.min(50, Math.max(1, Number(data.pageSize) || 20))
         const res = await col
-          .where({ ownerId: ctx.openid })
+          .where({ recipientOpenid: ctx.openid })
           .orderBy('createdAt', 'desc')
           .skip((page - 1) * size)
           .limit(size)
@@ -78,7 +79,7 @@ exports.main = async (event = {}) => {
 
       // 未读数（首页铃铛红点用）
       case 'unreadCount': {
-        const r = await col.where({ ownerId: ctx.openid, readAt: _.eq(null) }).count()
+        const r = await col.where({ recipientOpenid: ctx.openid, readAt: _.eq(null) }).count()
         return ok({ count: r.total })
       }
 
@@ -97,10 +98,10 @@ exports.main = async (event = {}) => {
       case 'markRead': {
         const now = db.serverDate()
         if (data.id) {
-          await col.where({ _id: data.id, ownerId: ctx.openid }).update({ data: { readAt: now } })
+          await col.where({ _id: data.id, recipientOpenid: ctx.openid }).update({ data: { readAt: now } })
         } else {
           await col
-            .where({ ownerId: ctx.openid, readAt: _.eq(null) })
+            .where({ recipientOpenid: ctx.openid, readAt: _.eq(null) })
             .update({ data: { readAt: now } })
         }
         return ok({})
