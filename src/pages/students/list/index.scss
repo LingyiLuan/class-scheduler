@@ -44,6 +44,51 @@
   padding: 8rpx var(--space-screen) 160rpx;
 }
 
+/* 在读 / 已停用 二段筛选（仅在有停用学员时出现） */
+.sl-filter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 8rpx;
+  margin: 0 var(--space-screen) 4rpx;
+}
+
+.sl-seg {
+  padding: 6rpx 24rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-secondary);
+  border: 2rpx solid var(--pencil-faint, #c9bb9a);
+  border-radius: var(--radius-sketch-5);
+}
+
+.sl-seg.on {
+  color: var(--paper-kraft);
+  background: var(--ink-title);
+  border-color: var(--ink-title);
+}
+
+/* 已停用行：置灰 + 停用时间 + 恢复按钮 */
+.sl-card.inactive {
+  opacity: 0.6;
+}
+
+.sl-deact {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+.sl-restore {
+  flex: none;
+  padding: 8rpx 26rpx;
+  font-size: var(--font-caption);
+  color: var(--accent-teal-ink);
+  border: 2rpx solid var(--accent-teal);
+  border-radius: var(--radius-sketch-4);
+  opacity: 1;
+}
+
 /* ── 学员纸片 ── */
 .sl-card {
   position: relative;

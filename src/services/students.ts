@@ -10,6 +10,8 @@ export interface Student {
   inviteCode?: string
   userId?: string | null
   createdAt?: string
+  isDeleted?: boolean
+  deactivatedAt?: string
 }
 
 export interface StudentInput {
@@ -28,8 +30,11 @@ export interface SessionBrief {
   status: SessionStatus
 }
 
-export function listStudents(): Promise<{ list: Student[] }> {
-  return callFunction('students', { action: 'list' })
+/** 学员列表。filter='active'(默认)在读 / 'inactive' 已停用；inactiveCount 供前端决定 tab 显隐 */
+export function listStudents(
+  filter?: 'active' | 'inactive'
+): Promise<{ list: Student[]; inactiveCount?: number }> {
+  return callFunction('students', { action: 'list', data: filter ? { filter } : {} })
 }
 
 export function getStudent(id: string): Promise<Student> {
@@ -52,6 +57,11 @@ export function deleteStudent(id: string): Promise<{ _id: string }> {
 /** 停用（软删，从列表隐藏，历史保留）。删除被引用学员时的降级操作 */
 export function deactivateStudent(id: string): Promise<{ _id: string }> {
   return callFunction('students', { action: 'deactivate', data: { id } })
+}
+
+/** 恢复：停用学员回到在读 */
+export function reactivateStudent(id: string): Promise<{ _id: string }> {
+  return callFunction('students', { action: 'reactivate', data: { id } })
 }
 
 export function getBalance(

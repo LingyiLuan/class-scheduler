@@ -35,7 +35,8 @@ async function loadStudent(id) {
   if (!id) throw new AuthError(40001, '缺少学员 id')
   const res = await students.where({ _id: id }).get()
   const doc = res.data[0]
-  if (!doc || doc.isDeleted === true) throw new AuthError(40400, '学员不存在')
+  // 不拒绝已停用：详情/恢复需要能载入停用学员（列表按 filter 控制可见性）
+  if (!doc) throw new AuthError(40400, '学员不存在')
   return doc
 }
 
@@ -73,14 +74,18 @@ exports.main = async (event = {}) => {
         return ok({ _id: res._id, ...doc })
       }
 
-      // 列表：二期学员归工作室，owner 与 teacher 都看全工作室学员（按 workspaceId，不再按 ownerId）
+      // 列表：二期学员归工作室（按 workspaceId）。filter='active'(默认)看在读 / 'inactive' 看已停用。
+      // 附带 inactiveCount 供前端决定「已停用」tab 显隐。
       case 'list': {
-        const where = { isDeleted: _.neq(true), workspaceId: WORKSPACE_DEFAULT }
-        // 加载诊断（第 0 步）：单独计时查询 + 命中条数（看 limit 100 实际命中多少）
+        const filter = data.filter === 'inactive' ? 'inactive' : 'active'
+        const where = { workspaceId: WORKSPACE_DEFAULT }
+        where.isDeleted = filter === 'inactive' ? true : _.neq(true)
+        const orderField = filter === 'inactive' ? 'deactivatedAt' : 'createdAt'
         const _t = Date.now()
-        const res = await students.where(where).orderBy('createdAt', 'desc').limit(100).get()
-        console.log(`[perf] students.list.query ${Date.now() - _t}ms hit=${res.data.length}`)
-        return ok({ list: res.data })
+        const res = await students.where(where).orderBy(orderField, 'desc').limit(100).get()
+        console.log(`[perf] students.list.query ${Date.now() - _t}ms hit=${res.data.length} filter=${filter}`)
+        const inactive = await students.where({ workspaceId: WORKSPACE_DEFAULT, isDeleted: true }).count()
+        return ok({ list: res.data, inactiveCount: inactive.total })
       }
 
       // 详情
@@ -115,11 +120,18 @@ exports.main = async (event = {}) => {
         return ok({ _id: data.id, removed: true })
       }
 
-      // 停用：软删（isDeleted=true），保留其关联流水/历史课的可追溯。有引用时的删除降级到这里
+      // 停用：软删（isDeleted=true），记停用时间；保留关联流水/历史课的可追溯。有引用时的删除降级到这里
       case 'deactivate': {
         await loadStudent(data.id)
-        await students.doc(data.id).update({ data: { isDeleted: true } })
+        await students.doc(data.id).update({ data: { isDeleted: true, deactivatedAt: db.serverDate() } })
         return ok({ _id: data.id, deactivated: true })
+      }
+
+      // 恢复：停用学员回到在读
+      case 'reactivate': {
+        await loadStudent(data.id)
+        await students.doc(data.id).update({ data: { isDeleted: false, deactivatedAt: _.remove() } })
+        return ok({ _id: data.id, reactivated: true })
       }
 
       default:

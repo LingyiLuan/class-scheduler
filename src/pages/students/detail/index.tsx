@@ -7,6 +7,7 @@ import {
   listStudentSessions,
   deleteStudent,
   deactivateStudent,
+  reactivateStudent,
   Student,
   SessionBrief
 } from '../../../services/students'
@@ -93,6 +94,24 @@ export default function StudentDetail() {
     })
   }
 
+  function onReactivate() {
+    Taro.showModal({
+      title: '恢复学员',
+      content: `将「${stu?.name}」恢复到在读列表？`,
+      confirmText: '恢复',
+      success: async (r) => {
+        if (!r.confirm) return
+        try {
+          await reactivateStudent(id)
+          showPaperToast(['已恢复，回到在读列表'])
+          Taro.navigateBack()
+        } catch {
+          // toasted
+        }
+      }
+    })
+  }
+
   if (!stu) {
     return (
       <View className='sd'>
@@ -166,9 +185,15 @@ export default function StudentDetail() {
           <View className='sd-btn secondary' onClick={() => setShowEdit(true)}>
             <Text className='sd-btn-txt'>编辑</Text>
           </View>
-          <View className='sd-btn danger' onClick={onDelete}>
-            <Text className='sd-btn-txt on-danger'>删除</Text>
-          </View>
+          {stu.isDeleted ? (
+            <View className='sd-btn secondary' onClick={onReactivate}>
+              <Text className='sd-btn-txt'>恢复</Text>
+            </View>
+          ) : (
+            <View className='sd-btn danger' onClick={onDelete}>
+              <Text className='sd-btn-txt on-danger'>删除</Text>
+            </View>
+          )}
         </View>
       </View>
 
