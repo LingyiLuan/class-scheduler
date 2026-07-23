@@ -293,7 +293,10 @@
 实测 45 学员：首页热启动 8s，其中 `balances×45` 占 57%、学员页占 89%；单次干净 getBalance 717ms，45 次并发却 4.5-6s（受云函数实例数限制，非线性）。冷启动是次要项。
 1. ✅ **批量余额接口** `credits.balances({studentIds})`（第 0.5 步已做）：一次 `match(in).group(studentId).sum` 返回映射；首页/学员页 N 次 → 1 次。
 2. ⬜ `creditLogs.studentId` 索引（Ascending / Non-unique，手动建）——批量后那一次聚合更依赖它。
-3. ⬜ **学员列表真分页（phase2 待办）**：`students.list` 现为硬 `limit(100)` 无 skip，45 条未触发，但迟早要改真分页（skip/游标 + 前端分页加载）。本轮不动，记此待办。
+3. ⬜ **静默截断三处（phase2 待办，同类问题）**：
+   - `students.list` 硬 `limit(100)` 无 skip：≥100 学员静默丢弃 → 改真分页（skip/游标）。
+   - `credits.balances` 聚合已加 `.limit(学员数)` 修了默认 20 组截断；但**云函数端聚合单次上限 1000**，学员 >1000 时一次聚合返回不全 → 需**分批聚合**（studentIds 切块 ≤1000 各聚合再合并）+ 注意 `_.in` 超大数组。当前 25-45 人远未到，不做。
+   - 通用规则：凡 `aggregate().group(by 字段)` 必加 `.limit()`；`.get()` 注意 100/1000 上限。
 4. ⬜ 次要：首屏 4 个云函数**串行**（listSessions→listStudents→balances→unread，耗时相加）。可**并发化**（无依赖的并发）或**合并为一个 home 函数**（减少冷启动次数）。批量做完若仍慢，这是下一杠杆。
 5. 谨慎的长期项：余额快照字段（违背"creditLogs 唯一真相"，需事务维护，非必要不做）。
 

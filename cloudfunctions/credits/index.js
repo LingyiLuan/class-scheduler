@@ -59,6 +59,9 @@ exports.main = async (event = {}) => {
             .aggregate()
             .match({ studentId: _.in(allowed) })
             .group({ _id: '$studentId', total: $.sum('$delta') })
+            // ⚠️ 云开发 aggregate 默认只返回 20 组，不加 limit 会静默截断。groups 数 = 学员数。
+            // 云函数端单次上限 1000：学员 >1000 需分批聚合（当前远未到，见 phase2 待办）。
+            .limit(allowed.length)
             .end()
           console.log(`[perf] balances.aggregate ${Date.now() - _t}ms n=${allowed.length}`)
           agg.list.forEach((r) => (map[r._id] = r.total))

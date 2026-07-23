@@ -54,6 +54,7 @@ exports.main = async (event = {}) => {
     .aggregate()
     .match({ studentId: _.in(studentIds) })
     .group({ _id: '$studentId', total: $.sum('$delta') })
+    .limit(studentIds.length) // 与 credits.balances 修法一致，避免默认 20 组截断
     .end()
   const batch = {}
   studentIds.forEach((id) => (batch[id] = 0))
