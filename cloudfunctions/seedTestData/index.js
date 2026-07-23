@@ -68,8 +68,10 @@ exports.main = async (event = {}) => {
   const ownerId = event.ownerId || OPENID
   if (!ownerId) return { code: 40001, msg: '缺少 ownerId' }
 
+  // 3 秒超时对策：默认每次只造 3 个学员（含其充值+课程），约 40-50 次写，冷启动后也能塞进 3 秒。
+  // 不传 to 则自动 = from + 3。整批不够时按 from 递增多调几次。
   const from = Math.max(0, Number(event.from) || 0)
-  const to = Math.min(NAMES.length, event.to != null ? Number(event.to) : NAMES.length)
+  const to = Math.min(NAMES.length, event.to != null ? Number(event.to) : from + 3)
   const now = Date.now()
   const counts = { students: 0, packages: 0, sessions: 0, completed: 0, creditLogs: 0 }
 
