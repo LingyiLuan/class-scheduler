@@ -222,6 +222,13 @@ export default function CourseDetail() {
           </View>
         ) : null}
 
+        {session.mine === false ? (
+          <View className='cd-readonly'>
+            <Text className='cd-readonly-txt'>
+              {session.teacherName || '其他'}老师的课 · 仅查看，不可操作
+            </Text>
+          </View>
+        ) : (
         <View className='cd-actions'>
           {isScheduled ? (
             <>
@@ -242,6 +249,7 @@ export default function CourseDetail() {
             </View>
           )}
         </View>
+        )}
       </View>
 
       <SheetModal visible={showAtt} onClose={() => setShowAtt(false)} title='出勤勾选'>

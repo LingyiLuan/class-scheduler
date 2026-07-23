@@ -124,6 +124,7 @@ async function assertStudentsOwned(studentIds, ctx) {
   // 二期学员归工作室：任一 owner/teacher 都能给本工作室学员排课，不再按 ownerId 限制
 }
 
+// 可变操作用：校验调用者可改动该课（owner 全权；teacher 仅自己 ownerId 的课）。别人的课只读靠这里拦写。
 async function loadOwned(id, ctx) {
   if (!id) throw new AuthError(40001, '缺少课程 id')
   const res = await sessions.where({ _id: id }).get()
@@ -133,6 +134,29 @@ async function loadOwned(id, ctx) {
     throw new AuthError(40301, '无权操作该课程')
   }
   return doc
+}
+
+// 只读载入：本工作室任一课都能看（详情只读态用），不校验归属
+async function loadSession(id) {
+  if (!id) throw new AuthError(40001, '缺少课程 id')
+  const res = await sessions.where({ _id: id }).get()
+  const doc = res.data[0]
+  if (!doc) throw new AuthError(40400, '课程不存在')
+  return doc
+}
+
+// 给课列表标注 mine / teacherName（非本人上的课解析 ownerId→displayName）
+async function attachTeacher(list, ctx) {
+  const others = [...new Set(list.map((s) => s.ownerId).filter((o) => o && o !== ctx.openid))]
+  const nameMap = {}
+  if (others.length) {
+    const us = await db.collection('users').where({ openid: _.in(others) }).get()
+    us.data.forEach((u) => (nameMap[u.openid] = u.displayName || ''))
+  }
+  return list.map((s) => {
+    const mine = s.ownerId === ctx.openid
+    return { ...s, mine, teacherName: mine ? '' : nameMap[s.ownerId] || '其他老师' }
+  })
 }
 
 // 冲突检测：二期按 workspaceId 全局（跨所有老师），返回与 [start, start+dur) 相交的其它课。
@@ -224,8 +248,11 @@ exports.main = async (event = {}) => {
       }
 
       // 周视图等：按时间区间 [from, to) 列出本人课程
+      // 列表：scope='mine'(默认，首页/统计) 按 ownerId；'workspace'(课表页) 按 workspaceId 看全工作室，
+      // workspace 时每节课带 mine/teacherName 供区分与只读判断。
       case 'list': {
-        const where = { ownerId: ctx.openid }
+        const scope = data.scope === 'workspace' ? 'workspace' : 'mine'
+        const where = scope === 'workspace' ? { workspaceId: WORKSPACE_DEFAULT } : { ownerId: ctx.openid }
         if (data.from && data.to) {
           where.startTime = _.gte(new Date(data.from)).and(_.lt(new Date(data.to)))
         } else if (data.from) {
@@ -240,12 +267,15 @@ exports.main = async (event = {}) => {
           .skip(skip)
           .limit(100)
           .get()
-        return ok({ list: res.data })
+        const list = scope === 'workspace' ? await attachTeacher(res.data, ctx) : res.data
+        return ok({ list })
       }
 
+      // 详情：只读载入本工作室任一课（别人的课也能看，前端据 mine 做只读态）
       case 'get': {
-        const doc = await loadOwned(data.id, ctx)
-        return ok(doc)
+        const doc = await loadSession(data.id)
+        const [withT] = await attachTeacher([doc], ctx)
+        return ok(withT)
       }
 
       // 编辑单节（仅未上课）。改时间/时长需重跑冲突检测
@@ -454,17 +484,7 @@ exports.main = async (event = {}) => {
         if (!data.studentId) return fail(40001, '缺少学员 id')
         const where = { studentIds: data.studentId, workspaceId: WORKSPACE_DEFAULT }
         const res = await sessions.where(where).orderBy('startTime', 'desc').limit(100).get()
-        // 解析非本人 ownerId → 老师显示名
-        const others = [...new Set(res.data.map((s) => s.ownerId).filter((o) => o && o !== ctx.openid))]
-        const nameMap = {}
-        if (others.length) {
-          const us = await db.collection('users').where({ openid: _.in(others) }).get()
-          us.data.forEach((u) => (nameMap[u.openid] = u.displayName || ''))
-        }
-        const list = res.data.map((s) => {
-          const mine = s.ownerId === ctx.openid
-          return { ...s, mine, teacherName: mine ? '' : nameMap[s.ownerId] || '其他老师' }
-        })
+        const list = await attachTeacher(res.data, ctx)
         return ok({ list })
       }
 

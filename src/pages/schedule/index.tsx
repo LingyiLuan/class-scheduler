@@ -70,7 +70,7 @@ export default function Schedule() {
 
   useEffect(() => {
     setLoading(true)
-    listSessions(from, to)
+    listSessions(from, to, 'workspace')
       .then(({ list }) => setSessions(list))
       .catch(() => {})
       .finally(() => setLoading(false))

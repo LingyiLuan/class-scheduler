@@ -10,6 +10,22 @@
   opacity: 0.55;
 }
 
+/* 别人的课：弱化（灰底 + 降透明度），但仍清晰可见——知道时段被占 */
+.cc-others {
+  background: rgba(58, 49, 37, 0.04);
+  border-color: var(--pencil-faint, #c9bb9a);
+  border-style: dashed;
+  opacity: 0.82;
+}
+
+.cc-teacher {
+  font-size: var(--font-tag);
+  color: var(--ink-tertiary);
+  background: rgba(58, 49, 37, 0.06);
+  padding: 2rpx 12rpx;
+  border-radius: var(--radius-sketch-5);
+}
+
 .cc-top {
   display: flex;
   align-items: center;

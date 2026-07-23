@@ -31,13 +31,16 @@ export default function CourseCard({
   const names = c.studentIds.map((id) => nameMap[id] || '学员已删除').join('、')
   const avatar = nameMap[c.studentIds[0]] ? nameMap[c.studentIds[0]].slice(0, 1) : '–'
 
+  const others = c.mine === false
+
   return (
-    <View className={`course-card ${isCancelled ? 'cc-off' : ''}`} onClick={onClick}>
+    <View className={`course-card ${isCancelled ? 'cc-off' : ''} ${others ? 'cc-others' : ''}`} onClick={onClick}>
       <View className='cc-top'>
         <Text className='cc-time'>
           {bjTimeStr(startTs)}–{bjTimeStr(endTs)}
         </Text>
         <Text className='cc-dur'>{c.durationMin}分</Text>
+        {others && c.teacherName ? <Text className='cc-teacher'>{c.teacherName}老师</Text> : null}
         <View className='cc-status'>
           <StatusMark status={c.status as SessionStatus} size={30} />
           <Text className='cc-status-label' style={{ color: `var(--status-${c.status})` }}>

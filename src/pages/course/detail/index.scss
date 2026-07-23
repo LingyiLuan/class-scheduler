@@ -283,3 +283,18 @@
   font-weight: var(--weight-bold);
   color: var(--btn-primary-ink);
 }
+
+/* 别人的课：只读提示（替代操作按钮） */
+.cd-readonly {
+  margin-top: 8rpx;
+  padding: 20rpx;
+  text-align: center;
+  border: 2rpx dashed var(--pencil-faint, #c9bb9a);
+  border-radius: var(--radius-sketch-4);
+  background: rgba(58, 49, 37, 0.04);
+}
+
+.cd-readonly-txt {
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}

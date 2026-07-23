@@ -13,11 +13,17 @@ export interface SessionRow {
   studentIds: string[]
   attendance?: Record<string, string>
   note?: string
+  mine?: boolean
+  teacherName?: string
 }
 
-/** 按时间区间列出课程（周视图）。from/to 传 ISO 字符串，云端 new Date 解析 */
-export function listSessions(from: string, to: string): Promise<{ list: SessionRow[] }> {
-  return callFunction('sessions', { action: 'list', data: { from, to } })
+/** 按时间区间列出课程。scope='workspace' 看全工作室（课表页，带 mine/teacherName）；默认 'mine'（首页/统计） */
+export function listSessions(
+  from: string,
+  to: string,
+  scope?: 'mine' | 'workspace'
+): Promise<{ list: SessionRow[] }> {
+  return callFunction('sessions', { action: 'list', data: scope ? { from, to, scope } : { from, to } })
 }
 
 /** 拉取区间内全部课程（skip 分页循环，用于统计半年数据，超过单次 100 条上限时） */
