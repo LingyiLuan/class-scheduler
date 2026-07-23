@@ -10,6 +10,14 @@ import './index.scss'
 
 const SK = ['sk-1', 'sk-2', 'sk-3', 'sk-4']
 
+// 开发者工具（模拟器）拿不到订阅状态，banner 会常显——只在此环境加提示。真机永远为 false。
+let IS_DEVTOOLS = false
+try {
+  IS_DEVTOOLS = Taro.getSystemInfoSync && Taro.getSystemInfoSync().platform === 'devtools'
+} catch {
+  // ignore
+}
+
 function timeLabel(iso: string): string {
   const ts = new Date(iso).getTime()
   return `${bjDateStr(ts).slice(5)} ${bjTimeStr(ts)}`
@@ -83,6 +91,9 @@ export default function Messages() {
                 ? '最近有提醒没能发出去，点此补充额度'
                 : '勾选「总是保持以上选择」后，课前与课时提醒自动送达，无需每次确认'}
             </Text>
+            {banner === 'enable' && IS_DEVTOOLS ? (
+              <Text className='banner-devnote'>（模拟器无法检测订阅状态，此提示以真机为准）</Text>
+            ) : null}
           </View>
           <Text className='banner-btn'>{banner === 'topup' ? '补充' : '开启'}</Text>
         </View>

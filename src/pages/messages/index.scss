@@ -149,3 +149,11 @@
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
 }
+
+/* 模拟器提示（真机不显示） */
+.banner-devnote {
+  display: block;
+  margin-top: 6rpx;
+  font-size: var(--font-tag);
+  color: var(--ink-tertiary);
+}
