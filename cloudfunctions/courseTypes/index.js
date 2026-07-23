@@ -3,6 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
+const { WS_STAMP } = require('./_shared/workspace')
 
 const db = cloud.database()
 const _ = db.command
@@ -26,6 +27,7 @@ async function ensureSeed(ownerId) {
     const s = SEED[i]
     await courseTypes.add({
       data: {
+        ...WS_STAMP,
         ownerId,
         name: s.name,
         durationMin: s.durationMin,
@@ -118,7 +120,7 @@ exports.main = async (event = {}) => {
           createdAt: now,
           updatedAt: now
         }
-        const r = await courseTypes.add({ data: doc })
+        const r = await courseTypes.add({ data: { ...WS_STAMP, ...doc } })
         return ok({ _id: r._id, ...doc })
       }
 

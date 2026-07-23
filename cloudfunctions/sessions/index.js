@@ -3,6 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
+const { WS_STAMP } = require('./_shared/workspace')
 const {
   sendSubscribe,
   lowCreditData,
@@ -212,7 +213,7 @@ exports.main = async (event = {}) => {
           note: data.note || '',
           createdAt: db.serverDate()
         }
-        const res = await sessions.add({ data: doc })
+        const res = await sessions.add({ data: { ...WS_STAMP, ...doc } })
         await addNotification({
           ownerId: ctx.openid,
           type: 'sessionCreate',
@@ -353,7 +354,7 @@ exports.main = async (event = {}) => {
           for (const sid of doc.studentIds) {
             if (attendance[sid] === 'present') {
               await transaction.collection('creditLogs').add({
-                data: { studentId: sid, sessionId: doc._id, delta: -1, reason: 'attend', createdAt: now }
+                data: { ...WS_STAMP, studentId: sid, sessionId: doc._id, delta: -1, reason: 'attend', createdAt: now }
               })
             }
           }
@@ -427,7 +428,7 @@ exports.main = async (event = {}) => {
             for (const sid of Object.keys(att)) {
               if (att[sid] === 'present') {
                 await transaction.collection('creditLogs').add({
-                  data: { studentId: sid, sessionId: doc._id, delta: 1, reason: 'revert', createdAt: now }
+                  data: { ...WS_STAMP, studentId: sid, sessionId: doc._id, delta: 1, reason: 'revert', createdAt: now }
                 })
               }
             }

@@ -3,6 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
+const { WS_STAMP } = require('./_shared/workspace')
 const { addNotification } = require('./_shared/notify')
 
 const db = cloud.database()
@@ -61,6 +62,7 @@ exports.main = async (event = {}) => {
         const result = await db.runTransaction(async (transaction) => {
           const pkg = await transaction.collection('packages').add({
             data: {
+              ...WS_STAMP,
               ownerId: ctx.openid,
               studentId,
               totalCredits,
@@ -70,6 +72,7 @@ exports.main = async (event = {}) => {
           })
           await transaction.collection('creditLogs').add({
             data: {
+              ...WS_STAMP,
               studentId,
               sessionId: null,
               delta: totalCredits,

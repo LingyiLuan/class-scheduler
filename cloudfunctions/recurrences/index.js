@@ -3,6 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
+const { WS_STAMP } = require('./_shared/workspace')
 const { addNotification } = require('./_shared/notify')
 const { studentsLabel } = require('./_shared/subscribe')
 
@@ -93,6 +94,7 @@ async function addSessions(startTimes, rule, ctx) {
   for (const st of startTimes) {
     await sessions.add({
       data: {
+        ...WS_STAMP,
         ownerId: ctx.openid,
         courseType: rule.courseType,
         courseTypeId: rule.courseTypeId || null,
@@ -222,7 +224,7 @@ exports.main = async (event = {}) => {
           deleted: false,
           createdAt: db.serverDate()
         }
-        const rec = await recurrences.add({ data: recDoc })
+        const rec = await recurrences.add({ data: { ...WS_STAMP, ...recDoc } })
         await addSessions(toCreate, { _id: rec._id, ...recDoc }, ctx)
         // 批量只写一条汇总，不写 N 条
         const nmRes = await students.where({ _id: _.in(studentIds) }).get()

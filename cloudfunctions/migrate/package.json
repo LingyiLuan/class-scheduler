@@ -1,0 +1,9 @@
+{
+  "name": "migrate",
+  "version": "1.0.0",
+  "description": "数据迁移：workspaceId + schemaVersion 回填（幂等，含 verify）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -3,6 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
+const { WS_STAMP } = require('./_shared/workspace')
 
 const db = cloud.database()
 const _ = db.command
@@ -63,7 +64,7 @@ exports.main = async (event = {}) => {
           isDeleted: false,
           createdAt: db.serverDate()
         }
-        const res = await students.add({ data: doc })
+        const res = await students.add({ data: { ...WS_STAMP, ...doc } })
         return ok({ _id: res._id, ...doc })
       }
 
