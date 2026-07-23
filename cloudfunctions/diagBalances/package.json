@@ -1,0 +1,9 @@
+{
+  "name": "diagBalances",
+  "version": "1.0.0",
+  "description": "⚠️ 临时：批量余额 vs 逐个余额对比诊断（只读，用完即删）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

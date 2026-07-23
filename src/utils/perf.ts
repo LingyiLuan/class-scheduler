@@ -1,8 +1,10 @@
 /**
- * 加载性能计时（仅开发环境输出，正式包为空操作，不污染）。
- * 第 0 步加载诊断用，诊断完可整体移除。
+ * 加载性能计时。第 0 步加载诊断用。
+ * ⚠️ 诊断开关：Taro build --watch 仍是 production 模式，env 判断不可靠，故用显式常量。
+ * 诊断/验证完把 PERF_ON 置 false，或把全部计时插桩整体移除，再发正式/体验版。
  */
-const ON = process.env.NODE_ENV === 'development'
+export const PERF_ON = true
+const ON = PERF_ON
 
 export interface Perf {
   lap(label: string): void

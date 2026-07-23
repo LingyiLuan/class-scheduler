@@ -1,5 +1,6 @@
 import Taro from '@tarojs/taro'
 import { STORAGE_LOGIN } from '../constants'
+import { PERF_ON } from '../utils/perf'
 
 // 当前小程序运行版本（develop/trial/release），随每次云函数调用带上，
 // 供云端决定订阅消息的 miniprogramState（体验版必须传 trial 才收得到）。取一次缓存。
@@ -10,8 +11,9 @@ try {
   // ignore
 }
 
-// 加载诊断（第 0 步）：仅开发环境记录每次云调用往返耗时，并标记每个函数的首次调用（冷启动）
-const TIMING = process.env.NODE_ENV === 'development'
+// 加载诊断（第 0 步）：记录每次云调用往返耗时，并标记每个函数的首次调用（冷启动）。
+// 用 perf 的显式开关（Taro build --watch 仍是 production，env 判断不可靠）。诊断完随插桩一起移除。
+const TIMING = PERF_ON
 const seenFns = new Set<string>()
 
 // 401xx（未登录/未建档/未激活）与 403xx(无权限)视为登录态失效
