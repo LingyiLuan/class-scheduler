@@ -289,12 +289,13 @@
 - 有没有 N+1 → **有，首页与学员页各一处**（已确认）。
 - 索引情况 → 需登控制台核对（重点 `creditLogs.studentId`）。
 
-### 诊断后的优化方向（不在本轮，供参考）
-与 `docs/release-checklist.md` 一致，且因共享学员放大而更紧迫：
-1. **批量余额接口** `credits.balances({studentIds})`：一次聚合 `match(studentId in […]).group(studentId).sum(delta)`，首页/学员页从 N 次 → 1 次。
-2. `creditLogs.studentId` 建索引。
-3. 学员列表真分页 或 首页只算需要的（如仅"课时不足"判定）。
-4. 谨慎的长期项：余额快照字段（违背"creditLogs 唯一真相"，需事务维护，非必要不做）。
+### 诊断结论与优化进度（实测：N+1 主因）
+实测 45 学员：首页热启动 8s，其中 `balances×45` 占 57%、学员页占 89%；单次干净 getBalance 717ms，45 次并发却 4.5-6s（受云函数实例数限制，非线性）。冷启动是次要项。
+1. ✅ **批量余额接口** `credits.balances({studentIds})`（第 0.5 步已做）：一次 `match(in).group(studentId).sum` 返回映射；首页/学员页 N 次 → 1 次。
+2. ⬜ `creditLogs.studentId` 索引（Ascending / Non-unique，手动建）——批量后那一次聚合更依赖它。
+3. ⬜ **学员列表真分页（phase2 待办）**：`students.list` 现为硬 `limit(100)` 无 skip，45 条未触发，但迟早要改真分页（skip/游标 + 前端分页加载）。本轮不动，记此待办。
+4. ⬜ 次要：首屏 4 个云函数**串行**（listSessions→listStudents→balances→unread，耗时相加）。可**并发化**（无依赖的并发）或**合并为一个 home 函数**（减少冷启动次数）。批量做完若仍慢，这是下一杠杆。
+5. 谨慎的长期项：余额快照字段（违背"creditLogs 唯一真相"，需事务维护，非必要不做）。
 
 ---
 
