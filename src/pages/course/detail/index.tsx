@@ -14,7 +14,8 @@ import {
 import { listStudents, getBalance } from '../../../services/students'
 import { ensureQuota } from '../../../services/subscribe'
 import { courseTypeLabel } from '../../../utils/courseType'
-import { SessionStatus } from '../../../constants'
+import { SessionStatus, UserRole } from '../../../constants'
+import { getCachedLogin } from '../../../services/user'
 import { bjDateStr, bjTimeStr, bjWeekday } from '../../../utils/datetime'
 import { PaperToastHost, showPaperToast } from '../../../components/PaperToast'
 import './index.scss'
@@ -180,6 +181,10 @@ export default function CourseDetail() {
   const dateLabel = `${Number(dstr.slice(5, 7))}月${Number(dstr.slice(8, 10))}日 ${WD[bjWeekday(ts)]}`
   const timeRange = `${bjTimeStr(ts)}–${bjTimeStr(ts + session.durationMin * 60000)}`
   const isScheduled = session.status === SessionStatus.Scheduled
+  // 别人的课：teacher 只读；owner 可操作但带管理员标识
+  const isOwner = getCachedLogin()?.role === UserRole.Owner
+  const readOnly = session.mine === false && !isOwner
+  const adminActing = session.mine === false && isOwner
 
   return (
     <View className='cd'>
@@ -187,6 +192,13 @@ export default function CourseDetail() {
       <View className='cd-inner'>
         <View className='cd-card paper-card sk-2'>
           <SketchFrame color='#3A3125' opacity={0.45} sw={1.5} />
+          {adminActing ? (
+            <View className='cd-admin'>
+              <Text className='cd-admin-txt'>
+                这是 {session.teacherName || '其他'}老师的课，你以管理员身份操作
+              </Text>
+            </View>
+          ) : null}
           <View className='cd-status-row'>
             <StatusMark status={session.status as SessionStatus} size={36} />
             <Text className='cd-status-label' style={{ color: `var(--status-${session.status})` }}>
@@ -222,7 +234,7 @@ export default function CourseDetail() {
           </View>
         ) : null}
 
-        {session.mine === false ? (
+        {readOnly ? (
           <View className='cd-readonly'>
             <Text className='cd-readonly-txt'>
               {session.teacherName || '其他'}老师的课 · 仅查看，不可操作

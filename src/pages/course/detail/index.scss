@@ -298,3 +298,17 @@
   font-size: var(--font-caption);
   color: var(--ink-tertiary);
 }
+
+/* owner 代操作别人的课：顶部管理员标识（提醒在动别人的东西） */
+.cd-admin {
+  margin: -4rpx -4rpx 14rpx;
+  padding: 12rpx 18rpx;
+  background: rgba(240, 120, 80, 0.1);
+  border: 2rpx dashed var(--accent-coral);
+  border-radius: var(--radius-sketch-4);
+}
+
+.cd-admin-txt {
+  font-size: var(--font-caption);
+  color: var(--accent-coral-ink);
+}
