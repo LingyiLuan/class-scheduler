@@ -37,9 +37,7 @@ async function assertStudentOwned(studentId, ctx) {
   const res = await db.collection('students').where({ _id: studentId }).get()
   const s = res.data[0]
   if (!s || s.isDeleted === true) throw new AuthError(40400, '学员不存在')
-  if (ctx.user.role !== 'owner' && s.ownerId !== ctx.openid) {
-    throw new AuthError(40301, '无权操作该学员')
-  }
+  // 二期学员归工作室：任一 owner/teacher 都能给本工作室学员充值，不再按 ownerId 限制
   return s
 }
 

@@ -121,11 +121,7 @@ async function assertStudentsOwned(studentIds, ctx) {
   const res = await students.where({ _id: _.in(studentIds) }).get()
   const found = res.data.filter((s) => s.isDeleted !== true)
   if (found.length !== studentIds.length) throw new AuthError(40400, '存在无效或已删除的学员')
-  if (ctx.user.role !== 'owner') {
-    for (const s of found) {
-      if (s.ownerId !== ctx.openid) throw new AuthError(40301, '无权为该学员排课')
-    }
-  }
+  // 二期学员归工作室：任一 owner/teacher 都能给本工作室学员排课，不再按 ownerId 限制
 }
 
 async function loadOwned(id, ctx) {

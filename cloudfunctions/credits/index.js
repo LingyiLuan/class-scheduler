@@ -13,9 +13,7 @@ async function assertStudentOwned(studentId, ctx) {
   const res = await db.collection('students').where({ _id: studentId }).get()
   const s = res.data[0]
   if (!s || s.isDeleted === true) throw new AuthError(40400, '学员不存在')
-  if (ctx.user.role !== 'owner' && s.ownerId !== ctx.openid) {
-    throw new AuthError(40301, '无权操作该学员')
-  }
+  // 二期学员归工作室：任一 owner/teacher 都能查本工作室学员，不再按 ownerId 限制
   return s
 }
 
@@ -47,9 +45,8 @@ exports.main = async (event = {}) => {
         if (!ids.length) return ok({ balances: {} })
         // 归属校验一次到位：owner 看全部，teacher 仅自己名下
         const sres = await db.collection('students').where({ _id: _.in(ids) }).get()
-        const allowed = sres.data
-          .filter((s) => ctx.user.role === 'owner' || s.ownerId === ctx.openid)
-          .map((s) => s._id)
+        // 二期学员归工作室：本工作室的学员余额，任一 owner/teacher 都可查（不再按 ownerId 过滤）
+        const allowed = sres.data.filter((s) => s.isDeleted !== true).map((s) => s._id)
         const map = {}
         allowed.forEach((id) => (map[id] = 0)) // 无流水的学员余额为 0
         if (allowed.length) {

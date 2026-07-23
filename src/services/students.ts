@@ -44,8 +44,14 @@ export function updateStudent(id: string, data: Partial<StudentInput>): Promise<
   return callFunction('students', { action: 'update', data: { id, ...data } })
 }
 
+/** 删除：无引用则硬删；有课程引用云端返回 40002，调用方提示改为停用 */
 export function deleteStudent(id: string): Promise<{ _id: string }> {
-  return callFunction('students', { action: 'delete', data: { id } })
+  return callFunction('students', { action: 'delete', data: { id } }, { silent: true })
+}
+
+/** 停用（软删，从列表隐藏，历史保留）。删除被引用学员时的降级操作 */
+export function deactivateStudent(id: string): Promise<{ _id: string }> {
+  return callFunction('students', { action: 'deactivate', data: { id } })
 }
 
 export function getBalance(

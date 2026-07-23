@@ -6,9 +6,11 @@ import {
   getBalance,
   listStudentSessions,
   deleteStudent,
+  deactivateStudent,
   Student,
   SessionBrief
 } from '../../../services/students'
+import { ApiError } from '../../../services/api'
 import { SketchFrame, StatusMark } from '../../../components/sketch'
 import SheetModal from '../../../components/SheetModal'
 import StudentForm from '../../../components/StudentForm'
@@ -64,8 +66,28 @@ export default function StudentDetail() {
           await deleteStudent(id)
           showPaperToast(['已删除'])
           Taro.navigateBack()
-        } catch {
-          // toasted
+        } catch (e) {
+          const err = e as ApiError
+          if (err.code === 40002) {
+            // 有课程引用不可硬删，引导改为停用
+            Taro.showModal({
+              title: '无法删除',
+              content: '该学员有课程记录，删除会影响历史。是否改为「停用」（从列表隐藏，历史保留）？',
+              confirmText: '停用',
+              success: async (r) => {
+                if (!r.confirm) return
+                try {
+                  await deactivateStudent(id)
+                  showPaperToast(['已停用'])
+                  Taro.navigateBack()
+                } catch {
+                  // toasted
+                }
+              }
+            })
+          } else {
+            Taro.showToast({ title: err.message || '删除失败', icon: 'none' })
+          }
         }
       }
     })

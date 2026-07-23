@@ -3,7 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const { requireRole, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
-const { WS_STAMP } = require('./_shared/workspace')
+const { WS_STAMP, WORKSPACE_DEFAULT } = require('./_shared/workspace')
 
 const db = cloud.database()
 const _ = db.command
@@ -30,16 +30,21 @@ async function genUniqueInviteCode() {
   throw new AuthError(50001, '邀请码生成失败，请重试')
 }
 
-// 载入学员并校验调用者可操作（owner 全权；teacher 仅限自己创建的）
-async function loadOwned(id, ctx) {
+// 载入学员（二期学员归工作室：任一 owner/teacher 都能操作本工作室学员，不再按 ownerId 限制）
+async function loadStudent(id) {
   if (!id) throw new AuthError(40001, '缺少学员 id')
   const res = await students.where({ _id: id }).get()
   const doc = res.data[0]
   if (!doc || doc.isDeleted === true) throw new AuthError(40400, '学员不存在')
-  if (ctx.user.role !== 'owner' && doc.ownerId !== ctx.openid) {
-    throw new AuthError(40301, '无权操作该学员')
-  }
   return doc
+}
+
+// 学员是否被任何课程/循环规则引用（用于删除保护）
+async function isReferenced(id) {
+  const s = await db.collection('classSessions').where({ studentIds: id }).limit(1).get()
+  if (s.data.length) return true
+  const r = await db.collection('recurrences').where({ studentIds: id, deleted: _.neq(true) }).limit(1).get()
+  return r.data.length > 0
 }
 
 exports.main = async (event = {}) => {
@@ -68,10 +73,9 @@ exports.main = async (event = {}) => {
         return ok({ _id: res._id, ...doc })
       }
 
-      // 列表：owner 看全部，teacher 仅看自己的；过滤软删；按创建时间倒序
+      // 列表：二期学员归工作室，owner 与 teacher 都看全工作室学员（按 workspaceId，不再按 ownerId）
       case 'list': {
-        const where = { isDeleted: _.neq(true) }
-        if (ctx.user.role !== 'owner') where.ownerId = ctx.openid
+        const where = { isDeleted: _.neq(true), workspaceId: WORKSPACE_DEFAULT }
         // 加载诊断（第 0 步）：单独计时查询 + 命中条数（看 limit 100 实际命中多少）
         const _t = Date.now()
         const res = await students.where(where).orderBy('createdAt', 'desc').limit(100).get()
@@ -81,13 +85,13 @@ exports.main = async (event = {}) => {
 
       // 详情
       case 'get': {
-        const doc = await loadOwned(data.id, ctx)
+        const doc = await loadStudent(data.id)
         return ok(doc)
       }
 
       // 更新：只允许改姓名/手机号/级别标签/备注
       case 'update': {
-        await loadOwned(data.id, ctx)
+        await loadStudent(data.id)
         const patch = {}
         for (const k of ['name', 'phone', 'levelTag', 'note']) {
           if (data[k] !== undefined) patch[k] = data[k]
@@ -100,11 +104,22 @@ exports.main = async (event = {}) => {
         return ok({ _id: data.id, ...patch })
       }
 
-      // 软删：置 isDeleted=true，不实际删除文档，保留其关联流水/历史课的可追溯
+      // 删除：有课程引用只能停用，不能硬删（防止 A 删掉 B 正在教的学员，参照课程类型策略）。
+      // 无引用 → 硬删文档；有引用 → 返回 40002，前端提示改为停用。
       case 'delete': {
-        await loadOwned(data.id, ctx)
+        await loadStudent(data.id)
+        if (await isReferenced(data.id)) {
+          return fail(40002, '该学员有课程记录，无法删除，请改为停用', { referenced: true })
+        }
+        await students.doc(data.id).remove()
+        return ok({ _id: data.id, removed: true })
+      }
+
+      // 停用：软删（isDeleted=true），保留其关联流水/历史课的可追溯。有引用时的删除降级到这里
+      case 'deactivate': {
+        await loadStudent(data.id)
         await students.doc(data.id).update({ data: { isDeleted: true } })
-        return ok({ _id: data.id })
+        return ok({ _id: data.id, deactivated: true })
       }
 
       default:
