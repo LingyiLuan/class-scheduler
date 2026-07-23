@@ -55,6 +55,11 @@ export function getBalance(
   return callFunction('credits', { action: 'getBalance', data: { studentId } }, options)
 }
 
+/** 批量余额：一次拿多个学员的余额映射 { studentId: balance }，替代 N 次 getBalance */
+export function getBalances(studentIds: string[]): Promise<{ balances: Record<string, number> }> {
+  return callFunction('credits', { action: 'balances', data: { studentIds } }, { silent: true })
+}
+
 export function listStudentSessions(studentId: string): Promise<{ list: SessionBrief[] }> {
   return callFunction('sessions', { action: 'listByStudent', data: { studentId } })
 }

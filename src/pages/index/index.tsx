@@ -11,7 +11,7 @@ import RechargeForm from '../../components/RechargeForm'
 import { PaperToastHost } from '../../components/PaperToast'
 import CourseCard from '../../components/CourseCard'
 import { listSessions, SessionRow } from '../../services/sessions'
-import { listStudents, getBalance } from '../../services/students'
+import { listStudents, getBalances } from '../../services/students'
 import { refreshQuotaSetting } from '../../services/subscribe'
 import { unreadCount } from '../../services/notifications'
 import { bjDateStr, bjMidnight, bjWeekday } from '../../utils/datetime'
@@ -93,18 +93,16 @@ export default function Index() {
       const nm: Record<string, string> = {}
       stu.list.forEach((s) => (nm[s._id] = s.name))
       setNameMap(nm)
-      const low: LowStu[] = []
-      await Promise.all(
-        stu.list.map(async (s) => {
-          try {
-            const b = await getBalance(s._id, { silent: true })
-            if (b.balance <= 2) low.push({ _id: s._id, name: s.name, levelTag: s.levelTag, balance: b.balance })
-          } catch {
-            // ignore
-          }
-        })
-      )
-      p.lap(`balances×${stu.list.length}`)
+      let low: LowStu[] = []
+      try {
+        const { balances } = await getBalances(stu.list.map((s) => s._id))
+        low = stu.list
+          .filter((s) => (balances[s._id] ?? 0) <= 2)
+          .map((s) => ({ _id: s._id, name: s.name, levelTag: s.levelTag, balance: balances[s._id] ?? 0 }))
+      } catch {
+        // ignore
+      }
+      p.lap(`balances(${stu.list.length})`)
       low.sort((a, b) => a.balance - b.balance)
       setLowStudents(low)
       try {

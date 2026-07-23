@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { listStudents, getBalance, Student } from '../../../services/students'
+import { listStudents, getBalances, Student } from '../../../services/students'
 import { ensureQuota } from '../../../services/subscribe'
 import { SketchFrame, StatusMark } from '../../../components/sketch'
 import TabBar from '../../../components/TabBar'
@@ -32,17 +32,14 @@ export default function StudentList() {
       const { list } = await listStudents()
       p.lap(`listStudents(${list.length})`)
       setRows(list)
-      const withBalance = await Promise.all(
-        list.map(async (s) => {
-          try {
-            const r = await getBalance(s._id, { silent: true })
-            return { ...s, balance: r.balance }
-          } catch {
-            return { ...s, balance: NaN }
-          }
-        })
-      )
-      p.lap(`balances×${list.length}`)
+      let withBalance: Row[] = list
+      try {
+        const { balances } = await getBalances(list.map((s) => s._id))
+        withBalance = list.map((s) => ({ ...s, balance: balances[s._id] ?? 0 }))
+      } catch {
+        withBalance = list.map((s) => ({ ...s, balance: NaN }))
+      }
+      p.lap(`balances(${list.length})`)
       setRows(withBalance)
     } catch {
       // api 层已 toast
