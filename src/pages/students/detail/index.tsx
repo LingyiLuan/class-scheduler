@@ -168,6 +168,9 @@ export default function StudentDetail() {
                 <StatusMark status={s.status as SessionStatus} size={34} />
                 <Text className='sd-rec-title'>
                   {bjDateStr(ts).slice(5)} {bjTimeStr(ts)} · {courseTypeLabel(s)}
+                  {s.mine === false && s.teacherName ? (
+                    <Text className='sd-rec-teacher'> · {s.teacherName}老师</Text>
+                  ) : null}
                 </Text>
                 <Text className='sd-rec-status' style={{ color: `var(--status-${s.status})` }}>
                   {STATUS_LABEL[s.status] || s.status}

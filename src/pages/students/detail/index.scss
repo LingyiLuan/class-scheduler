@@ -165,6 +165,12 @@
   text-overflow: ellipsis;
 }
 
+/* 非本人上的课，标注老师名（中性色，弱化） */
+.sd-rec-teacher {
+  font-weight: var(--weight-regular, 400);
+  color: var(--ink-tertiary);
+}
+
 .sd-rec-status {
   font-size: var(--font-tag);
   font-weight: var(--weight-semibold);

@@ -449,12 +449,23 @@ exports.main = async (event = {}) => {
       }
 
       // 某学员的历史课程（studentIds 数组包含该学员），按时间倒序
+      // 某学员的上课记录：二期学员归工作室，返回全工作室（所有老师）的课，非本人上的标注老师名
       case 'listByStudent': {
         if (!data.studentId) return fail(40001, '缺少学员 id')
-        const where = { studentIds: data.studentId }
-        if (ctx.user.role !== 'owner') where.ownerId = ctx.openid
+        const where = { studentIds: data.studentId, workspaceId: WORKSPACE_DEFAULT }
         const res = await sessions.where(where).orderBy('startTime', 'desc').limit(100).get()
-        return ok({ list: res.data })
+        // 解析非本人 ownerId → 老师显示名
+        const others = [...new Set(res.data.map((s) => s.ownerId).filter((o) => o && o !== ctx.openid))]
+        const nameMap = {}
+        if (others.length) {
+          const us = await db.collection('users').where({ openid: _.in(others) }).get()
+          us.data.forEach((u) => (nameMap[u.openid] = u.displayName || ''))
+        }
+        const list = res.data.map((s) => {
+          const mine = s.ownerId === ctx.openid
+          return { ...s, mine, teacherName: mine ? '' : nameMap[s.ownerId] || '其他老师' }
+        })
+        return ok({ list })
       }
 
       default:

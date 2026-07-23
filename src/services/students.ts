@@ -28,6 +28,8 @@ export interface SessionBrief {
   startTime: string
   durationMin: number
   status: SessionStatus
+  mine?: boolean
+  teacherName?: string
 }
 
 /** 学员列表。filter='active'(默认)在读 / 'inactive' 已停用；inactiveCount 供前端决定 tab 显隐 */
