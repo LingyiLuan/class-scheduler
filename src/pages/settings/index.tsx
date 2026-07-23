@@ -225,6 +225,23 @@ export default function Settings() {
         </View>
       ) : null}
 
+      {isOwner ? (
+        <View>
+          <View className='group-head'>
+            <Text className='group-title'>成员</Text>
+            <View className='group-rule' />
+          </View>
+          <View
+            className='member-entry paper-card sk-3'
+            onClick={() => Taro.navigateTo({ url: '/pages/settings/members/index' })}
+          >
+            <SketchFrame color='#3A3125' opacity={0.4} sw={1.4} />
+            <Text className='member-entry-txt'>成员管理（激活 / 角色）</Text>
+            <Text className='member-entry-arrow'>›</Text>
+          </View>
+        </View>
+      ) : null}
+
       <View className='group-head'>
         <Text className='group-title'>课程类型</Text>
         <View className='group-rule' />

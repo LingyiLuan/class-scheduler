@@ -271,3 +271,23 @@
   color: var(--ink-tertiary);
   text-decoration: underline;
 }
+
+/* 成员管理入口 */
+.member-entry {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+}
+
+.member-entry-txt {
+  font-size: var(--font-body);
+  color: var(--ink-title);
+}
+
+.member-entry-arrow {
+  font-size: var(--font-name);
+  color: var(--ink-tertiary);
+}

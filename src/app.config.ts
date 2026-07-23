@@ -9,6 +9,7 @@ export default defineAppConfig({
     'pages/course/detail/index',
     'pages/stats/index',
     'pages/settings/index',
+    'pages/settings/members/index',
     'pages/messages/index'
   ],
   window: {

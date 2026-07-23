@@ -23,3 +23,46 @@
 .pending-btn {
   width: 60%;
 }
+
+/* 自报姓名 */
+.pending-name {
+  width: 80%;
+  margin: 24rpx 0 8rpx;
+}
+
+.pending-name-hint {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 26rpx;
+  color: #7a6e58;
+  text-align: center;
+}
+
+.pending-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.pending-name-input {
+  flex: 1;
+  padding: 12rpx 18rpx;
+  font-size: 28rpx;
+  color: #33291c;
+  background: #faf3e1;
+  border: 2rpx solid #c9bb9a;
+  border-radius: 12rpx;
+}
+
+.pending-name-btn {
+  flex: none;
+  padding: 12rpx 30rpx;
+  font-size: 28rpx;
+  color: #faf3e1;
+  background: #33291c;
+  border-radius: 12rpx;
+}
+
+.pending-name-btn.off {
+  opacity: 0.5;
+}

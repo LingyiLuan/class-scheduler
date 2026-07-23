@@ -1,0 +1,134 @@
+.mb {
+  position: relative;
+  min-height: 100vh;
+  background: var(--paper-kraft);
+  padding: var(--space-screen) var(--space-screen) 120rpx;
+  overflow: hidden;
+}
+
+.mb-head {
+  position: relative;
+  z-index: 1;
+  padding: 12rpx 8rpx 8rpx;
+}
+
+.mb-title {
+  font-size: var(--font-page-title);
+  font-family: var(--font-brush);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.mb-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.mb-empty {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin-top: 80rpx;
+  text-align: center;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+}
+
+.mb-group-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin: 24rpx 8rpx 8rpx;
+}
+
+.mb-group-head.second {
+  margin-top: 36rpx;
+}
+
+.mb-group-title {
+  flex: none;
+  font-size: var(--font-section);
+  font-family: var(--font-brush);
+  color: var(--ink-title);
+}
+
+.mb-group-rule {
+  flex: 1;
+  height: 2rpx;
+  background: var(--pencil-faint, #c9bb9a);
+  opacity: 0.7;
+}
+
+.mb-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+  padding: 18rpx 20rpx;
+}
+
+.mb-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.mb-nameline {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.mb-name {
+  font-size: var(--font-name);
+  font-family: var(--font-brush);
+  color: var(--ink-title);
+}
+
+.mb-role {
+  font-size: var(--font-tag);
+  color: var(--accent-teal-ink);
+  background: var(--accent-teal-bg, rgba(107, 181, 196, 0.15));
+  padding: 2rpx 12rpx;
+  border-radius: var(--radius-sketch-5);
+}
+
+.mb-self {
+  font-size: var(--font-tag);
+  color: var(--ink-tertiary);
+}
+
+.mb-status {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-secondary);
+}
+
+.mb-ops {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.mb-op {
+  font-size: var(--font-caption);
+  color: var(--accent-teal-ink);
+}
+
+.mb-op.primary {
+  padding: 8rpx 26rpx;
+  color: var(--paper-kraft);
+  background: var(--ink-title);
+  border-radius: var(--radius-sketch-4);
+}
+
+.mb-op.danger {
+  color: var(--accent-coral-ink);
+}
+
+.mb-op.muted {
+  color: var(--ink-tertiary);
+}
