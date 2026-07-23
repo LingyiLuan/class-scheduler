@@ -92,8 +92,8 @@ exports.main = async (event = {}) => {
       counts.creditLogs++
     }
 
-    // 6-10 节课；过去的完成（产生扣课时），未来的待上课
-    const nSess = rnd(6, 10)
+    // 8-12 节课；过去的完成（产生扣课时），未来的待上课
+    const nSess = rnd(8, 12)
     for (let s = 0; s < nSess; s++) {
       const c = pick(COURSES)
       const start = bjDateAt(now, rnd(-30, 14), rnd(9, 19), pick([0, 30]))
