@@ -27,12 +27,15 @@ exports.main = async (event = {}) => {
       // 余额：聚合累加该学员所有流水的 delta（唯一真相来源）
       case 'getBalance': {
         await assertStudentOwned(data.studentId, ctx)
+        // 加载诊断（第 0 步）：单独计时聚合查询，判断 creditLogs.studentId 索引是否缺失
+        const _t = Date.now()
         const res = await db
           .collection('creditLogs')
           .aggregate()
           .match({ studentId: data.studentId })
           .group({ _id: null, total: $.sum('$delta') })
           .end()
+        console.log(`[perf] getBalance.aggregate ${Date.now() - _t}ms sid=${data.studentId}`)
         const balance = res.list && res.list[0] ? res.list[0].total : 0
         return ok({ studentId: data.studentId, balance })
       }

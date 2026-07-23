@@ -10,6 +10,10 @@ try {
   // ignore
 }
 
+// 加载诊断（第 0 步）：仅开发环境记录每次云调用往返耗时，并标记每个函数的首次调用（冷启动）
+const TIMING = process.env.NODE_ENV === 'development'
+const seenFns = new Set<string>()
+
 // 401xx（未登录/未建档/未激活）与 403xx(无权限)视为登录态失效
 function isAuthError(code: number): boolean {
   return (code >= 40100 && code < 40200) || (code >= 40300 && code < 40400)
@@ -120,6 +124,9 @@ export async function callFunction<T = unknown>(
     if (!Taro.cloud) {
       throw new ApiError(-1, '当前环境不支持云开发')
     }
+    const _t0 = TIMING ? Date.now() : 0
+    const _cold = TIMING && !seenFns.has(name)
+    const action = data && typeof data.action === 'string' ? data.action : ''
     const res = await withTimeout(
       Taro.cloud.callFunction({
         name,
@@ -127,6 +134,11 @@ export async function callFunction<T = unknown>(
       }) as Promise<Taro.cloud.CallFunctionResult>,
       timeout
     )
+    if (TIMING) {
+      seenFns.add(name)
+      // eslint-disable-next-line no-console
+      console.log(`[timing] cf ${name}${action ? '.' + action : ''} ${Date.now() - _t0}ms${_cold ? ' (cold)' : ''}`)
+    }
     const payload = res.result as ApiResponse<T> | undefined
 
     if (!payload || typeof payload !== 'object' || typeof (payload as ApiResponse<T>).code !== 'number') {

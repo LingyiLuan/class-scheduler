@@ -8,6 +8,7 @@ import TabBar from '../../../components/TabBar'
 import SheetModal from '../../../components/SheetModal'
 import StudentForm from '../../../components/StudentForm'
 import { PaperToastHost } from '../../../components/PaperToast'
+import { perfStart } from '../../../utils/perf'
 import './index.scss'
 
 interface Row extends Student {
@@ -26,8 +27,10 @@ export default function StudentList() {
   })
 
   async function load() {
+    const p = perfStart('students.list')
     try {
       const { list } = await listStudents()
+      p.lap(`listStudents(${list.length})`)
       setRows(list)
       const withBalance = await Promise.all(
         list.map(async (s) => {
@@ -39,10 +42,12 @@ export default function StudentList() {
           }
         })
       )
+      p.lap(`balances×${list.length}`)
       setRows(withBalance)
     } catch {
       // api 层已 toast
     } finally {
+      p.end()
       setLoaded(true)
     }
   }

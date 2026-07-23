@@ -15,6 +15,7 @@ import { listStudents, getBalance } from '../../services/students'
 import { refreshQuotaSetting } from '../../services/subscribe'
 import { unreadCount } from '../../services/notifications'
 import { bjDateStr, bjMidnight, bjWeekday } from '../../utils/datetime'
+import { perfStart } from '../../utils/perf'
 import './index.scss'
 
 interface Quick {
@@ -75,6 +76,7 @@ export default function Index() {
   }
 
   async function loadData() {
+    const p = perfStart('home.loadData')
     try {
       const now = Date.now()
       const todayMid = bjMidnight(bjDateStr(now))
@@ -83,9 +85,11 @@ export default function Index() {
       const from = new Date(mondayMid).toISOString()
       const to = new Date(mondayMid + 7 * 86400000).toISOString()
       const sess = await listSessions(from, to)
+      p.lap('listSessions')
       setWeekSessions(sess.list)
 
       const stu = await listStudents()
+      p.lap(`listStudents(${stu.list.length})`)
       const nm: Record<string, string> = {}
       stu.list.forEach((s) => (nm[s._id] = s.name))
       setNameMap(nm)
@@ -100,6 +104,7 @@ export default function Index() {
           }
         })
       )
+      p.lap(`balances×${stu.list.length}`)
       low.sort((a, b) => a.balance - b.balance)
       setLowStudents(low)
       try {
@@ -108,8 +113,11 @@ export default function Index() {
       } catch {
         // ignore
       }
+      p.lap('unread')
     } catch {
       // api 层已 toast
+    } finally {
+      p.end()
     }
   }
 

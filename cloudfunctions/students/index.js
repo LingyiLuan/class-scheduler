@@ -71,7 +71,10 @@ exports.main = async (event = {}) => {
       case 'list': {
         const where = { isDeleted: _.neq(true) }
         if (ctx.user.role !== 'owner') where.ownerId = ctx.openid
+        // 加载诊断（第 0 步）：单独计时查询 + 命中条数（看 limit 100 实际命中多少）
+        const _t = Date.now()
         const res = await students.where(where).orderBy('createdAt', 'desc').limit(100).get()
+        console.log(`[perf] students.list.query ${Date.now() - _t}ms hit=${res.data.length}`)
         return ok({ list: res.data })
       }
 
