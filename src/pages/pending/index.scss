@@ -107,3 +107,11 @@
 .pending-recheck::after {
   border: none;
 }
+
+/* 调试：退出预览链接 */
+.pending-debug-exit {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: var(--font-caption);
+  color: var(--accent-coral-ink);
+}

@@ -4,6 +4,7 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import { getCachedLogin, refreshLogin, canAccessApp, setDisplayName } from '../../services/user'
 import { bindByCode } from '../../services/invites'
 import { UserRole } from '../../constants'
+import { DEBUG_ONBOARDING, setOnboardingBypass } from '../../constants/debug'
 import './index.scss'
 
 const PH = 'color:#B5A88C'
@@ -73,8 +74,18 @@ export default function Pending() {
     }
   }
 
+  function exitPreview() {
+    setOnboardingBypass(true)
+    Taro.reLaunch({ url: '/pages/index/index' })
+  }
+
   return (
     <View className='pending'>
+      {DEBUG_ONBOARDING ? (
+        <Text className='pending-debug-exit' onClick={exitPreview}>
+          ← 退出预览（调试）
+        </Text>
+      ) : null}
       <View className='pending-hero'>
         <Text className='cav pending-eyebrow'>welcome</Text>
         <Text className='pending-welcome'>欢迎</Text>

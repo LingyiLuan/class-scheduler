@@ -16,6 +16,7 @@ import { refreshQuotaSetting } from '../../services/subscribe'
 import { unreadCount } from '../../services/notifications'
 import { bjDateStr, bjMidnight, bjWeekday } from '../../utils/datetime'
 import { perfStart } from '../../utils/perf'
+import { DEBUG_ONBOARDING, onboardingBypassed } from '../../constants/debug'
 import './index.scss'
 
 interface Quick {
@@ -55,6 +56,11 @@ export default function Index() {
   })
 
   async function route() {
+    // 调试预览引导页（不碰 DB，仅前端强制渲染）
+    if (DEBUG_ONBOARDING && !onboardingBypassed()) {
+      Taro.redirectTo({ url: '/pages/pending/index' })
+      return
+    }
     setLoading(true)
     try {
       const info = await ensureLogin()
