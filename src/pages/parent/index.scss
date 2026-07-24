@@ -1,0 +1,144 @@
+.ph {
+  position: relative;
+  min-height: 100vh;
+  background: var(--paper-kraft);
+  padding: var(--space-screen) var(--space-screen) 120rpx;
+  overflow: hidden;
+}
+
+.ph-hero {
+  position: relative;
+  z-index: 1;
+  padding: 24rpx 8rpx 20rpx;
+}
+
+.ph-eyebrow {
+  display: block;
+  font-size: 40rpx;
+  color: var(--accent-teal-ink);
+  transform: rotate(-2deg);
+  transform-origin: left center;
+}
+
+.ph-greeting {
+  display: block;
+  margin-top: 6rpx;
+  font-size: var(--font-page-title);
+  font-family: var(--font-brush);
+  font-weight: var(--weight-bold);
+  color: var(--ink-title);
+}
+
+.ph-bell {
+  position: absolute;
+  top: 20rpx;
+  right: 4rpx;
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(3deg);
+}
+
+.ph-dot {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: var(--accent-coral);
+  border: 2rpx solid var(--paper-kraft);
+}
+
+.ph-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-bottom: 14rpx;
+  padding: 20rpx;
+}
+
+.ph-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  flex: none;
+  border-radius: 52% 48% 50% 50%;
+  background: var(--accent-teal-bg);
+  color: var(--accent-teal-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: var(--weight-bold);
+}
+
+.ph-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ph-nameline {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.ph-name {
+  font-size: var(--font-name);
+  font-family: var(--font-brush);
+  color: var(--ink-title);
+}
+
+.ph-level {
+  font-size: var(--font-tag);
+  color: var(--ink-secondary);
+  border: 2rpx solid var(--ink-stroke-soft);
+  border-radius: var(--radius-sketch-5);
+  padding: 2rpx 12rpx;
+}
+
+.ph-bal {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-caption);
+  color: var(--ink-secondary);
+}
+
+.ph-low {
+  display: block;
+  margin-top: 4rpx;
+  font-size: var(--font-caption);
+  color: var(--accent-coral-ink);
+}
+
+.ph-arrow {
+  flex: none;
+  font-size: var(--font-name);
+  color: var(--ink-tertiary);
+}
+
+.ph-empty {
+  position: relative;
+  z-index: 1;
+  margin-top: 100rpx;
+  text-align: center;
+}
+
+.ph-empty-en {
+  display: block;
+  font-size: 52rpx;
+  color: var(--accent-teal-ink);
+  transform: rotate(-3deg);
+}
+
+.ph-empty-cn {
+  display: block;
+  margin: 12rpx 40rpx 0;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+  line-height: 1.6;
+}

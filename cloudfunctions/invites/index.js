@@ -1,7 +1,7 @@
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
-const { requireRole, AuthError } = require('./_shared/auth')
+const { requireRole, getContext, AuthError } = require('./_shared/auth')
 const { ok, fail } = require('./_shared/resp')
 const { WORKSPACE_DEFAULT, SCHEMA_VERSION } = require('./_shared/workspace')
 
@@ -10,6 +10,50 @@ const _ = db.command
 const inviteCodes = db.collection('inviteCodes')
 const guardianLinks = db.collection('guardianLinks')
 const students = db.collection('students')
+const usersCol = db.collection('users')
+
+// 家长输邀请码绑定。调用者可能还是"未激活"状态，不能走 requireRole，改 getContext。
+// 成功即把自己设为 student 并激活（自助，无需 owner）；已绑则幂等不重复。
+async function bindByCode(event = {}) {
+  const ctx = await getContext()
+  if (!ctx.user) return fail(40101, '请先登录')
+  const code = String((event.data && event.data.code) || '').trim().toUpperCase()
+  if (!code) return fail(40001, '请输入邀请码')
+
+  const rows = (await inviteCodes.where({ code }).limit(10).get()).data
+  if (!rows.length) return fail(40400, '邀请码不正确，请向老师确认')
+  const active = rows.find((r) => r.disabled !== true)
+  if (!active) return fail(40400, '该邀请码已失效，请向老师索取新的')
+  const s = (await students.where({ _id: active.studentId }).get()).data[0]
+  if (!s || s.isDeleted === true) return fail(40400, '该学员信息不可用，请联系老师')
+
+  // 幂等绑定
+  const exist = (
+    await guardianLinks
+      .where({ studentId: active.studentId, guardianOpenid: ctx.openid })
+      .limit(1)
+      .get()
+  ).data[0]
+  const already = !!exist
+  if (!already) {
+    await guardianLinks.add({
+      data: {
+        studentId: active.studentId,
+        guardianOpenid: ctx.openid,
+        relation: (event.data && event.data.relation) || '',
+        workspaceId: WORKSPACE_DEFAULT,
+        schemaVersion: SCHEMA_VERSION,
+        createdAt: db.serverDate()
+      }
+    })
+  }
+  // 已是激活的 owner/teacher 不降级（双身份留给"切换身份"）；其余设为家长并激活
+  const isStaff = ctx.user.isActive === true && (ctx.user.role === 'owner' || ctx.user.role === 'teacher')
+  if (!isStaff) {
+    await usersCol.doc(ctx.user._id).update({ data: { role: 'student', isActive: true } })
+  }
+  return ok({ studentId: active.studentId, studentName: s.name, already })
+}
 
 // 去掉易混淆的 0/O、1/I/L
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -37,6 +81,16 @@ async function activeCode(studentId) {
 }
 
 exports.main = async (event = {}) => {
+  // 家长绑定：调用者未激活，单独走 getContext
+  if (event.action === 'bindByCode') {
+    try {
+      return await bindByCode(event)
+    } catch (e) {
+      if (e instanceof AuthError) return fail(e.code, e.message)
+      return fail(50000, (e && e.message) || '绑定失败')
+    }
+  }
+
   try {
     const ctx = await requireRole(['owner', 'teacher'])
     const { action, data = {} } = event

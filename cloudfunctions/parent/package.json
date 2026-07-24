@@ -1,0 +1,9 @@
+{
+  "name": "parent",
+  "version": "1.0.0",
+  "description": "家长端只读：我的孩子+余额、某孩子的上课记录",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

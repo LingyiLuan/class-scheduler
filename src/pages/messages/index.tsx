@@ -5,6 +5,8 @@ import { SketchFrame } from '../../components/sketch'
 import { listNotifications, markRead, quotaLow, NotiRow } from '../../services/notifications'
 import { requestSubscribe, refreshQuotaSetting, quotaSettled } from '../../services/subscribe'
 import { SUBSCRIBE_TMPL_IDS } from '../../constants/subscribe'
+import { getCachedLogin } from '../../services/user'
+import { UserRole } from '../../constants'
 import { bjDateStr, bjTimeStr } from '../../utils/datetime'
 import './index.scss'
 
@@ -32,16 +34,20 @@ export default function Messages() {
   useLoad(() => load())
 
   async function load() {
-    await refreshQuotaSetting()
+    // 家长端只做应用内消息，不订阅推送 → 不显示订阅 banner
+    const isParent = getCachedLogin()?.role === UserRole.Student
     let b: 'none' | 'enable' | 'topup' = 'none'
-    if (!quotaSettled()) {
-      b = 'enable'
-    } else {
-      try {
-        const q = await quotaLow()
-        if (q.quotaLow) b = 'topup'
-      } catch {
-        // ignore
+    if (!isParent) {
+      await refreshQuotaSetting()
+      if (!quotaSettled()) {
+        b = 'enable'
+      } else {
+        try {
+          const q = await quotaLow()
+          if (q.quotaLow) b = 'topup'
+        } catch {
+          // ignore
+        }
       }
     }
     setBanner(b)

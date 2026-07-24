@@ -61,7 +61,7 @@ exports.main = async (event = {}) => {
   if (!action) return cleanup()
 
   try {
-    const ctx = await requireRole(['owner', 'teacher'])
+    const ctx = await requireRole(['owner', 'teacher', 'student'])
 
     switch (action) {
       // 本人消息流，按时间倒序分页

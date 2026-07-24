@@ -59,6 +59,10 @@ export default function Index() {
     try {
       const info = await ensureLogin()
       if (canAccessApp(info)) {
+        if (info.role === UserRole.Student) {
+          Taro.redirectTo({ url: '/pages/parent/index' })
+          return
+        }
         setRole(info.role)
         setLoading(false)
         refreshQuotaSetting() // 预热订阅设置缓存，供铃铛引导判断

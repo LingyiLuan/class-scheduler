@@ -66,11 +66,11 @@ export function clearLogin(): void {
   }
 }
 
-/** 可进入应用：owner 或 teacher 且已激活（一期多老师使用）。student 与未激活进待激活页 */
+/** 可进入应用：owner/teacher/student 且已激活。owner/teacher 进老师端，student 进家长端；未激活进引导页 */
 export function canAccessApp(info: LoginInfo | null): boolean {
   return (
     !!info &&
-    (info.role === UserRole.Owner || info.role === UserRole.Teacher) &&
+    (info.role === UserRole.Owner || info.role === UserRole.Teacher || info.role === UserRole.Student) &&
     info.isActive === true
   )
 }

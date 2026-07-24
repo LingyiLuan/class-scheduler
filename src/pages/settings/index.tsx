@@ -22,7 +22,7 @@ import './index.scss'
 const PH = 'font-size:26rpx;color:#B5A88C'
 const SK = ['sk-1', 'sk-2', 'sk-3', 'sk-4']
 // 预留的后续设置板块（结构占位，功能陆续加入）
-const FUTURE = ['提醒设置', '课时阈值', '账号信息']
+const FUTURE = ['提醒设置', '课时阈值', '联系二维码', '账号信息']
 
 export default function Settings() {
   const [types, setTypes] = useState<CourseType[]>([])

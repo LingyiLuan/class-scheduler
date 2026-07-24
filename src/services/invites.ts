@@ -26,3 +26,10 @@ export function disableInvite(studentId: string): Promise<{ studentId: string }>
 export function unbindGuardian(linkId: string): Promise<{ _id: string }> {
   return callFunction('invites', { action: 'unbindGuardian', data: { linkId } })
 }
+
+/** 家长输邀请码绑定（成功后本账号成为家长并激活）。失败信息由 err.message 承载 */
+export function bindByCode(
+  code: string
+): Promise<{ studentId: string; studentName: string; already: boolean }> {
+  return callFunction('invites', { action: 'bindByCode', data: { code } }, { silent: true })
+}

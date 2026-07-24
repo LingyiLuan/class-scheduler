@@ -10,7 +10,9 @@ export default defineAppConfig({
     'pages/stats/index',
     'pages/settings/index',
     'pages/settings/members/index',
-    'pages/messages/index'
+    'pages/messages/index',
+    'pages/parent/index',
+    'pages/parent/child/index'
   ],
   window: {
     backgroundTextStyle: 'light',
