@@ -46,14 +46,14 @@ exports.main = async (event = {}) => {
       case 'getForStudent': {
         if (!data.studentId) return fail(40001, '缺少学员 id')
         const code = await activeCode(data.studentId)
-        const g = await guardianLinks
-          .where({ studentId: data.studentId })
-          .orderBy('createdAt', 'desc')
-          .limit(100)
-          .get()
+        // 不用 orderBy('createdAt')：云 DB 会把缺该字段的记录排除。改 JS 排序，缺字段也能显示。
+        const g = await guardianLinks.where({ studentId: data.studentId }).limit(100).get()
+        const sorted = g.data.sort(
+          (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        )
         return ok({
           code: code ? code.code : null,
-          guardians: g.data.map((x) => ({
+          guardians: sorted.map((x) => ({
             _id: x._id,
             guardianOpenid: x.guardianOpenid,
             relation: x.relation || '',
