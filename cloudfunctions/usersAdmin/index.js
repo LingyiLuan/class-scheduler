@@ -36,6 +36,16 @@ exports.main = async (event = {}) => {
         return ok({ list })
       }
 
+      // 改名：给任意成员（含自己）设置/修改 displayName。老账号补填、日常改名都走这里
+      case 'setName': {
+        const name = String(data.name || '').trim()
+        if (!name) return fail(40001, '请填写姓名')
+        if (name.length > 20) return fail(40001, '姓名不超过 20 字')
+        await loadUser(data.id)
+        await users.doc(data.id).update({ data: { displayName: name } })
+        return ok({ _id: data.id, displayName: name })
+      }
+
       // 激活/停用。不能停用自己（防把唯一管理员锁在门外）
       case 'setActive': {
         const u = await loadUser(data.id)

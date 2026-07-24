@@ -14,6 +14,11 @@ export function listUsers(): Promise<{ list: AdminUser[] }> {
   return callFunction('usersAdmin', { action: 'list' })
 }
 
+/** 给任意成员（含自己）设置姓名 */
+export function setUserName(id: string, name: string): Promise<{ _id: string }> {
+  return callFunction('usersAdmin', { action: 'setName', data: { id, name } }, { silent: true })
+}
+
 /** 激活/停用成员 */
 export function setUserActive(id: string, isActive: boolean): Promise<{ _id: string }> {
   return callFunction('usersAdmin', { action: 'setActive', data: { id, isActive } }, { silent: true })

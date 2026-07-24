@@ -3,7 +3,7 @@ import { View, Text } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { SketchFrame } from '../../../components/sketch'
 import { PaperToastHost, showPaperToast } from '../../../components/PaperToast'
-import { listUsers, setUserActive, setUserRole, AdminUser } from '../../../services/users'
+import { listUsers, setUserActive, setUserRole, setUserName, AdminUser } from '../../../services/users'
 import { UserRole } from '../../../constants'
 import './index.scss'
 
@@ -40,6 +40,27 @@ export default function Members() {
     }
   }
 
+  function onRename(u: AdminUser) {
+    Taro.showModal({
+      title: '设置姓名',
+      editable: true,
+      content: u.displayName || '',
+      placeholderText: '如 Ruby / 王老师',
+      confirmText: '保存',
+      success: async (r) => {
+        const n = (r.confirm && r.content && r.content.trim()) || ''
+        if (!n) return
+        try {
+          await setUserName(u._id, n)
+          showPaperToast(['已保存'])
+          load()
+        } catch (e) {
+          Taro.showToast({ title: (e as { message?: string })?.message || '操作失败', icon: 'none' })
+        }
+      }
+    })
+  }
+
   function onSetRole(u: AdminUser) {
     const next = u.role === UserRole.Owner ? UserRole.Teacher : UserRole.Owner
     Taro.showModal({
@@ -73,26 +94,27 @@ export default function Members() {
           </View>
           <Text className='mb-status'>{u.isActive ? '已激活' : '待激活'}</Text>
         </View>
-        {u.self ? (
-          <Text className='mb-op muted'>本人</Text>
-        ) : (
-          <View className='mb-ops'>
-            {u.isActive ? (
-              <>
-                <Text className='mb-op' onClick={() => onSetRole(u)}>
-                  {u.role === UserRole.Owner ? '设为教师' : '设为管理员'}
-                </Text>
-                <Text className='mb-op danger' onClick={() => onActivate(u, false)}>
-                  停用
-                </Text>
-              </>
-            ) : (
-              <Text className='mb-op primary' onClick={() => onActivate(u, true)}>
-                激活
+        <View className='mb-ops'>
+          <Text className='mb-op' onClick={() => onRename(u)}>
+            改名
+          </Text>
+          {u.self ? (
+            <Text className='mb-op muted'>本人</Text>
+          ) : u.isActive ? (
+            <>
+              <Text className='mb-op' onClick={() => onSetRole(u)}>
+                {u.role === UserRole.Owner ? '设为教师' : '设为管理员'}
               </Text>
-            )}
-          </View>
-        )}
+              <Text className='mb-op danger' onClick={() => onActivate(u, false)}>
+                停用
+              </Text>
+            </>
+          ) : (
+            <Text className='mb-op primary' onClick={() => onActivate(u, true)}>
+              激活
+            </Text>
+          )}
+        </View>
       </View>
     )
   }
