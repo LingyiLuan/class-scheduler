@@ -244,3 +244,51 @@
 .sd-btn-txt.on-danger {
   color: var(--btn-danger-ink);
 }
+
+/* 邀请码操作 + 家长绑定 */
+.sd-invite-ops {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.sd-iop {
+  padding: 10rpx 30rpx;
+  font-size: var(--font-caption);
+  border-radius: var(--radius-sketch-4);
+}
+
+.sd-iop.primary {
+  color: var(--paper-kraft);
+  background: var(--ink-title);
+}
+
+.sd-iop.danger {
+  color: var(--accent-coral-ink);
+  border: 2rpx solid var(--accent-coral);
+}
+
+.sd-guardian-empty {
+  display: block;
+  font-size: var(--font-caption);
+  color: var(--ink-tertiary);
+  line-height: 1.5;
+}
+
+.sd-guardian {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14rpx 4rpx;
+  border-bottom: 2rpx dashed rgba(201, 187, 154, 0.5);
+}
+
+.sd-guardian-name {
+  font-size: var(--font-body);
+  color: var(--ink-title);
+}
+
+.sd-guardian-unbind {
+  font-size: var(--font-caption);
+  color: var(--accent-coral-ink);
+}

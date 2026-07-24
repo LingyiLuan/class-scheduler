@@ -1,0 +1,9 @@
+{
+  "name": "invites",
+  "version": "1.0.0",
+  "description": "邀请码与家长关联（老师端）：生成/重生/作废、查看已绑定家长、解绑",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

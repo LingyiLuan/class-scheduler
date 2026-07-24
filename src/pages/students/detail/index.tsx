@@ -12,6 +12,7 @@ import {
   SessionBrief
 } from '../../../services/students'
 import { ApiError } from '../../../services/api'
+import { getInvite, generateInvite, disableInvite, unbindGuardian, Guardian } from '../../../services/invites'
 import { SketchFrame, StatusMark } from '../../../components/sketch'
 import SheetModal from '../../../components/SheetModal'
 import StudentForm from '../../../components/StudentForm'
@@ -37,10 +38,22 @@ export default function StudentDetail() {
   const [history, setHistory] = useState<SessionBrief[]>([])
   const [showEdit, setShowEdit] = useState(false)
   const [showRecharge, setShowRecharge] = useState(false)
+  const [inviteCode, setInviteCode] = useState<string | null>(null)
+  const [guardians, setGuardians] = useState<Guardian[]>([])
 
   useDidShow(() => {
     if (id) load()
   })
+
+  async function loadInvite() {
+    try {
+      const inv = await getInvite(id)
+      setInviteCode(inv.code)
+      setGuardians(inv.guardians)
+    } catch {
+      // ignore
+    }
+  }
 
   async function load() {
     try {
@@ -50,6 +63,7 @@ export default function StudentDetail() {
       setBalance(b.balance)
       const h = await listStudentSessions(id)
       setHistory(h.list)
+      loadInvite()
     } catch {
       // api 层已 toast
     }
@@ -89,6 +103,54 @@ export default function StudentDetail() {
           } else {
             Taro.showToast({ title: err.message || '删除失败', icon: 'none' })
           }
+        }
+      }
+    })
+  }
+
+  async function onGenerate() {
+    try {
+      const r = await generateInvite(id)
+      setInviteCode(r.code)
+      showPaperToast(['邀请码已生成'])
+    } catch {
+      // toasted
+    }
+  }
+
+  function onDisableInvite() {
+    Taro.showModal({
+      title: '作废邀请码',
+      content: '作废后该码立即失效，已绑定的家长不受影响。可随时重新生成。',
+      confirmText: '作废',
+      confirmColor: '#C24A28',
+      success: async (r) => {
+        if (!r.confirm) return
+        try {
+          await disableInvite(id)
+          setInviteCode(null)
+          showPaperToast(['已作废'])
+        } catch {
+          // toasted
+        }
+      }
+    })
+  }
+
+  function onUnbind(g: Guardian) {
+    Taro.showModal({
+      title: '解绑家长',
+      content: '解绑后该家长将看不到这个孩子。确认？',
+      confirmText: '解绑',
+      confirmColor: '#C24A28',
+      success: async (r) => {
+        if (!r.confirm) return
+        try {
+          await unbindGuardian(g._id)
+          showPaperToast(['已解绑'])
+          loadInvite()
+        } catch {
+          // toasted
         }
       }
     })
@@ -149,10 +211,36 @@ export default function StudentDetail() {
             </View>
             <View className='sd-stat'>
               <Text className='sd-stat-label'>邀请码</Text>
-              <Text className='sd-invite'>{stu.inviteCode || '—'}</Text>
+              <Text className='sd-invite'>{inviteCode || '未生成'}</Text>
             </View>
           </View>
         </View>
+
+        <Text className='sd-section'>家长绑定</Text>
+        <View className='sd-invite-ops'>
+          <Text className='sd-iop primary' onClick={onGenerate}>
+            {inviteCode ? '重新生成' : '生成邀请码'}
+          </Text>
+          {inviteCode ? (
+            <Text className='sd-iop danger' onClick={onDisableInvite}>
+              作废
+            </Text>
+          ) : null}
+        </View>
+        {guardians.length === 0 ? (
+          <Text className='sd-guardian-empty'>暂无家长绑定。把邀请码给家长，让他在家长端输入即可绑定。</Text>
+        ) : (
+          guardians.map((g) => (
+            <View key={g._id} className='sd-guardian'>
+              <Text className='sd-guardian-name'>
+                家长{g.relation ? ` · ${g.relation}` : ''} · …{g.guardianOpenid.slice(-6)}
+              </Text>
+              <Text className='sd-guardian-unbind' onClick={() => onUnbind(g)}>
+                解绑
+              </Text>
+            </View>
+          ))
+        )}
 
         <Text className='sd-section'>上课记录</Text>
         {history.length === 0 ? (
