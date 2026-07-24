@@ -2,7 +2,7 @@
  * ⚠️⚠️ 临时函数——清空测试数据用。验收/上线前用完请立即删除本云函数（resetTestData）。⚠️⚠️
  *
  * 作用：清空以下集合的【全部记录】（不删集合本身、不动索引）：
- *   students, classSessions, recurrences, packages, creditLogs, notifications, notifyLogs
+ *   students, classSessions, recurrences, packages, creditLogs, notifications, notifyLogs, inviteCodes, guardianLinks
  * 不动：users、courseTypes。
  *
  * 安全阀：必须传 { confirm: 'YES_DELETE_ALL' } 才执行，否则直接返回、不删任何东西。
@@ -25,7 +25,9 @@ const TARGETS = [
   'packages',
   'creditLogs',
   'notifications',
-  'notifyLogs'
+  'notifyLogs',
+  'inviteCodes',
+  'guardianLinks'
 ]
 const CONFIRM = 'YES_DELETE_ALL'
 

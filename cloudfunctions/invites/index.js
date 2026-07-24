@@ -48,18 +48,6 @@ exports.main = async (event = {}) => {
         const code = await activeCode(data.studentId)
         // 不用 orderBy('createdAt')：云 DB 会把缺该字段的记录排除。改 JS 排序，缺字段也能显示。
         const g = await guardianLinks.where({ studentId: data.studentId }).limit(100).get()
-        // ⚠️ 临时诊断日志（定位完删）
-        const anySample = await guardianLinks.limit(10).get()
-        console.log('[DIAG] 1.前端传的 studentId = ' + JSON.stringify(data.studentId) + '  typeof=' + typeof data.studentId)
-        console.log('[DIAG] 2.查询条件 = ' + JSON.stringify({ studentId: data.studentId }))
-        console.log('[DIAG] 3.matched.length = ' + g.data.length + '  matchedRaw = ' + JSON.stringify(g.data))
-        console.log('[DIAG] 4.guardianLinks 集合总样本 anyCount = ' + anySample.data.length)
-        console.log(
-          '[DIAG] 5.样本里每条的 studentId 及是否严格相等 = ' +
-            JSON.stringify(
-              anySample.data.map((x) => ({ sid: x.studentId, eq: x.studentId === data.studentId }))
-            )
-        )
         const sorted = g.data.sort(
           (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
         )
