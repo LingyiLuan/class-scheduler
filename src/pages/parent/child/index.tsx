@@ -69,7 +69,7 @@ export default function ParentChild() {
       <View className='paper-grain' />
 
       <View className='pc-head'>
-        <Text className='pc-title'>{name || '孩子'}</Text>
+        <Text className='pc-title'>{name || '学生'}</Text>
         {balance != null ? (
           <Text className={`pc-bal ${low ? 'low' : ''}`}>
             {low ? '课时不足，请联系老师续费' : `剩余 ${balance} 课时`}

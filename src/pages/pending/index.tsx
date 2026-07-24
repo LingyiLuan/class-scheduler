@@ -80,10 +80,10 @@ export default function Pending() {
         <Text className='pending-welcome'>欢迎</Text>
       </View>
 
-      {/* 家长（主） */}
+      {/* 学生 / 家长（主） */}
       <View className='pending-card primary'>
-        <Text className='pending-card-title'>我是家长</Text>
-        <Text className='pending-card-sub'>输入老师给的邀请码，查看孩子的课表与剩余课时</Text>
+        <Text className='pending-card-title'>我是学生</Text>
+        <Text className='pending-card-sub'>输入老师给的邀请码，查看课表与剩余课时（家长代看也用这里）</Text>
         <View className='pending-row'>
           <Input
             className='pending-input'

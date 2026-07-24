@@ -12,7 +12,8 @@ const guardianLinks = db.collection('guardianLinks')
 const students = db.collection('students')
 const usersCol = db.collection('users')
 
-// 家长输邀请码绑定。调用者可能还是"未激活"状态，不能走 requireRole，改 getContext。
+// 输邀请码绑定。使用者 = 学生本人或其家长（guardianLinks/guardianOpenid 是内部命名，不代表一定是家长）。
+// 调用者可能还是"未激活"状态，不能走 requireRole，改 getContext。
 // 成功即把自己设为 student 并激活（自助，无需 owner）；已绑则幂等不重复。
 async function bindByCode(event = {}) {
   const ctx = await getContext()

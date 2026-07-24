@@ -61,8 +61,8 @@ export default function ParentHome() {
       <View className='paper-grain' />
 
       <View className='ph-hero'>
-        <Text className='cav ph-eyebrow'>my kids</Text>
-        <Text className='ph-greeting'>{greeting || '我的孩子'}</Text>
+        <Text className='cav ph-eyebrow'>my class</Text>
+        <Text className='ph-greeting'>{greeting || '我的课表'}</Text>
         <View className='ph-bell' onClick={onBell}>
           <SketchIcon name='bell' size={46} color='#4A4030' />
           {unread > 0 ? <View className='ph-dot' /> : null}
@@ -72,7 +72,7 @@ export default function ParentHome() {
       {loaded && children.length === 0 ? (
         <View className='ph-empty'>
           <Text className='cav ph-empty-en'>no kids yet</Text>
-          <Text className='ph-empty-cn'>还没有绑定孩子。向老师索取邀请码，在待激活页输入即可绑定。</Text>
+          <Text className='ph-empty-cn'>还没有绑定学生。向老师索取邀请码绑定。</Text>
         </View>
       ) : (
         children.map((c, i) => {

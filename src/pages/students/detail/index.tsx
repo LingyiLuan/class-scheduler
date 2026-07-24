@@ -121,7 +121,7 @@ export default function StudentDetail() {
   function onDisableInvite() {
     Taro.showModal({
       title: '作废邀请码',
-      content: '作废后该码立即失效，已绑定的家长不受影响。可随时重新生成。',
+      content: '作废后该码立即失效，已绑定的账号不受影响。可随时重新生成。',
       confirmText: '作废',
       confirmColor: '#C24A28',
       success: async (r) => {
@@ -139,8 +139,8 @@ export default function StudentDetail() {
 
   function onUnbind(g: Guardian) {
     Taro.showModal({
-      title: '解绑家长',
-      content: '解绑后该家长将看不到这个孩子。确认？',
+      title: '解绑',
+      content: '解绑后该账号将看不到这个学生。确认？',
       confirmText: '解绑',
       confirmColor: '#C24A28',
       success: async (r) => {
@@ -216,7 +216,7 @@ export default function StudentDetail() {
           </View>
         </View>
 
-        <Text className='sd-section'>家长绑定</Text>
+        <Text className='sd-section'>学生绑定</Text>
         <View className='sd-invite-ops'>
           <Text className='sd-iop primary' onClick={onGenerate}>
             {inviteCode ? '重新生成' : '生成邀请码'}
@@ -228,12 +228,14 @@ export default function StudentDetail() {
           ) : null}
         </View>
         {guardians.length === 0 ? (
-          <Text className='sd-guardian-empty'>暂无家长绑定。把邀请码给家长，让他在家长端输入即可绑定。</Text>
+          <Text className='sd-guardian-empty'>暂无绑定。把邀请码给学生或家长，让 TA 在学生端输入即可绑定。</Text>
         ) : (
+          // 一条绑定 = 一个能看这个学生的账号（学生本人或其家长）。不强制填关系，用 openid 尾号区分。
           guardians.map((g) => (
             <View key={g._id} className='sd-guardian'>
               <Text className='sd-guardian-name'>
-                家长{g.relation ? ` · ${g.relation}` : ''} · …{g.guardianOpenid.slice(-6)}
+                已绑定 · …{g.guardianOpenid.slice(-6)}
+                {g.relation ? ` · ${g.relation}` : ''}
               </Text>
               <Text className='sd-guardian-unbind' onClick={() => onUnbind(g)}>
                 解绑

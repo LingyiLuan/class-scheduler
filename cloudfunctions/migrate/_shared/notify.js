@@ -21,6 +21,8 @@ async function addNotification({ ownerId, type, title, body, refType, refId }) {
     await db.collection('notifications').add({
       data: {
         ...WS_STAMP,
+        // R3 安全改名扩张期：同时写 recipientOpenid（新，读取用）与 ownerId（旧死副本，回滚兜底）
+        recipientOpenid: ownerId,
         ownerId,
         type: type || 'info',
         title: title || '',

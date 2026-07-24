@@ -66,7 +66,7 @@ export function clearLogin(): void {
   }
 }
 
-/** 可进入应用：owner/teacher/student 且已激活。owner/teacher 进老师端，student 进家长端；未激活进引导页 */
+/** 可进入应用：owner/teacher/student 且已激活。owner/teacher 进老师端，student 进学生端；未激活进引导页 */
 export function canAccessApp(info: LoginInfo | null): boolean {
   return (
     !!info &&

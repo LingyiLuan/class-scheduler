@@ -88,7 +88,7 @@ export default function StudentForm({ id, onSaved }: { id?: string; onSaved: () 
           className='sf-textarea'
           value={note}
           onInput={(e) => setNote(e.detail.value)}
-          placeholder='选填，如家长联系方式、学习目标'
+          placeholder='选填，如联系方式、学习目标'
           placeholderStyle={PH}
         />
       </View>

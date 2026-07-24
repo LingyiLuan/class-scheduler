@@ -10,7 +10,7 @@ import './index.scss'
 const ROLE_LABEL: Record<string, string> = {
   [UserRole.Owner]: '管理员',
   [UserRole.Teacher]: '教师',
-  [UserRole.Student]: '家长'
+  [UserRole.Student]: '学生'
 }
 
 export default function Members() {

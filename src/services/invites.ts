@@ -7,7 +7,7 @@ export interface Guardian {
   createdAt?: string
 }
 
-/** 某学员的当前有效邀请码 + 已绑定家长 */
+/** 某学员的有效邀请码 + 已绑定账号（学生本人或家长） */
 export function getInvite(studentId: string): Promise<{ code: string | null; guardians: Guardian[] }> {
   return callFunction('invites', { action: 'getForStudent', data: { studentId } }, { silent: true })
 }
@@ -22,12 +22,12 @@ export function disableInvite(studentId: string): Promise<{ studentId: string }>
   return callFunction('invites', { action: 'disable', data: { studentId } })
 }
 
-/** 解绑家长 */
+/** 解绑账号 */
 export function unbindGuardian(linkId: string): Promise<{ _id: string }> {
   return callFunction('invites', { action: 'unbindGuardian', data: { linkId } })
 }
 
-/** 家长输邀请码绑定（成功后本账号成为家长并激活）。失败信息由 err.message 承载 */
+/** 输邀请码绑定（使用者=学生本人或家长，成功后成为 student 并激活）。失败信息由 err.message 承载 */
 export function bindByCode(
   code: string
 ): Promise<{ studentId: string; studentName: string; already: boolean }> {

@@ -11,7 +11,8 @@ const guardianLinks = db.collection('guardianLinks')
 const students = db.collection('students')
 const sessions = db.collection('classSessions')
 
-// 家长端只读。只能看自己绑定的孩子。
+// 学生端只读（使用者可能是学生本人或其家长；字段沿用 guardian* 内部命名，不代表一定是家长）。
+// 只能看自己绑定的学生。
 async function boundStudentIds(openid) {
   const g = await guardianLinks.where({ guardianOpenid: openid }).limit(100).get()
   return [...new Set(g.data.map((x) => x.studentId).filter(Boolean))]

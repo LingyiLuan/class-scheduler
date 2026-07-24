@@ -17,12 +17,12 @@ export interface ChildSession {
   status: string
 }
 
-/** 我的孩子 + 各自余额 */
+/** 我的学生 + 各自余额 */
 export function getChildren(): Promise<{ list: Child[] }> {
   return callFunction('parent', { action: 'children' })
 }
 
-/** 某个孩子的余额 + 上课记录（只读） */
+/** 某个学生的余额 + 上课记录（只读） */
 export function getChildSessions(
   studentId: string
 ): Promise<{ name: string; balance: number; list: ChildSession[] }> {
